@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Effect 4 — La formation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#15110d;
+    --bg-2:#1b1610;
+    --panel:#211b14;
+    --panel-2:#181410;
+    --ink:#f5ece1;
+    --ink-soft:#b6aa9a;
+    --ink-faint:#857a6c;
+    --line:rgba(245,236,225,.10);
+    --line-strong:rgba(245,236,225,.18);
+    --orange:#ff8a3d;
+    --orange-2:#ffb463;
+    --mint:#46e0a8;
+    --coral:#ff6f6f;
+    --sky:#7fc8ff;
+    --gold:#f1c987;
+    --radius:16px;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:"Hanken Grotesk",system-ui,sans-serif;
+    --serif:"Fraunces",Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:30px}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--sans);font-size:17px;line-height:1.72;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(900px 500px at 78% -8%, rgba(255,138,61,.16), transparent 60%),
+      radial-gradient(700px 600px at -10% 12%, rgba(70,224,168,.07), transparent 55%);
+  }
+  /* faint grain */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.035;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  #top-progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;
+    background:linear-gradient(90deg,var(--orange),var(--orange-2));box-shadow:0 0 12px rgba(255,138,61,.6)}
+
+  a{color:var(--orange-2);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{font-family:var(--mono);font-size:.93em}
+
+  /* ---------- HERO ---------- */
+  .hero{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:88px 28px 40px}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12.5px;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--orange-2);
+    border:1px solid var(--line-strong);border-radius:999px;padding:7px 14px;background:rgba(255,138,61,.06)}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 10px var(--mint)}
+  .hero h1{font-family:var(--serif);font-weight:900;font-size:clamp(46px,9vw,104px);line-height:.92;
+    margin:22px 0 0;letter-spacing:-.02em}
+  .hero h1 .v{color:var(--orange);font-style:italic;font-weight:500}
+  .hero .lede{font-size:clamp(18px,2.4vw,23px);color:var(--ink-soft);max-width:660px;margin:20px 0 0;font-weight:420}
+  .hero .lede b{color:var(--ink);font-weight:700}
+
+  /* type diagram */
+  .typebox{margin:42px 0 8px;padding:26px 24px 20px;border:1px solid var(--line);border-radius:var(--radius);
+    background:linear-gradient(180deg,rgba(33,27,20,.7),rgba(24,19,14,.5));backdrop-filter:blur(3px);overflow-x:auto}
+  .typesig{font-family:var(--mono);font-size:clamp(22px,5vw,40px);font-weight:700;white-space:nowrap;letter-spacing:.01em}
+  .typesig .kw{color:var(--ink)}
+  .typesig .a{color:var(--mint)}
+  .typesig .e{color:var(--coral)}
+  .typesig .r{color:var(--orange)}
+  .typesig .p{color:var(--ink-faint)}
+  .typelabels{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:14px;color:var(--ink-soft);font-family:var(--mono)}
+  .typelabels span{display:inline-flex;align-items:center;gap:8px}
+  .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:30px}
+  .chip{font-size:13.5px;color:var(--ink-soft);border:1px solid var(--line);border-radius:999px;
+    padding:7px 13px;background:rgba(245,236,225,.02)}
+  .chip b{color:var(--ink)}
+  .scrollcue{margin-top:34px;font-family:var(--mono);font-size:12.5px;color:var(--ink-faint);letter-spacing:.1em}
+  .scrollcue::after{content:" ↓";animation:bob 1.6s ease-in-out infinite;display:inline-block}
+  @keyframes bob{50%{transform:translateY(5px)}}
+
+  .hero>*{opacity:0;transform:translateY(14px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards}
+  .hero>*:nth-child(1){animation-delay:.05s}
+  .hero>*:nth-child(2){animation-delay:.13s}
+  .hero>*:nth-child(3){animation-delay:.21s}
+  .hero>*:nth-child(4){animation-delay:.30s}
+  .hero>*:nth-child(5){animation-delay:.40s}
+  .hero>*:nth-child(6){animation-delay:.50s}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  /* ---------- LAYOUT ---------- */
+  .layout{position:relative;z-index:1;max-width:1280px;margin:0 auto;display:flex;gap:46px;
+    padding:24px 28px 120px;align-items:flex-start}
+  .sidebar{width:266px;flex:none;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow:auto;
+    padding-right:6px}
+  .sidebar .sb-title{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ink-faint);margin:6px 0 14px}
+  .toc{list-style:none;margin:0;padding:0;border-left:1px solid var(--line)}
+  .toc li a{display:flex;gap:11px;align-items:baseline;padding:7px 0 7px 16px;margin-left:-1px;
+    border-left:2px solid transparent;color:var(--ink-soft);font-size:14.5px;font-weight:500;line-height:1.35}
+  .toc li a .num{font-family:var(--mono);font-size:11.5px;color:var(--ink-faint);min-width:18px}
+  .toc li a:hover{color:var(--ink);text-decoration:none}
+  .toc li a.active{color:var(--orange-2);border-left-color:var(--orange);font-weight:700}
+  .toc li a.active .num{color:var(--orange)}
+  .toc .v4 a .num::after{content:" 🆕"}
+  .sidebar .hint{margin-top:22px;font-size:12.5px;color:var(--ink-faint);line-height:1.5;
+    border-top:1px solid var(--line);padding-top:16px}
+
+  .content{flex:1;min-width:0;max-width:840px}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding-top:46px;margin-top:18px;scroll-margin-top:24px}
+  section+section{border-top:1px solid var(--line);margin-top:54px}
+  .modtag{font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange)}
+  h2{font-family:var(--serif);font-weight:800;font-size:clamp(30px,4.6vw,46px);line-height:1.04;
+    letter-spacing:-.015em;margin:8px 0 4px}
+  h3{font-family:var(--sans);font-weight:800;font-size:21px;margin:38px 0 6px;letter-spacing:-.01em;color:var(--ink)}
+  h4{font-family:var(--mono);font-weight:700;font-size:13.5px;letter-spacing:.05em;color:var(--orange-2);
+    text-transform:uppercase;margin:26px 0 4px}
+  p{margin:14px 0;color:var(--ink-soft)}
+  p b,li b{color:var(--ink);font-weight:700}
+  .lead{font-size:19px;color:var(--ink);font-weight:460}
+  ul,ol{color:var(--ink-soft);padding-left:22px}
+  li{margin:7px 0}
+  .ink{color:var(--ink)}
+  .kbd{font-family:var(--mono);font-size:.86em;background:rgba(245,236,225,.07);border:1px solid var(--line-strong);
+    border-radius:6px;padding:1px 7px;color:var(--ink)}
+  .term{color:var(--orange-2);font-weight:700;border-bottom:1px dotted rgba(255,180,99,.5)}
+
+  /* ---------- CODE ---------- */
+  .code-wrap{margin:18px 0;border:1px solid var(--line-strong);border-radius:14px;overflow:hidden;
+    background:#0e0b08;box-shadow:0 16px 40px -24px rgba(0,0,0,.8)}
+  .code-bar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:rgba(245,236,225,.03);
+    border-bottom:1px solid var(--line)}
+  .code-bar .lights{display:flex;gap:6px}
+  .code-bar .lights i{width:11px;height:11px;border-radius:50%;display:block}
+  .lights i:nth-child(1){background:#ff5f57}.lights i:nth-child(2){background:#febc2e}.lights i:nth-child(3){background:#28c840}
+  .code-bar .fname{font-family:var(--mono);font-size:12px;color:var(--ink-faint);margin-left:4px}
+  .code-bar .copy{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);
+    background:transparent;border:1px solid var(--line-strong);border-radius:7px;padding:4px 10px;cursor:pointer;transition:.18s}
+  .code-bar .copy:hover{color:var(--ink);border-color:var(--orange);background:rgba(255,138,61,.08)}
+  pre{margin:0;padding:18px 18px;overflow-x:auto;font-family:var(--mono);font-size:13.5px;line-height:1.62;tab-size:2}
+  pre code{font-size:13.5px}
+  /* highlight.js custom warm theme */
+  .hljs{background:transparent;color:#e7ddcf}
+  .hljs-comment,.hljs-quote{color:#7d7468;font-style:italic}
+  .hljs-keyword,.hljs-selector-tag,.hljs-meta-keyword{color:#ff9d5c}
+  .hljs-built_in,.hljs-class .hljs-title,.hljs-title.class_,.hljs-title.class_.inherited__{color:#7fc8ff}
+  .hljs-type,.hljs-namespace{color:#7fc8ff}
+  .hljs-string,.hljs-regexp,.hljs-symbol,.hljs-template-tag{color:#8ee6a8}
+  .hljs-number,.hljs-literal{color:#ffb463}
+  .hljs-title,.hljs-title.function_,.hljs-section{color:#f1c987}
+  .hljs-attr,.hljs-attribute,.hljs-property{color:#e7ddcf}
+  .hljs-params{color:#d9cfc0}
+  .hljs-variable,.hljs-template-variable{color:#e7ddcf}
+  .hljs-meta{color:#857a6c}
+  .hljs-subst{color:#e7ddcf}
+
+  /* annotated output line */
+  .out{font-family:var(--mono);font-size:12.5px;color:var(--ink-faint);margin:-6px 0 18px;padding-left:4px}
+  .out::before{content:"// ";color:var(--mint)}
+
+  /* ---------- CALLOUTS ---------- */
+  .callout{margin:22px 0;border:1px solid var(--line-strong);border-left-width:4px;border-radius:12px;
+    padding:15px 18px;background:var(--panel);display:flex;gap:14px;align-items:flex-start}
+  .callout .ic{font-size:20px;line-height:1.4;flex:none}
+  .callout .bd{flex:1}
+  .callout p{margin:4px 0;color:var(--ink-soft)}
+  .callout .lab{display:block;font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
+    font-weight:700;margin-bottom:2px}
+  .c-tip{border-left-color:var(--mint)} .c-tip .lab{color:var(--mint)}
+  .c-warn{border-left-color:var(--coral)} .c-warn .lab{color:var(--coral)}
+  .c-new{border-left-color:var(--orange)} .c-new .lab{color:var(--orange-2)}
+  .c-key{border-left-color:var(--gold);background:rgba(241,201,135,.05)} .c-key .lab{color:var(--gold)}
+
+  /* ---------- COMPARE (avant / apres) ---------- */
+  .compare{margin:22px 0;border:1px solid var(--line-strong);border-radius:14px;overflow:hidden;background:var(--bg-2)}
+  .ctabs{display:flex;border-bottom:1px solid var(--line)}
+  .ctab{flex:1;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink-faint);
+    background:transparent;border:0;padding:12px 10px;cursor:pointer;transition:.18s;border-bottom:2px solid transparent}
+  .ctab:hover{color:var(--ink-soft)}
+  .ctab.active.bad{color:var(--coral);border-bottom-color:var(--coral);background:rgba(255,111,111,.06)}
+  .ctab.active.good{color:var(--mint);border-bottom-color:var(--mint);background:rgba(70,224,168,.06)}
+  .cpanel{display:none}
+  .cpanel.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .cpanel .code-wrap{margin:0;border:0;border-radius:0;box-shadow:none;background:#0e0b08}
+  .cnote{padding:10px 16px;font-size:13.5px;border-top:1px solid var(--line);color:var(--ink-soft)}
+  .cnote.bad{background:rgba(255,111,111,.05)} .cnote.bad b{color:var(--coral)}
+  .cnote.good{background:rgba(70,224,168,.05)} .cnote.good b{color:var(--mint)}
+
+  /* recap / antiseche */
+  .sheet{margin:24px 0;border:1px solid var(--line-strong);border-radius:14px;overflow:hidden}
+  .sheet table{border-collapse:collapse;width:100%;font-size:14px}
+  .sheet th,.sheet td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  .sheet th{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--orange-2);background:rgba(255,138,61,.05)}
+  .sheet td:first-child{font-family:var(--mono);color:var(--coral);white-space:nowrap}
+  .sheet td:nth-child(2){font-family:var(--mono);color:var(--mint);white-space:nowrap}
+  .sheet td code{color:inherit}
+  .sheet tr:last-child td{border-bottom:0}
+
+  hr.soft{border:0;border-top:1px solid var(--line);margin:30px 0}
+
+  /* mobile nav button + footer */
+  #navbtn{display:none}
+  footer{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:30px 28px 70px;
+    border-top:1px solid var(--line);color:var(--ink-faint);font-size:14px}
+  footer b{color:var(--ink-soft)}
+  .overlay{display:none}
+
+  @media(max-width:1000px){
+    body{font-size:16px}
+    .layout{display:block;padding:18px 20px 90px}
+    .content{max-width:none}
+    .sidebar{position:fixed;top:0;left:0;height:100dvh;width:84vw;max-width:330px;z-index:50;
+      background:var(--bg-2);border-right:1px solid var(--line-strong);padding:74px 20px 28px 22px;
+      transform:translateX(-104%);transition:transform .3s cubic-bezier(.3,.7,.2,1);max-height:none;
+      box-shadow:30px 0 60px -30px rgba(0,0,0,.8)}
+    .sidebar.open{transform:none}
+    .overlay{display:block;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:45;opacity:0;
+      pointer-events:none;transition:.3s}
+    .overlay.show{opacity:1;pointer-events:auto}
+    #navbtn{display:inline-flex;align-items:center;gap:9px;position:fixed;left:16px;bottom:18px;z-index:55;
+      font-family:var(--mono);font-size:13px;font-weight:700;color:#1a130c;
+      background:linear-gradient(90deg,var(--orange),var(--orange-2));border:0;border-radius:999px;
+      padding:12px 18px;cursor:pointer;box-shadow:0 12px 30px -8px rgba(255,138,61,.6)}
+    .hero{padding:64px 20px 24px}
+  }
+</style>
+</head>
+<body>
+<div id="top-progress"></div>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <span class="eyebrow"><span class="dot"></span>Formation &nbsp;·&nbsp; TypeScript &nbsp;·&nbsp; v4 (beta)</span>
+  <h1>Effect <span class="v">4</span></h1>
+  <p class="lede">Du TypeScript « classique » à la <b>programmation typée par effets</b>. Une formation pour comprendre <b>pourquoi</b> Effect existe, <b>quels</b> concepts le composent, et <b>comment</b> l'utiliser concrètement dans sa version 4.</p>
+
+  <div class="typebox">
+    <div class="typesig"><span class="kw">Effect</span><span class="p">&lt;</span><span class="a">A</span><span class="p">, </span><span class="e">E</span><span class="p">, </span><span class="r">R</span><span class="p">&gt;</span></div>
+    <div class="typelabels">
+      <span><i class="sw" style="background:var(--mint)"></i><span class="a">A</span>&nbsp;— la valeur de <b style="color:var(--ink)">succès</b></span>
+      <span><i class="sw" style="background:var(--coral)"></i><span class="e">E</span>&nbsp;— l'<b style="color:var(--ink)">erreur</b> attendue, typée</span>
+      <span><i class="sw" style="background:var(--orange)"></i><span class="r">R</span>&nbsp;— le <b style="color:var(--ink)">contexte</b> requis (dépendances)</span>
+    </div>
+  </div>
+  <p style="margin-top:14px;font-size:15px">Toute l'idée d'Effect tient dans cette signature : le compilateur suit non seulement ce qui réussit, mais aussi <span class="ink">ce qui peut échouer</span> et <span class="ink">ce dont votre code a besoin</span> pour tourner.</p>
+
+  <div class="chips">
+    <span class="chip"><b>1.</b> Pourquoi Effect</span>
+    <span class="chip"><b>2.</b> Le type Effect</span>
+    <span class="chip"><b>3.</b> gen &amp; fn</span>
+    <span class="chip"><b>4.</b> Erreurs typées</span>
+    <span class="chip"><b>5.</b> Services &amp; Layers</span>
+    <span class="chip"><b>6.</b> Ressources</span>
+    <span class="chip"><b>7.</b> Schedule</span>
+    <span class="chip"><b>8.</b> Concurrence</span>
+    <span class="chip"><b>9.</b> Streams</span>
+    <span class="chip"><b>10.</b> Observabilité &amp; tests</span>
+    <span class="chip"><b>11.</b> Spécificités v4</span>
+  </div>
+  <div class="scrollcue">on commence par le « pourquoi »</div>
+</header>
+
+<!-- ============ LAYOUT ============ -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-title">Sommaire</div>
+    <ul class="toc" id="toc">
+      <li><a href="#pourquoi"><span class="num">00</span>Pourquoi Effect ?</a></li>
+      <li><a href="#le-type"><span class="num">01</span>Le type Effect</a></li>
+      <li><a href="#ecrire"><span class="num">02</span>gen &amp; fn</a></li>
+      <li><a href="#erreurs"><span class="num">03</span>Erreurs typées</a></li>
+      <li><a href="#services"><span class="num">04</span>Services &amp; Layers</a></li>
+      <li><a href="#ressources"><span class="num">05</span>Ressources &amp; Scope</a></li>
+      <li><a href="#schedule"><span class="num">06</span>Schedule</a></li>
+      <li><a href="#concurrence"><span class="num">07</span>Concurrence</a></li>
+      <li><a href="#streams"><span class="num">08</span>Streams</a></li>
+      <li><a href="#observabilite"><span class="num">09</span>Observabilité &amp; tests</a></li>
+      <li class="v4"><a href="#v4"><span class="num">10</span>Spécificités v4</a></li>
+      <li><a href="#antiseche"><span class="num">11</span>Antisèche</a></li>
+    </ul>
+    <div class="hint">Astuce : gardez un onglet ouvert sur le dépôt <code>effect-smol</code> — c'est la source de vérité pour la v4.</div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+  <!-- ===== 00 POURQUOI ===== -->
+  <section id="pourquoi">
+    <div class="modtag">Module 00</div>
+    <h2>Pourquoi Effect ?</h2>
+    <p class="lead">Programmer, c'est dur. Pour dompter la complexité — erreurs, async, dépendances, retries, observabilité — on finit par empiler des dizaines de petites libs qui composent mal. Effect propose une autre approche : <span class="ink">un écosystème unifié, et une idée centrale qui change tout</span>.</p>
+
+    <h3>Le problème : en TypeScript classique, les erreurs sont invisibles</h3>
+    <p>Prenons une fonction toute bête. En TypeScript « normal », on suppose qu'une fonction réussit… ou lève une exception. Mais regardez bien la signature :</p>
+
+    <div class="compare" data-compare>
+      <div class="ctabs">
+        <button class="ctab bad active" data-tab="0">😵 TypeScript classique</button>
+        <button class="ctab good" data-tab="1">✨ Avec Effect</button>
+      </div>
+      <div class="cpanel active">
+        <div class="code-block" data-file="divide.ts"><script type="text/plain">const divide = (a: number, b: number): number => {
+  if (b === 0) {
+    throw new Error("Cannot divide by zero")
+  }
+  return a / b
+}
+//    ▲ Le type dit "number". Rien n'indique que ça peut throw.
+//      On ne le découvre qu'en LISANT le corps de la fonction.</script></div>
+        <div class="cnote bad">Le type <code>number</code> <b>ment par omission</b> : impossible de savoir que la fonction peut planter. Multipliez par 1 000 fonctions et c'est le terrain de jeu des bugs en prod.</div>
+      </div>
+      <div class="cpanel">
+        <div class="code-block" data-file="divide.ts"><script type="text/plain">import { Effect } from "effect"
+
+const divide = (
+  a: number,
+  b: number
+): Effect.Effect<number, Error, never> =>
+  b === 0
+    ? Effect.fail(new Error("Cannot divide by zero"))
+    : Effect.succeed(a / b)
+//    ▲ L'erreur fait maintenant partie du TYPE.
+//      Le compilateur vous OBLIGERA à la traiter.</script></div>
+        <div class="cnote good">La fonction ne « throw » plus : l'erreur devient une <b>valeur typée</b>, transportée comme un succès. La signature dit tout : la valeur produite, l'erreur possible, et les dépendances requises.</div>
+      </div>
+    </div>
+
+    <h3>L'idée centrale d'Effect</h3>
+    <p>Si on devait résumer Effect à une seule phrase :</p>
+    <div class="callout c-key">
+      <div class="ic">🎯</div>
+      <div class="bd"><span class="lab">L'insight fondateur</span>
+      <p>On peut utiliser <b>le système de types</b> pour suivre les <b>erreurs</b> et le <b>contexte</b>, et pas seulement les valeurs de <b>succès</b>.</p></div>
+    </div>
+    <p>Un <span class="term">Effect</span> n'est donc pas une « Promise améliorée ». C'est une <b>description</b> d'un calcul — un plan — décrite par trois canaux dans son type <code>Effect&lt;A, E, R&gt;</code> :</p>
+    <ul>
+      <li><b style="color:var(--mint)">A</b> — la valeur produite si tout va bien (le succès).</li>
+      <li><b style="color:var(--coral)">E</b> — l'erreur <i>attendue</i> qui peut survenir (typée, pas un <code>any</code> qui sort de nulle part).</li>
+      <li><b style="color:var(--orange)">R</b> — le contexte / les <i>dépendances</i> nécessaires (base de données, config, horloge…). <code>never</code> = aucune.</li>
+    </ul>
+
+    <h3>Effect vs Promise : le même appel HTTP</h3>
+    <p>Une <code>Promise</code> ne dit rien de ses erreurs ni de ses dépendances. Comparez :</p>
+
+    <div class="compare" data-compare>
+      <div class="ctabs">
+        <button class="ctab bad active" data-tab="0">😵 async / await</button>
+        <button class="ctab good" data-tab="1">✨ Effect</button>
+      </div>
+      <div class="cpanel active">
+        <div class="code-block" data-file="todo.ts"><script type="text/plain">interface Todo {
+  readonly id: number
+  readonly title: string
+  readonly completed: boolean
+}
+
+const getTodo = async (id: number): Promise<Todo> => {
+  const res = await fetch(`/todos/${id}`)
+  return res.json() // peut rejeter, peut renvoyer n'importe quoi
+}
+//  Promise<Todo> : pas d'erreur typée, pas de dépendance visible,
+//  pas d'annulation propre, pas de retry intégré.</script></div>
+        <div class="cnote bad">La <code>Promise</code> n'expose <b>ni l'erreur</b> ni les dépendances. L'annulation, le retry, le tracing… tout est à recoller à la main.</div>
+      </div>
+      <div class="cpanel">
+        <div class="code-block" data-file="todo.ts"><script type="text/plain">import { Effect, Schema } from "effect"
+
+class FetchError extends Schema.TaggedErrorClass<FetchError>()(
+  "FetchError",
+  { cause: Schema.Defect }
+) {}
+
+interface Todo {
+  readonly id: number
+  readonly title: string
+  readonly completed: boolean
+}
+
+const getTodo = Effect.fn("getTodo")((id: number) =>
+  Effect.tryPromise({
+    try: () => fetch(`/todos/${id}`).then((r) => r.json() as Promise<Todo>),
+    catch: (cause) => new FetchError({ cause })
+  })
+)
+//  (id: number) => Effect.Effect<Todo, FetchError>
+//  L'erreur est dans le type. Annulation, retry, tracing : gratuits.</script></div>
+        <div class="cnote good">Même logique, mais l'<b>erreur est typée</b>, et l'Effect hérite « gratuitement » de l'annulation structurée, du retry, du logging et du tracing.</div>
+      </div>
+    </div>
+
+    <h3>Ne réinventez pas la roue</h3>
+    <p>Gestion d'erreurs, retries, concurrence, streaming, cache, ressources, config, observabilité… Effect regroupe sous un même parapluie ce pour quoi vous installeriez habituellement vingt dépendances aux APIs incohérentes. <span class="ink">C'est la « librairie standard » qui manquait à TypeScript.</span></p>
+    <div class="callout c-tip">
+      <div class="ic">💡</div>
+      <div class="bd"><span class="lab">Adoption progressive</span>
+      <p>Effect est une <b>boîte à outils</b>, pas un cadre rigide « tout ou rien ». On peut commencer par un seul morceau (la gestion d'erreurs, ou les Schemas) et étendre au fil de l'eau. Les concepts déroutent au début — c'est normal, ça paie ensuite.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 01 LE TYPE ===== -->
+  <section id="le-type">
+    <div class="modtag">Module 01</div>
+    <h2>Le type Effect &amp; créer des effets</h2>
+    <p class="lead">Premier réflexe à acquérir : un <code>Effect</code> ne <i>fait</i> rien quand vous l'écrivez. C'est une <b>recette</b>. Tant que vous ne la « lancez » pas, aucune ligne de votre logique ne s'exécute.</p>
+
+    <div class="callout c-key">
+      <div class="ic">🧊</div>
+      <div class="bd"><span class="lab">Description, pas exécution</span>
+      <p>Là où un <code>await fetch()</code> part immédiatement, un <code>Effect</code> reste un <b>plan inerte</b> que l'on compose, combine, retry, teste… puis que l'on exécute une seule fois, au bord du programme. C'est ce qui rend tout le reste possible.</p></div>
+    </div>
+
+    <h3>Construire un effet depuis une source</h3>
+    <p>Le module <code>Effect</code> fournit un constructeur par type de source. Voici les indispensables :</p>
+    <div class="code-block" data-file="creating-effects.ts"><script type="text/plain">import { Effect } from "effect"
+
+// 1) Une valeur déjà en mémoire → Effect.succeed
+const config = Effect.succeed({ env: "prod", retries: 3 })
+
+// 2) Du code synchrone qui ne throw PAS → Effect.sync
+const now = Effect.sync(() => Date.now())
+
+// 3) Du code synchrone qui PEUT throw → Effect.try (l'erreur devient typée)
+const parse = Effect.fn("parse")((input: string) =>
+  Effect.try({
+    try: () => JSON.parse(input) as { readonly userId: number },
+    catch: (cause) => new InvalidPayload({ input, cause })
+  })
+)
+
+// 4) Une API à base de Promise → Effect.tryPromise
+const fetchUser = Effect.fn("fetchUser")((id: number) =>
+  Effect.tryPromise({
+    try: () => fetch(`/users/${id}`).then((r) => r.json()),
+    catch: (cause) => new UserLookupError({ id, cause })
+  })
+)
+
+// 5) Une valeur nullable → Effect.fromNullishOr (échoue si null/undefined)
+const header = Effect.fromNullishOr(headers.get("x-workspace-id")).pipe(
+  Effect.mapError(() => new MissingWorkspaceId())
+)
+
+// 6) Une API à callbacks → Effect.callback (avec annulation propre)
+const delayed = Effect.callback<number>((resume) => {
+  const id = setTimeout(() => resume(Effect.succeed(200)), 10)
+  // Le finalizer permet d'annuler la source en cas d'interruption.
+  return Effect.sync(() => clearTimeout(id))
+})</script></div>
+
+    <div class="callout c-tip">
+      <div class="ic">💡</div>
+      <div class="bd"><span class="lab">try vs sync</span>
+      <p>Utilisez <code>Effect.sync</code> uniquement si le code <b>ne peut pas</b> lever d'exception. Au moindre doute, <code>Effect.try</code> / <code>Effect.tryPromise</code> capturent l'exception et la transforment en erreur <b>typée</b> via le champ <code>catch</code>.</p></div>
+    </div>
+
+    <h3>Exécuter un effet (le « point d'entrée »)</h3>
+    <p>On n'exécute un Effect qu'une fois, tout en haut du programme. En général via le runtime de votre plateforme :</p>
+    <div class="code-block" data-file="main.ts"><script type="text/plain">import { NodeRuntime } from "@effect/platform-node"
+import { Effect } from "effect"
+
+const program = Effect.gen(function*() {
+  yield* Effect.log("Application démarrée")
+  // ... votre logique métier ...
+})
+
+// runMain installe les handlers SIGINT/SIGTERM et interrompt proprement
+// les fibers en cours → arrêt gracieux.
+NodeRuntime.runMain(program)
+
+// Sur Bun, même forme : BunRuntime.runMain(program)</script></div>
+    <div class="callout c-warn">
+      <div class="ic">⚠️</div>
+      <div class="bd"><span class="lab">Anti-pattern</span>
+      <p>Évitez d'éparpiller des <code>runPromise</code> / <code>runSync</code> partout dans le code métier. On reste dans le monde Effect aussi longtemps que possible et on « sort » une seule fois, au point d'entrée.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 02 ECRIRE ===== -->
+  <section id="ecrire">
+    <div class="modtag">Module 02</div>
+    <h2>Écrire du code : <code>Effect.gen</code> &amp; <code>Effect.fn</code></h2>
+    <p class="lead">La façon recommandée d'écrire de l'Effect ressemble à de l'<code>async/await</code> — lisible, impératif — puis on attache des comportements par-dessus avec des combinateurs.</p>
+
+    <h3><code>Effect.gen</code> : le style impératif</h3>
+    <p>Dans un générateur, <code>yield*</code> joue le rôle de <code>await</code> : il « déballe » la valeur de succès d'un effet. La différence avec <code>async/await</code> ? Erreurs et dépendances restent suivies dans le type.</p>
+
+    <div class="compare" data-compare>
+      <div class="ctabs">
+        <button class="ctab bad active" data-tab="0">async / await</button>
+        <button class="ctab good" data-tab="1">Effect.gen</button>
+      </div>
+      <div class="cpanel active">
+        <div class="code-block"><script type="text/plain">async function process() {
+  console.log("Lecture du fichier...")
+  const data = await readFile("data.json")  // peut throw → invisible
+  const parsed = JSON.parse(data)           // peut throw → invisible
+  return parsed
+}
+// Promise<any> : erreurs perdues, pas de tracing, pas d'annulation typée.</script></div>
+        <div class="cnote bad">Tout ce qui peut mal tourner est <b>noyé</b> dans un <code>Promise&lt;any&gt;</code>.</div>
+      </div>
+      <div class="cpanel">
+        <div class="code-block"><script type="text/plain">import { Effect, Schema } from "effect"
+
+const process = Effect.gen(function*() {
+  yield* Effect.log("Lecture du fichier...")
+
+  // En cas d'erreur, on RETOURNE toujours le yield* : ainsi TypeScript
+  // comprend que la fonction ne continue pas.
+  return yield* new FileProcessingError({ message: "Échec de lecture" })
+}).pipe(
+  // On attache des comportements via .pipe
+  Effect.catch((error) => Effect.logError(`Erreur : ${error}`)),
+  Effect.withSpan("fileProcessing")  // un span de tracing, gratuitement
+)
+
+class FileProcessingError extends Schema.TaggedErrorClass<FileProcessingError>()(
+  "FileProcessingError",
+  { message: Schema.String }
+) {}</script></div>
+        <div class="cnote good">L'erreur est <b>typée et yieldable</b>, et <code>.pipe</code> ajoute logging + tracing sans toucher à la logique.</div>
+      </div>
+    </div>
+
+    <div class="callout c-tip">
+      <div class="ic">💡</div>
+      <div class="bd"><span class="lab">Le réflexe « return yield* »</span>
+      <p>Quand vous levez une erreur dans un générateur, écrivez <code>return yield* new MonErreur(...)</code>. Le <code>return</code> indique à TypeScript que l'exécution s'arrête là — sinon il pense que le code continue.</p></div>
+    </div>
+
+    <h3><code>Effect.fn("nom")</code> : pour les fonctions</h3>
+    <p>Dès qu'une fonction <i>retourne</i> un Effect, on l'écrit avec <code>Effect.fn</code> plutôt qu'une fonction qui renvoie un <code>Effect.gen</code>. Bonus : la chaîne passée améliore les <b>stack traces</b> et attache automatiquement un <b>span de tracing</b>.</p>
+    <div class="code-block" data-file="effect-fn.ts"><script type="text/plain">import { Effect, Schema } from "effect"
+
+// La chaîne "effectFunction" devrait correspondre au nom de la fonction.
+export const effectFunction = Effect.fn("effectFunction")(
+  // Effect.fn.Return<A, E> permet d'annoter le type de retour.
+  function*(n: number): Effect.fn.Return<string, SomeError> {
+    yield* Effect.logInfo("Reçu :", n)
+    return yield* new SomeError({ message: "Échec" })
+  },
+  // On passe les combinateurs en ARGUMENTS supplémentaires.
+  // ⚠️ On n'utilise PAS .pipe avec Effect.fn.
+  Effect.catch((error) => Effect.logError(`Erreur : ${error}`)),
+  Effect.annotateLogs({ method: "effectFunction" })
+)
+
+class SomeError extends Schema.TaggedErrorClass<SomeError>()(
+  "SomeError",
+  { message: Schema.String }
+) {}</script></div>
+
+    <div class="callout c-new">
+      <div class="ic">🆕</div>
+      <div class="bd"><span class="lab">gen + pipe &nbsp;·&nbsp; fn + arguments</span>
+      <p>Petit piège à mémoriser : avec <code>Effect.gen(...)</code> on enchaîne avec <code>.pipe(combinateurs)</code>. Avec <code>Effect.fn("nom")(generator, combinateurs)</code> on passe les combinateurs comme <b>arguments</b>, jamais via <code>.pipe</code>.</p></div>
+    </div>
+
+    <div class="callout c-key">
+      <div class="ic">🎯</div>
+      <div class="bd"><span class="lab">À retenir</span>
+      <p><code>gen</code> pour les blocs de logique, <code>fn("nom")</code> pour les fonctions réutilisables, <code>.pipe</code> + combinateurs (<code>map</code>, <code>catch</code>, <code>withSpan</code>, <code>retry</code>…) pour enrichir. C'est 90 % du code Effect au quotidien.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 03 ERREURS ===== -->
+  <section id="erreurs">
+    <div class="modtag">Module 03</div>
+    <h2>La gestion d'erreurs typée</h2>
+    <p class="lead">C'est <b>la</b> raison qui fait adopter Effect. On distingue deux familles : les <span class="term">erreurs attendues</span> (modélisées, récupérables) et les <span class="term">défauts</span> (« defects » : bugs imprévus, irrécupérables).</p>
+
+    <h3>Définir une erreur : <code>Schema.TaggedErrorClass</code></h3>
+    <p>On définit ses erreurs comme des classes <i>taguées</i>. Le <code>_tag</code> (ici la chaîne du nom) permet ensuite de les attraper précisément et de les distinguer dans une union.</p>
+    <div class="code-block" data-file="errors.ts"><script type="text/plain">import { Schema } from "effect"
+
+// Chaque erreur porte un _tag (sa chaîne) + des champs typés.
+export class ParseError extends Schema.TaggedErrorClass<ParseError>()(
+  "ParseError",
+  { input: Schema.String, message: Schema.String }
+) {}
+
+export class ReservedPortError extends Schema.TaggedErrorClass<ReservedPortError>()(
+  "ReservedPortError",
+  { port: Schema.Number }
+) {}</script></div>
+    <div class="callout c-new">
+      <div class="ic">🆕</div>
+      <div class="bd"><span class="lab">Nouveauté v4</span>
+      <p>En v3 c'était <code>Schema.TaggedError</code> ; en v4 on utilise <code>Schema.TaggedErrorClass</code>. Le champ <code>Schema.Defect</code> est pratique pour stocker une cause inconnue (l'exception d'origine).</p></div>
+    </div>
+
+    <h3>Récupérer : <code>catch</code>, <code>catchTag</code>, <code>catchTags</code></h3>
+    <p>Quand une union d'erreurs traîne dans le canal E, on la résout sélectivement. Le compilateur sait <b>exactement</b> quelles erreurs restent à traiter.</p>
+    <div class="code-block" data-file="recover.ts"><script type="text/plain">import { Effect } from "effect"
+
+declare const loadPort: (s: string) => Effect.Effect<number, ParseError | ReservedPortError>
+
+// Attraper plusieurs tags d'un coup avec un tableau :
+const recovered = loadPort("80").pipe(
+  Effect.catchTag(["ParseError", "ReservedPortError"], () => Effect.succeed(3000))
+)
+
+// Attraper chaque tag avec son propre handler typé :
+const handled = loadPort("80").pipe(
+  Effect.catchTags({
+    ParseError: (e) => Effect.succeed(`Parse KO : ${e.message}`),
+    ReservedPortError: (e) => Effect.succeed(`Port réservé : ${e.port}`)
+  })
+)
+
+// Filet de sécurité final : Effect.catch attrape TOUT ce qui reste.
+const safe = loadPort("???").pipe(
+  Effect.catchTag("ReservedPortError", () => Effect.succeed(3000)),
+  Effect.catch(() => Effect.succeed(3000))
+)</script></div>
+
+    <div class="compare" data-compare>
+      <div class="ctabs">
+        <button class="ctab bad active" data-tab="0">😵 try / catch</button>
+        <button class="ctab good" data-tab="1">✨ catchTags</button>
+      </div>
+      <div class="cpanel active">
+        <div class="code-block"><script type="text/plain">try {
+  await loadPort("80")
+} catch (e) {
+  // e est de type `unknown`. Quelles erreurs au juste ?
+  // Faut-il un instanceof ? Un cast ? On a oublié un cas ?
+  // Le compilateur ne nous aide PAS.
+}</script></div>
+        <div class="cnote bad">Le <code>catch</code> reçoit <code>unknown</code> : <b>aucune</b> garantie d'exhaustivité, aucune autocomplétion.</div>
+      </div>
+      <div class="cpanel">
+        <div class="code-block"><script type="text/plain">loadPort("80").pipe(
+  Effect.catchTags({
+    ParseError: (e) => Effect.succeed(`Parse : ${e.message}`),
+    ReservedPortError: (e) => Effect.succeed(`Port : ${e.port}`)
+  })
+)
+// Chaque handler est typé. Oubliez un tag → le canal E
+// le garde, et le compilateur vous le rappelle plus loin.</script></div>
+        <div class="cnote good">Handlers <b>typés</b> et <b>exhaustivité vérifiée</b> par le compilateur. C'est le jour et la nuit.</div>
+      </div>
+    </div>
+
+    <h3>Erreurs à « raisons » (pattern avancé)</h3>
+    <p>Pour une erreur unique qui regroupe plusieurs causes, on lui donne un champ <code>reason</code> tagué. On peut ensuite cibler une raison précise, plusieurs, ou « déballer » toutes les raisons dans le canal d'erreur.</p>
+    <div class="code-block" data-file="reasons.ts"><script type="text/plain">import { Effect, Schema } from "effect"
+
+class RateLimitError extends Schema.TaggedErrorClass<RateLimitError>()(
+  "RateLimitError", { retryAfter: Schema.Number }) {}
+class QuotaExceededError extends Schema.TaggedErrorClass<QuotaExceededError>()(
+  "QuotaExceededError", { limit: Schema.Number }) {}
+
+// Une seule erreur "AiError", mais plusieurs raisons possibles.
+class AiError extends Schema.TaggedErrorClass<AiError>()("AiError", {
+  reason: Schema.Union([RateLimitError, QuotaExceededError])
+}) {}
+
+declare const callModel: Effect.Effect<string, AiError>
+
+// Cibler PLUSIEURS raisons d'un coup :
+const handled = callModel.pipe(
+  Effect.catchReasons("AiError", {
+    RateLimitError: (r) => Effect.succeed(`Réessayer dans ${r.retryAfter}s`),
+    QuotaExceededError: (r) => Effect.succeed(`Quota atteint : ${r.limit}`)
+  })
+)
+
+// Ou déballer les raisons dans le canal d'erreur, puis catchTags :
+const unwrapped = callModel.pipe(
+  Effect.unwrapReason("AiError"),
+  Effect.catchTags({
+    RateLimitError: (r) => Effect.succeed(`Backoff ${r.retryAfter}s`),
+    QuotaExceededError: (r) => Effect.succeed(`Augmenter le quota`)
+  })
+)</script></div>
+    <div class="callout c-new">
+      <div class="ic">🆕</div>
+      <div class="bd"><span class="lab">Renommages v4 des combinateurs</span>
+      <p>La v4 raccourcit la famille <code>catch</code> : <code>catchAll → catch</code>, <code>catchAllCause → catchCause</code>, <code>catchSome → catchFilter</code>. <code>catchTag</code> / <code>catchTags</code> restent identiques. On gagne <code>catchReason</code>, <code>catchReasons</code> et <code>unwrapReason</code>.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 04 SERVICES ===== -->
+  <section id="services">
+    <div class="modtag">Module 04</div>
+    <h2>Services &amp; Layers — le canal <span style="color:var(--orange)">R</span></h2>
+    <p class="lead">Souvenez-vous du troisième canal, <code>R</code> : les dépendances. Les <span class="term">services</span> sont LA façon de structurer une application Effect. Et le compilateur garantit qu'aucun service ne manque avant l'exécution.</p>
+
+    <h3>Définir un service avec <code>Context.Service</code></h3>
+    <p>Un service = une <b>interface</b> (ce qu'il sait faire) + un <b>identifiant</b> + une <b>implémentation</b> fournie via un <code>Layer</code>.</p>
+    <div class="code-block" data-file="src/db/Database.ts"><script type="text/plain">import { Context, Effect, Layer, Schema } from "effect"
+
+// 1er paramètre de type : la classe elle-même ; 2nd : l'interface du service.
+export class Database extends Context.Service<Database, {
+  query(sql: string): Effect.Effect<Array<unknown>, DatabaseError>
+}>()(
+  // Identifiant unique : préfixez par le nom du package + le chemin du fichier.
+  "myapp/db/Database"
+) {
+  // On attache un Layer statique : la "recette" pour fabriquer le service.
+  static readonly layer = Layer.effect(
+    Database,
+    Effect.gen(function*() {
+      const query = Effect.fn("Database.query")(function*(sql: string) {
+        yield* Effect.log("Requête SQL :", sql)
+        return [{ id: 1, name: "Alice" }]
+      })
+      // Database.of construit une instance conforme à l'interface.
+      return Database.of({ query })
+    })
+  )
+}
+
+export class DatabaseError extends Schema.TaggedErrorClass<DatabaseError>()(
+  "DatabaseError", { cause: Schema.Defect }
+) {}</script></div>
+    <p>Pour <b>utiliser</b> le service, on le <code>yield*</code> dans un générateur — il apparaît alors dans le canal <code>R</code> jusqu'à ce qu'on le fournisse :</p>
+    <div class="code-block"><script type="text/plain">const program = Effect.gen(function*() {
+  const db = yield* Database               // db : l'interface du service
+  const rows = yield* db.query("SELECT 1")
+  return rows
+})
+// program : Effect<Array<unknown>, DatabaseError, Database>
+//                                                  ▲ R = "il me faut Database"</script></div>
+
+    <div class="callout c-new">
+      <div class="ic">🆕</div>
+      <div class="bd"><span class="lab">Nouveauté v4 majeure</span>
+      <p>En v3 on jonglait avec <code>Context.Tag</code>, <code>Context.GenericTag</code>, <code>Effect.Tag</code>, <code>Effect.Service</code>… La v4 unifie <b>tout</b> sous <code>Context.Service</code>. Attention à l'ordre des arguments : les types d'abord <code>Context.Service&lt;Self, Shape&gt;()</code>, puis l'identifiant <code>("id")</code>.</p></div>
+    </div>
+
+    <h3>Composer avec <code>Layer</code></h3>
+    <p>On construit des Layers ciblés, puis on les assemble. La distinction clé : <code>provide</code> <b>consomme</b> une dépendance (elle disparaît du type), <code>provideMerge</code> la consomme <b>et</b> la ré-expose.</p>
+    <div class="code-block" data-file="layers.ts"><script type="text/plain">import { Config, Context, Effect, Layer, Schema } from "effect"
+import { PgClient } from "@effect/sql-pg"
+import { SqlClient } from "effect/unstable/sql"
+
+const SqlClientLayer = PgClient.layerConfig({
+  url: Config.redacted("DATABASE_URL")
+})
+
+export class UserRepository extends Context.Service<UserRepository, {
+  findById(id: string): Effect.Effect<Option.Option<User>, RepoError>
+}>()("myapp/UserRepository") {
+
+  // Layer "nu" : dépend encore de SqlClient (visible dans le type R).
+  static readonly layerNoDeps = Layer.effect(
+    UserRepository,
+    Effect.gen(function*() {
+      const sql = yield* SqlClient.SqlClient
+      const findById = Effect.fn("UserRepository.findById")(function*(id: string) {
+        return Array.head(yield* sql`SELECT * FROM users WHERE id = ${id}`)
+      })
+      return UserRepository.of({ findById })
+    })
+  )
+
+  // provide : on FOURNIT SqlClient → il disparaît du type. On n'expose
+  // plus que UserRepository.
+  static readonly layer = this.layerNoDeps.pipe(
+    Layer.provide(SqlClientLayer)
+  )
+
+  // provideMerge : on fournit SqlClient ET on le ré-expose, pour que
+  // d'autres services puissent aussi l'utiliser.
+  static readonly layerWithSql = this.layerNoDeps.pipe(
+    Layer.provideMerge(SqlClientLayer)
+  )
+}</script></div>
+
+    <h3>Valeurs par défaut : <code>Context.Reference</code></h3>
+    <p>Pour de la config, des feature flags, ou tout service qui a une <b>valeur par défaut</b> (donc utilisable sans Layer explicite) :</p>
+    <div class="code-block"><script type="text/plain">import { Context } from "effect"
+
+export const FeatureFlag = Context.Reference<boolean>("myapp/FeatureFlag", {
+  defaultValue: () => false
+})</script></div>
+
+    <div class="compare" data-compare>
+      <div class="ctabs">
+        <button class="ctab bad active" data-tab="0">😵 DI "à la main"</button>
+        <button class="ctab good" data-tab="1">✨ Services Effect</button>
+      </div>
+      <div class="cpanel active">
+        <div class="code-block"><script type="text/plain">// Passer les dépendances en arguments partout, à la main…
+function makeUserService(db: Db, mailer: Mailer, clock: Clock) { /* ... */ }
+
+// …ou pire, des singletons importés en dur (intestables).
+import { db } from "./globalDb"
+// Pour mocker en test : monkey-patch, jest.mock, prières.</script></div>
+        <div class="cnote bad">Dépendances <b>implicites</b> ou refilées manuellement. Le compilateur ne vérifie rien ; les tests deviennent acrobatiques.</div>
+      </div>
+      <div class="cpanel">
+        <div class="code-block"><script type="text/plain">// Les dépendances sont DANS le type (canal R) et vérifiées au compile-time.
+const program = Effect.gen(function*() {
+  const users = yield* UserRepository
+  return yield* users.findById("42")
+})
+
+// En prod : program.pipe(Effect.provide(UserRepository.layer))
+// En test : program.pipe(Effect.provide(UserRepository.layerTest))
+//           ↑ on échange l'implémentation sans toucher au métier.</script></div>
+        <div class="cnote good">Dépendances <b>explicites et typées</b>. Swapper une vraie implémentation contre un mock = changer un Layer.</div>
+      </div>
+    </div>
+    <div class="callout c-key">
+      <div class="ic">🎯</div>
+      <div class="bd"><span class="lab">À retenir</span>
+      <p>Service = comportement encapsulé. Layer = recette d'implémentation. <code>provide</code> consomme, <code>provideMerge</code> consomme + ré-expose. C'est l'injection de dépendances, mais vérifiée par le compilateur et triviale à tester.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 05 RESSOURCES ===== -->
+  <section id="ressources">
+    <div class="modtag">Module 05</div>
+    <h2>Ressources &amp; <code>Scope</code></h2>
+    <p class="lead">Connexions, fichiers, transports SMTP… toute ressource ouverte doit être fermée — même en cas d'erreur ou d'interruption. Effect garantit ce nettoyage via les <span class="term">finalizers</span> et le <span class="term">Scope</span>.</p>
+
+    <h3><code>Effect.acquireRelease</code></h3>
+    <p>On décrit ensemble l'<b>acquisition</b> et la <b>libération</b>. Effect appelle automatiquement la libération à la fin de la durée de vie, quoi qu'il arrive.</p>
+    <div class="code-block" data-file="Smtp.ts"><script type="text/plain">import { Config, Context, Effect, Layer, Redacted, Schema } from "effect"
+import * as NodeMailer from "nodemailer"
+
+export class Smtp extends Context.Service<Smtp, {
+  send(m: { to: string; subject: string; body: string }): Effect.Effect<void, SmtpError>
+}>()("app/Smtp") {
+  static readonly layer = Layer.effect(
+    Smtp,
+    Effect.gen(function*() {
+      const user = yield* Config.string("SMTP_USER")
+      const pass = yield* Config.redacted("SMTP_PASS")
+
+      // À la construction du Layer : on crée le transporter.
+      // À sa destruction : on le ferme. Toujours, automatiquement.
+      const transporter = yield* Effect.acquireRelease(
+        Effect.sync(() => NodeMailer.createTransport({
+          host: "smtp.example.com", port: 587,
+          auth: { user, pass: Redacted.value(pass) }
+        })),
+        (t) => Effect.sync(() => t.close())   // ← le finalizer
+      )
+
+      const send = Effect.fn("Smtp.send")((m) =>
+        Effect.tryPromise({
+          try: () => transporter.sendMail({ to: m.to, subject: m.subject, text: m.body }),
+          catch: (cause) => new SmtpError({ cause })
+        }).pipe(Effect.asVoid)
+      )
+
+      return Smtp.of({ send })
+    })
+  )
+}
+
+class SmtpError extends Schema.ErrorClass<SmtpError>("SmtpError")({
+  cause: Schema.Defect
+}) {}</script></div>
+
+    <div class="callout c-tip">
+      <div class="ic">💡</div>
+      <div class="bd"><span class="lab">Le Layer porte le cycle de vie</span>
+      <p>Comme la ressource vit dans le Layer, sa fermeture est liée à la durée de vie de l'application (ou du périmètre). Aucune fuite : pas de « j'ai oublié de fermer la connexion » même quand un autre fiber lève une erreur.</p></div>
+    </div>
+    <p>Pour une tâche de fond <b>sans interface</b> (un worker, un nettoyeur de cache), utilisez <code>Layer.effectDiscard</code> ; pour démarrer un programme long, <code>Layer.launch</code> :</p>
+    <div class="code-block"><script type="text/plain">import { Effect, Layer } from "effect"
+import { NodeRuntime } from "@effect/platform-node"
+
+const Worker = Layer.effectDiscard(Effect.gen(function*() {
+  yield* Effect.forkScoped(Effect.gen(function*() {
+    while (true) {
+      yield* Effect.logInfo("Travail en cours...")
+      yield* Effect.sleep("1 second")
+    }
+  }))
+}))
+
+NodeRuntime.runMain(Layer.launch(Worker))</script></div>
+  </section>
+
+  <!-- ===== 06 SCHEDULE ===== -->
+  <section id="schedule">
+    <div class="modtag">Module 06</div>
+    <h2><code>Schedule</code> — retry &amp; repeat</h2>
+    <p class="lead">Un <span class="term">Schedule</span> décrit un <b>motif de récurrence</b> : combien de fois, à quel rythme, sous quelle condition. On le combine avec <code>Effect.retry</code> (sur échec) ou <code>Effect.repeat</code> (sur succès).</p>
+
+    <h3>Les briques de base</h3>
+    <div class="code-block" data-file="schedule.ts"><script type="text/plain">import { Schedule } from "effect"
+
+const maxRetries = Schedule.recurs(5)               // 5 tentatives
+const polling = Schedule.spaced("30 seconds")       // toutes les 30 s
+const backoff = Schedule.exponential("200 millis")  // 200ms, 400ms, 800ms…
+
+// Schedule.both : continue tant que les DEUX continuent (backoff + cap).
+const capped = Schedule.both(
+  Schedule.exponential("250 millis"),
+  Schedule.recurs(6)
+)
+
+// Schedule.either : continue tant que l'UN continue (fallback).
+const fallback = Schedule.either(
+  Schedule.spaced("2 seconds"),
+  Schedule.recurs(3)
+)</script></div>
+
+    <h3>Un schedule de prod : backoff + jitter + condition</h3>
+    <p>En vrai, on veut un backoff exponentiel plafonné, avec du « jitter » (pour éviter le troupeau qui retape le serveur en même temps), et qui ne retente que les erreurs <i>retryables</i>.</p>
+    <div class="code-block"><script type="text/plain">import { Effect, Schedule } from "effect"
+
+const productionRetry = Schedule.exponential("250 millis").pipe(
+  Schedule.either(Schedule.spaced("10 seconds")), // plafonne le délai à 10 s
+  Schedule.jittered,                               // ajoute du hasard
+  Schedule.setInputType<HttpError>(),
+  Schedule.while(({ input }) => input.retryable)   // stop si non-retryable
+)
+
+const loadUser = fetchUserProfile("user-123").pipe(
+  Effect.retry(productionRetry),
+  Effect.orDie  // si ça échoue encore après le schedule → erreur fatale
+)</script></div>
+    <div class="callout c-tip">
+      <div class="ic">💡</div>
+      <div class="bd"><span class="lab">retry vs repeat</span>
+      <p><code>Effect.retry</code> rejoue l'effet tant qu'il <b>échoue</b> (et que le schedule continue). <code>Effect.repeat</code> rejoue tant qu'il <b>réussit</b> — parfait pour du polling régulier. Même module, deux usages.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 07 CONCURRENCE ===== -->
+  <section id="concurrence">
+    <div class="modtag">Module 07</div>
+    <h2>Concurrence &amp; Fibers</h2>
+    <p class="lead">Effect tourne sur un runtime à base de <span class="term">fibers</span> : des « threads verts » ultralégers. Sa force : la <b>concurrence structurée</b> — quand un parent s'arrête ou échoue, ses enfants sont interrompus proprement, sans tâche fantôme.</p>
+
+    <h3>Forker des fibers</h3>
+    <div class="code-block"><script type="text/plain">import { Effect, Fiber } from "effect"
+
+const program = Effect.gen(function*() {
+  // forkChild : lance en arrière-plan, lié à la portée du parent.
+  const fiber = yield* Effect.forkChild(
+    longRunningTask.pipe(Effect.as("terminé"))
+  )
+
+  yield* doOtherWork()             // pendant ce temps, on bosse en parallèle
+
+  const result = yield* Fiber.join(fiber)  // on récupère le résultat
+  return result
+})</script></div>
+    <div class="callout c-key">
+      <div class="ic">🎯</div>
+      <div class="bd"><span class="lab">Pourquoi c'est gros</span>
+      <p>L'annulation est un cauchemar avec les Promises (AbortController collé partout, fuites garanties). Ici, l'interruption est <b>native et structurée</b> : un timeout, une erreur dans une branche, et tout le sous-arbre de fibers se nettoie tout seul.</p></div>
+    </div>
+    <div class="callout c-new">
+      <div class="ic">🆕</div>
+      <div class="bd"><span class="lab">Nouveauté v4</span>
+      <p>Le runtime de fibers a été <b>réécrit</b> pour moins consommer de mémoire et tourner plus vite. Les combinateurs de fork ont aussi été renommés/clarifiés (<code>forkChild</code>, <code>forkScoped</code>…). On parle aussi d'une gestion automatique de la durée de vie du process (« fiber keep-alive »).</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 08 STREAMS ===== -->
+  <section id="streams">
+    <div class="modtag">Module 08</div>
+    <h2><code>Stream</code></h2>
+    <p class="lead">Un <span class="term">Stream</span> est une séquence <b>effectful</b> et <b>pull-based</b> de valeurs dans le temps — finie ou infinie. Idéal pour des données qui arrivent par morceaux : pagination d'API, événements, fichiers, sockets.</p>
+
+    <h3>Créer un stream</h3>
+    <div class="code-block" data-file="streams.ts"><script type="text/plain">import { Effect, Schedule, Stream } from "effect"
+import * as Option from "effect/Option"
+
+// Depuis un itérable
+const numbers = Stream.fromIterable([1, 2, 3, 4, 5])
+
+// Un effet transformé en polling régulier (métriques, health checks…)
+const samples = Stream.fromEffectSchedule(
+  Effect.succeed(3),
+  Schedule.spaced("30 seconds")
+).pipe(Stream.take(3))
+
+// Pagination d'API : on renvoie la page courante + le curseur suivant.
+const jobs = Stream.paginate(0, Effect.fn(function*(page) {
+  yield* Effect.sleep("50 millis")
+  const results = [`Job ${page}-a`, `Job ${page}-b`]
+  const next = page <= 10 ? Option.some(page + 1) : Option.none()
+  return [results, next] as const
+}))</script></div>
+
+    <h3>Transformer &amp; consommer</h3>
+    <p>Les opérateurs vous parleront — ce sont les mêmes qu'un <code>Array</code>, mais effectful : <code>map</code>, <code>filter</code>, <code>flatMap</code>, et <code>mapEffect</code> (pour appliquer un Effect à chaque élément). On termine avec un <code>run*</code>.</p>
+    <div class="code-block"><script type="text/plain">import { Effect, Stream } from "effect"
+
+const total = numbers.pipe(
+  Stream.filter((n) => n % 2 === 0),
+  Stream.mapEffect((n) => Effect.succeed(n * 10)),
+  Stream.runFold(0, (acc, n) => acc + n)  // consomme → Effect<number>
+)</script></div>
+    <div class="callout c-tip">
+      <div class="ic">💡</div>
+      <div class="bd"><span class="lab">Streams "ressourcés"</span>
+      <p>Un Stream peut détenir des ressources (un fichier, une connexion) et les libère automatiquement à la fin — même backpressure et annulation que le reste d'Effect. On peut aussi décoder/encoder des flux structurés (NDJSON, MsgPack).</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 09 OBSERVABILITE ===== -->
+  <section id="observabilite">
+    <div class="modtag">Module 09</div>
+    <h2>Observabilité &amp; tests</h2>
+    <p class="lead">Logging structuré, tracing distribué, métriques : tout est <b>intégré</b>. Et comme un Effect est une simple description, le tester devient remarquablement simple — y compris le temps qui passe.</p>
+
+    <h3>Logs &amp; spans, sans effort</h3>
+    <div class="code-block"><script type="text/plain">import { Effect } from "effect"
+
+const handler = Effect.gen(function*() {
+  yield* Effect.logInfo("Traitement de la commande")
+  yield* processOrder()
+}).pipe(
+  Effect.withSpan("checkout", { attributes: { tier: "pro" } }),  // span de trace
+  Effect.annotateLogs({ requestId: "req_42" })                    // contexte de log
+)</script></div>
+    <div class="callout c-tip">
+      <div class="ic">💡</div>
+      <div class="bd"><span class="lab">Export OTLP</span>
+      <p>Pour exporter traces et logs, la v4 propose des modules <code>Otlp</code> légers sous <code>effect/unstable/observability</code> pour les nouveaux projets — ou <code>@effect/opentelemetry</code> (NodeSdk) si vous intégrez une stack OpenTelemetry existante. Rappel : <code>Effect.fn("nom")</code> crée déjà un span pour vous.</p></div>
+    </div>
+
+    <h3>Tester avec <code>@effect/vitest</code></h3>
+    <p><code>it.effect</code> exécute un test qui retourne un Effect. Le bijou : <code>TestClock</code> permet d'avancer le temps <b>virtuellement</b> — un <code>sleep</code> de 60 s se teste instantanément.</p>
+    <div class="code-block" data-file="checkout.test.ts"><script type="text/plain">import { assert, describe, it } from "@effect/vitest"
+import { Effect, Fiber } from "effect"
+import { TestClock } from "effect/testing"
+
+describe("checkout", () => {
+  it.effect("contrôle le temps avec TestClock", () =>
+    Effect.gen(function*() {
+      const fiber = yield* Effect.forkChild(
+        Effect.sleep(60_000).pipe(Effect.as("done"))
+      )
+      // On avance le temps virtuel : les fibers en sleep se débloquent.
+      yield* TestClock.adjust(60_000)
+      assert.strictEqual(yield* Fiber.join(fiber), "done")
+    }))
+
+  // Tests paramétrés et property-based intégrés :
+  it.effect.each([{ in: " Ada ", out: "ada" }])("normalise %#", ({ in: i, out }) =>
+    Effect.gen(function*() {
+      assert.strictEqual(i.trim().toLowerCase(), out)
+    }))
+})</script></div>
+
+    <div class="compare" data-compare>
+      <div class="ctabs">
+        <button class="ctab bad active" data-tab="0">😵 Tester le temps "classique"</button>
+        <button class="ctab good" data-tab="1">✨ TestClock</button>
+      </div>
+      <div class="cpanel active">
+        <div class="code-block"><script type="text/plain">// Soit on attend VRAIMENT 60 s (test lent),
+await sleep(60_000)
+// soit on mocke setTimeout/Date.now à la main, par lib externe,
+// avec des effets de bord globaux fragiles entre les tests.
+jest.useFakeTimers()
+jest.advanceTimersByTime(60_000)</script></div>
+        <div class="cnote bad">Mocks <b>globaux</b> et fragiles, ou des tests qui durent réellement des minutes.</div>
+      </div>
+      <div class="cpanel">
+        <div class="code-block"><script type="text/plain">// Le temps est une dépendance (le service Clock). En test,
+// TestClock le remplace : on "avance" le temps à volonté.
+yield* TestClock.adjust("60 seconds")
+// Déterministe, instantané, sans état global. Idem pour Random, etc.</script></div>
+        <div class="cnote good">Le temps est <b>injecté</b> comme tout service → tests déterministes et instantanés.</div>
+      </div>
+    </div>
+    <div class="callout c-warn">
+      <div class="ic">⚠️</div>
+      <div class="bd"><span class="lab">Bonne pratique testable</span>
+      <p>C'est pour ça qu'en Effect on n'utilise jamais <code>Date.now()</code> ni <code>new Date()</code> directement : on passe par le service <code>Clock</code>. Pareil pour l'aléatoire (<code>Random</code>). Ainsi le métier reste 100 % déterministe en test.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 10 V4 ===== -->
+  <section id="v4">
+    <div class="modtag">Module 10</div>
+    <h2>Ce qui est spécifique à la v4 🆕</h2>
+    <p class="lead">Le <b>modèle</b> de programmation (Effect, Layer, Schema, Stream) reste le même qu'en v3. Ce qui change radicalement : l'<b>organisation</b>, le <b>versioning</b> et les <b>imports</b> de l'écosystème.</p>
+
+    <h3>Un numéro de version unique</h3>
+    <p>Fini le casse-tête des versions désynchronisées. Tous les packages de l'écosystème partagent désormais <b>la même version</b> et sortent ensemble. Avec <code>effect@4.0.0-beta.0</code>, le package SQL correspondant est <code>@effect/sql-pg@4.0.0-beta.0</code>.</p>
+
+    <h3>Consolidation des packages</h3>
+    <p>Beaucoup de packages autrefois séparés sont <b>fusionnés dans <code>effect</code></b> : les fonctionnalités de <code>@effect/platform</code>, <code>@effect/rpc</code>, <code>@effect/cluster</code>… vivent maintenant directement dans le cœur. Restent séparés ceux qui sont spécifiques à une plateforme ou une techno : <code>@effect/platform-*</code>, <code>@effect/sql-*</code>, <code>@effect/ai-*</code>, <code>@effect/opentelemetry</code>, <code>@effect/vitest</code>.</p>
+
+    <h3>Le système de modules « unstable »</h3>
+    <p>La v4 introduit des modules sous <code>effect/unstable/*</code>. Ils peuvent recevoir des <i>breaking changes</i> en version mineure (le reste suit un semver strict), puis « graduent » vers <code>effect/*</code> en se stabilisant.</p>
+    <div class="code-block"><script type="text/plain">// Modules unstable typiques : ai, cli, cluster, http, httpapi, rpc,
+// schema, sql, socket, workers, observability, process, persistence…
+import { SqlClient } from "effect/unstable/sql"
+import { HttpClient } from "effect/unstable/http"</script></div>
+
+    <h3>Performance &amp; taille du bundle</h3>
+    <p>Le runtime de fibers a été réécrit (moins de mémoire, plus rapide), et le cœur supporte un <b>tree-shaking agressif</b>.</p>
+    <div class="code-block"><script type="text/plain">// Un programme Effect minimal :        ~6.3 Ko (minifié + gzip)
+// Avec Schema :                        ~15 Ko
+// Prérequis : TypeScript 5.4+ et "strict": true dans tsconfig.json</script></div>
+
+    <h3>Les renommages à connaître (v3 → v4)</h3>
+    <div class="sheet">
+      <table>
+        <thead><tr><th>v3</th><th>v4</th><th>Quoi</th></tr></thead>
+        <tbody>
+          <tr><td>Context.Tag / Effect.Service</td><td>Context.Service</td><td>Définition des services, unifiée</td></tr>
+          <tr><td>FiberRef</td><td>Context.Reference</td><td>Valeurs par défaut / contextuelles</td></tr>
+          <tr><td>Effect.catchAll</td><td>Effect.catch</td><td>Attraper toutes les erreurs</td></tr>
+          <tr><td>Effect.catchAllCause</td><td>Effect.catchCause</td><td>Attraper la Cause complète</td></tr>
+          <tr><td>Effect.catchSome</td><td>Effect.catchFilter</td><td>Attraper sélectivement</td></tr>
+          <tr><td>Schema.TaggedError</td><td>Schema.TaggedErrorClass</td><td>Erreurs taguées</td></tr>
+          <tr><td>Schema.Union(A, B)</td><td>Schema.Union([A, B])</td><td>Variadique → tableau</td></tr>
+          <tr><td>Schema.filter(pred)</td><td>Schema.check(...)</td><td>Filtres / contraintes</td></tr>
+          <tr><td>Runtime&lt;R&gt;</td><td>(supprimé)</td><td>Voir ManagedRuntime</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout c-warn">
+      <div class="ic">⚠️</div>
+      <div class="bd"><span class="lab">Statut beta</span>
+      <p>Effect 4 est en <b>beta</b> : des APIs peuvent encore bouger d'une beta à l'autre. Pour du code de production immédiat, gardez ça en tête. Le guide de migration officiel (dans le dépôt, dossier <code>migration/</code>) évolue avec les retours de la communauté.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 11 ANTISECHE ===== -->
+  <section id="antiseche">
+    <div class="modtag">Module 11</div>
+    <h2>L'antisèche</h2>
+    <p class="lead">À garder sous le coude. Les gestes du quotidien Effect 4, condensés.</p>
+
+    <h4>Créer un effet</h4>
+    <div class="code-block"><script type="text/plain">Effect.succeed(value)                          // valeur connue
+Effect.sync(() => sideEffect())                // sync sûr
+Effect.try({ try, catch })                     // sync qui peut throw
+Effect.tryPromise({ try, catch })              // Promise
+Effect.fromNullishOr(maybeNull)                // nullable → effet
+Effect.callback((resume) => { ...; return fin }) // API callback</script></div>
+
+    <h4>Écrire de la logique</h4>
+    <div class="code-block"><script type="text/plain">// Bloc de logique :
+const prog = Effect.gen(function*() {
+  const x = yield* effectA
+  return yield* effectB(x)
+}).pipe(Effect.catch(handler), Effect.withSpan("prog"))
+
+// Fonction qui renvoie un effet (préférez ceci) :
+const f = Effect.fn("f")(function*(n: number) {
+  return yield* something(n)
+}, Effect.annotateLogs({ fn: "f" }))   // combinateurs en ARGUMENTS</script></div>
+
+    <h4>Erreurs</h4>
+    <div class="code-block"><script type="text/plain">class MyError extends Schema.TaggedErrorClass<MyError>()(
+  "MyError", { message: Schema.String }) {}
+
+eff.pipe(Effect.catchTag("MyError", handler))
+eff.pipe(Effect.catchTags({ A: hA, B: hB }))   // exhaustif & typé
+eff.pipe(Effect.catch(handler))                // filet final
+return yield* new MyError({ message: "…" })    // lever (avec return !)</script></div>
+
+    <h4>Services &amp; Layers</h4>
+    <div class="code-block"><script type="text/plain">class S extends Context.Service<S, { m(): Effect.Effect<R> }>()("app/S") {
+  static readonly layer = Layer.effect(S, Effect.gen(function*() {
+    return S.of({ m })
+  }))
+}
+const s = yield* S                              // utiliser → apparaît dans R
+prog.pipe(Effect.provide(S.layer))              // fournir
+Layer.provide(dep) / Layer.provideMerge(dep)    // consommer / + ré-exposer
+Context.Reference<T>("id", { defaultValue })    // config / flags</script></div>
+
+    <h4>Ressources, retry, run</h4>
+    <div class="code-block"><script type="text/plain">Effect.acquireRelease(acquire, (r) => release(r))   // ressources sûres
+eff.pipe(Effect.retry(Schedule.exponential("200 millis")))
+eff.pipe(Effect.repeat(Schedule.spaced("1 minute")))
+NodeRuntime.runMain(program)                        // point d'entrée
+Layer.launch(WorkerLayer)                            // app long-running</script></div>
+
+    <div class="callout c-key">
+      <div class="ic">🚀</div>
+      <div class="bd"><span class="lab">Le mot de la fin</span>
+      <p>Vous tenez le fil rouge : un <code>Effect&lt;A, E, R&gt;</code> est une <b>description</b> qui suit succès, erreurs <i>et</i> dépendances. À partir de là, tout le reste (retry, concurrence, ressources, tests, observabilité) découle naturellement et compose. Commencez petit, étendez à votre rythme — et amusez-vous. 🟠</p></div>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<button id="navbtn" aria-label="Ouvrir le sommaire">☰ Sommaire</button>
+<div class="overlay" id="overlay"></div>
+
+<footer>
+  <p><b>Formation Effect 4</b> — synthétisée à partir de la documentation officielle de la v4 (dépôt <a href="https://github.com/effect-TS/effect-smol" target="_blank" rel="noopener">effect-TS/effect-smol</a>, dossier <code>ai-docs</code> &amp; guides <code>migration/</code>) et de la page <a href="https://effect.website/docs/getting-started/why-effect/" target="_blank" rel="noopener">« Why Effect? »</a> du site officiel.</p>
+  <p style="margin-top:8px;color:var(--ink-faint)">Effect 4 est en beta : vérifiez toujours la source de vérité dans le dépôt. Les commentaires des exemples sont pédagogiques — en pratique, on ne les écrit pas tous. 🟠</p>
+</footer>
+
+<!-- highlight.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+<script>
+(function(){
+  // ---- 1) Render code snippets from <script type="text/plain"> placeholders
+  document.querySelectorAll(".code-block").forEach(function(block){
+    var raw = block.querySelector('script[type="text/plain"]');
+    if(!raw) return;
+    var code = raw.textContent.replace(/^\n/,"").replace(/\s+$/,"");
+    var file = block.getAttribute("data-file");
+
+    var wrap = document.createElement("div");
+    wrap.className = "code-wrap";
+
+    var bar = document.createElement("div");
+    bar.className = "code-bar";
+    bar.innerHTML = '<span class="lights"><i></i><i></i><i></i></span>' +
+      (file ? '<span class="fname">'+file+'</span>' : '<span class="fname">typescript</span>');
+    var btn = document.createElement("button");
+    btn.className = "copy";
+    btn.textContent = "Copier";
+    btn.addEventListener("click", function(){
+      var done = function(){ btn.textContent="Copié ✓"; setTimeout(function(){btn.textContent="Copier";},1400); };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(code).then(done).catch(function(){fallback();});
+      } else { fallback(); }
+      function fallback(){
+        var ta=document.createElement("textarea");ta.value=code;ta.style.position="fixed";ta.style.opacity="0";
+        document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+    bar.appendChild(btn);
+
+    var pre = document.createElement("pre");
+    var c = document.createElement("code");
+    c.className = "language-typescript";
+    c.textContent = code;            // textContent = pas besoin d'échapper
+    pre.appendChild(c);
+
+    wrap.appendChild(bar);
+    wrap.appendChild(pre);
+    block.replaceWith(wrap);
+  });
+
+  // ---- 2) Highlight
+  if(window.hljs){ try{ hljs.highlightAll(); }catch(e){} }
+
+  // ---- 3) Compare tabs
+  document.querySelectorAll("[data-compare]").forEach(function(cmp){
+    var tabs = cmp.querySelectorAll(".ctab");
+    var panels = cmp.querySelectorAll(".cpanel");
+    tabs.forEach(function(tab){
+      tab.addEventListener("click", function(){
+        var i = +tab.getAttribute("data-tab");
+        tabs.forEach(function(t){t.classList.remove("active");});
+        panels.forEach(function(p){p.classList.remove("active");});
+        tab.classList.add("active");
+        if(panels[i]) panels[i].classList.add("active");
+      });
+    });
+  });
+
+  // ---- 4) Progress bar
+  var bar = document.getElementById("top-progress");
+  function onScroll(){
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    var p = max > 0 ? (h.scrollTop || document.body.scrollTop) / max : 0;
+    bar.style.width = (p*100) + "%";
+  }
+  window.addEventListener("scroll", onScroll, {passive:true});
+  onScroll();
+
+  // ---- 5) Scroll-spy
+  var links = Array.prototype.slice.call(document.querySelectorAll("#toc a"));
+  var map = {};
+  links.forEach(function(a){ map[a.getAttribute("href").slice(1)] = a; });
+  var sections = links.map(function(a){ return document.getElementById(a.getAttribute("href").slice(1)); }).filter(Boolean);
+
+  var spy = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        links.forEach(function(l){l.classList.remove("active");});
+        var a = map[en.target.id];
+        if(a) a.classList.add("active");
+      }
+    });
+  }, { rootMargin: "-20% 0px -72% 0px", threshold: 0 });
+  sections.forEach(function(s){ spy.observe(s); });
+
+  // ---- 6) Mobile drawer
+  var sidebar = document.getElementById("sidebar");
+  var overlay = document.getElementById("overlay");
+  var navbtn = document.getElementById("navbtn");
+  function close(){ sidebar.classList.remove("open"); overlay.classList.remove("show"); }
+  function open(){ sidebar.classList.add("open"); overlay.classList.add("show"); }
+  navbtn.addEventListener("click", open);
+  overlay.addEventListener("click", close);
+  sidebar.addEventListener("click", function(e){ if(e.target.tagName==="A") close(); });
+})();
+</script>
+</body>
+</html>
