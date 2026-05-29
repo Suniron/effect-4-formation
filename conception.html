@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conception & DDD — La formation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#efe7d4;
+    --paper-2:#e7dcc4;
+    --card:#f7f1e1;
+    --card-2:#f1e9d5;
+    --ink:#1f2620;
+    --ink-soft:#4d5347;
+    --ink-faint:#8a8a76;
+    --line:rgba(31,38,32,.14);
+    --line-strong:rgba(31,38,32,.24);
+    --green:#2c6e54;     /* domaine / stratégique */
+    --green-deep:#1d4d3a;
+    --terra:#b8552f;     /* tactique / chaleur */
+    --teal:#2a7f86;      /* architecture */
+    --gold:#a9781f;      /* process / accents */
+    --rose:#a8517e;
+    --radius:16px;
+    --mono:"DM Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --body:"Spectral",Georgia,serif;
+    --disp:"DM Serif Display","Spectral",serif;
+    --code-bg:#172019;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:28px}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:var(--body);font-size:18px;line-height:1.72;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden;
+  }
+  /* paper grain + faint contour atmosphere */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(680px 520px at 88% -8%, rgba(44,110,84,.13), transparent 62%),
+      radial-gradient(560px 420px at -6% 12%, rgba(184,85,47,.08), transparent 60%);
+  }
+  #top-progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;
+    background:linear-gradient(90deg,var(--green),var(--terra));box-shadow:0 0 10px rgba(44,110,84,.5)}
+  a{color:var(--green);text-decoration:none;border-bottom:1px solid rgba(44,110,84,.3)}
+  a:hover{border-bottom-color:var(--green)}
+  code{font-family:var(--mono);font-size:.86em;background:rgba(31,38,32,.06);padding:.06em .32em;border-radius:5px}
+
+  /* ---------- HERO ---------- */
+  .hero{position:relative;z-index:1;max-width:1140px;margin:0 auto;padding:84px 28px 30px;overflow:hidden}
+  .compass{position:absolute;top:40px;right:18px;width:190px;height:190px;opacity:.16;color:var(--green);pointer-events:none}
+  @media(max-width:760px){.compass{width:120px;height:120px;top:24px;right:-6px}}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--green);
+    border:1px solid var(--line-strong);border-radius:999px;padding:7px 14px;background:rgba(44,110,84,.06)}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--terra);box-shadow:0 0 8px var(--terra)}
+  .hero h1{font-family:var(--disp);font-weight:400;font-size:clamp(44px,9vw,104px);line-height:.92;
+    margin:22px 0 0;letter-spacing:-.01em}
+  .hero h1 em{font-style:italic;color:var(--green)}
+  .hero .lede{font-size:clamp(18px,2.3vw,23px);color:var(--ink-soft);max-width:680px;margin:22px 0 0;line-height:1.6}
+  .hero .lede b{color:var(--ink);font-weight:600}
+  .hero .sig{margin-top:22px;font-family:var(--mono);font-size:12.5px;color:var(--ink-faint);letter-spacing:.04em}
+  .hero>*{opacity:0;transform:translateY(14px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards}
+  .hero>*:nth-child(2){animation-delay:.05s}.hero>*:nth-child(3){animation-delay:.14s}
+  .hero>*:nth-child(4){animation-delay:.24s}.hero>*:nth-child(5){animation-delay:.34s}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  /* ---------- LAYOUT ---------- */
+  .layout{position:relative;z-index:1;max-width:1300px;margin:0 auto;display:flex;gap:46px;
+    padding:18px 28px 120px;align-items:flex-start}
+  .sidebar{width:264px;flex:none;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow:auto;padding-right:4px}
+  .sidebar .sb-title{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink-faint);margin:6px 0 12px}
+  .toc{list-style:none;margin:0;padding:0}
+  .toc .grp{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--gc);font-weight:500;margin:18px 0 6px;display:flex;align-items:center;gap:7px}
+  .toc .grp::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--gc)}
+  .toc .grp.strat{--gc:var(--green)} .toc .grp.tact{--gc:var(--terra)} .toc .grp.arch{--gc:var(--teal)} .toc .grp.end{--gc:var(--gold)}
+  .toc li a{display:flex;gap:9px;align-items:baseline;padding:5px 0 5px 13px;
+    border-left:2px solid var(--line);margin-left:1px;color:var(--ink-soft);font-size:14px;line-height:1.3;border-bottom:0}
+  .toc li a .num{font-family:var(--mono);font-size:11px;color:var(--ink-faint);min-width:22px}
+  .toc li a:hover{color:var(--ink)}
+  .toc li a.active{color:var(--green);border-left-color:var(--green);font-weight:600}
+  .toc li a.active .num{color:var(--green)}
+  .sidebar .hint{margin-top:22px;font-size:13px;color:var(--ink-faint);line-height:1.5;
+    border-top:1px solid var(--line);padding-top:16px;font-style:italic}
+
+  .content{flex:1;min-width:0;max-width:850px}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding-top:42px;margin-top:12px;scroll-margin-top:22px}
+  section+section{border-top:1px solid var(--line);margin-top:52px}
+  .modtag{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--fam,var(--green));font-weight:500}
+  .modtag .dot{width:9px;height:9px;border-radius:50%;background:var(--fam,var(--green))}
+  .fam-intro{--fam:var(--ink-soft)} .fam-strat{--fam:var(--green)} .fam-tact{--fam:var(--terra)}
+  .fam-arch{--fam:var(--teal)} .fam-end{--fam:var(--gold)}
+  h2{font-family:var(--disp);font-weight:400;font-size:clamp(30px,4.6vw,46px);line-height:1.02;
+    letter-spacing:-.01em;margin:9px 0 0}
+  h3{font-family:var(--body);font-weight:700;font-size:21px;margin:32px 0 4px;letter-spacing:-.005em;color:var(--ink)}
+  h4{font-family:var(--mono);font-weight:500;font-size:12.5px;letter-spacing:.05em;color:var(--fam,var(--green));
+    text-transform:uppercase;margin:22px 0 4px}
+  p{margin:13px 0;color:var(--ink-soft)}
+  p b,li b{color:var(--ink);font-weight:600}
+  .lead{font-size:19.5px;color:var(--ink);line-height:1.62}
+  .lead.drop::first-letter{font-family:var(--disp);font-size:3.4em;line-height:.74;float:left;
+    margin:.06em .12em 0 0;color:var(--green)}
+  ul,ol{color:var(--ink-soft);padding-left:22px}
+  li{margin:7px 0}
+  .ink{color:var(--ink)}
+  .term{color:var(--green);font-weight:600;font-style:italic}
+  .en{font-family:var(--mono);font-size:.82em;color:var(--ink-faint);letter-spacing:.02em}
+  .intent{font-size:18px;color:var(--ink);margin:14px 0 4px;padding:13px 17px;font-style:italic;
+    border-left:3px solid var(--fam,var(--green));background:var(--card);border-radius:0 12px 12px 0}
+  .intent b{color:var(--fam,var(--green));font-style:normal}
+
+  /* ---------- CODE ---------- */
+  .code-wrap{margin:18px 0;border-radius:14px;overflow:hidden;background:var(--code-bg);
+    box-shadow:0 20px 46px -26px rgba(23,32,25,.8);border:1px solid rgba(44,110,84,.25)}
+  .code-bar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:rgba(255,255,255,.04);
+    border-bottom:1px solid rgba(255,255,255,.07)}
+  .code-bar .lights{display:flex;gap:6px}
+  .code-bar .lights i{width:11px;height:11px;border-radius:50%;display:block}
+  .lights i:nth-child(1){background:#d2654a}.lights i:nth-child(2){background:#cda84e}.lights i:nth-child(3){background:#5fa07a}
+  .code-bar .fname{font-family:var(--mono);font-size:11.5px;color:#8b9384;margin-left:4px}
+  .code-bar .copy{margin-left:auto;font-family:var(--mono);font-size:11px;color:#a9b3a1;
+    background:transparent;border:1px solid rgba(255,255,255,.16);border-radius:7px;padding:4px 10px;cursor:pointer;transition:.18s}
+  .code-bar .copy:hover{color:#fff;border-color:var(--green);background:rgba(44,110,84,.22)}
+  pre{margin:0;padding:18px;overflow-x:auto;font-family:var(--mono);font-size:12.8px;line-height:1.62;tab-size:2}
+  pre code{font-size:12.8px;background:none;padding:0}
+  .hljs{background:transparent;color:#e3dfce}
+  .hljs-comment,.hljs-quote{color:#87897a;font-style:italic}
+  .hljs-keyword,.hljs-selector-tag{color:#e08c5a}
+  .hljs-built_in,.hljs-title.class_,.hljs-title.class_.inherited__,.hljs-type,.hljs-namespace{color:#74c2a6}
+  .hljs-string,.hljs-regexp,.hljs-symbol{color:#a9c98c}
+  .hljs-number,.hljs-literal{color:#d6ab63}
+  .hljs-title,.hljs-title.function_,.hljs-section{color:#e6c878}
+  .hljs-attr,.hljs-attribute,.hljs-property{color:#e3dfce}
+  .hljs-params{color:#c8cdb9}
+  .hljs-variable,.hljs-template-variable,.hljs-subst{color:#e3dfce}
+  .hljs-meta{color:#8b9384}
+
+  /* ---------- CALLOUTS ---------- */
+  .callout{margin:20px 0;border:1px solid var(--line-strong);border-left-width:4px;border-radius:12px;
+    padding:14px 17px;background:var(--card);display:flex;gap:14px;align-items:flex-start}
+  .callout .ic{font-size:19px;line-height:1.5;flex:none}
+  .callout .bd{flex:1}.callout p{margin:3px 0;color:var(--ink-soft)}
+  .callout .lab{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:500;margin-bottom:2px}
+  .c-tip{border-left-color:var(--green)} .c-tip .lab{color:var(--green)}
+  .c-warn{border-left-color:var(--terra)} .c-warn .lab{color:var(--terra)}
+  .c-key{border-left-color:var(--gold);background:rgba(169,120,31,.07)} .c-key .lab{color:var(--gold)}
+  .c-note{border-left-color:var(--teal)} .c-note .lab{color:var(--teal)}
+
+  /* ---------- USAGE / two-row ---------- */
+  .usage{margin:16px 0;border:1px solid var(--line);border-left:3px solid var(--fam,var(--green));
+    border-radius:0 12px 12px 0;background:var(--card);overflow:hidden}
+  .usage p{margin:0;padding:11px 16px;font-size:15px;color:var(--ink-soft)}
+  .usage p+p{border-top:1px solid var(--line)}
+  .usage .u-yes b{color:#2c6e54}.usage .u-no b{color:var(--terra)}
+  .usage .u-yes::before{content:"✔ ";color:var(--green)} .usage .u-no::before{content:"✘ ";color:var(--terra)}
+
+  /* ---------- COMPARE ---------- */
+  .compare{margin:20px 0;border:1px solid var(--line-strong);border-radius:14px;overflow:hidden;background:var(--card)}
+  .ctabs{display:flex;border-bottom:1px solid var(--line)}
+  .ctab{flex:1;font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--ink-faint);
+    background:transparent;border:0;padding:11px 10px;cursor:pointer;transition:.18s;border-bottom:2px solid transparent}
+  .ctab:hover{color:var(--ink-soft)}
+  .ctab.active.bad{color:var(--terra);border-bottom-color:var(--terra);background:rgba(184,85,47,.07)}
+  .ctab.active.good{color:#2c6e54;border-bottom-color:var(--green);background:rgba(44,110,84,.07)}
+  .cpanel{display:none}.cpanel.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .cpanel .code-wrap{margin:0;border:0;border-radius:0;box-shadow:none}
+  .cnote{padding:10px 16px;font-size:14px;border-top:1px solid var(--line);color:var(--ink-soft)}
+  .cnote.bad{background:rgba(184,85,47,.06)} .cnote.bad b{color:var(--terra)}
+  .cnote.good{background:rgba(44,110,84,.06)} .cnote.good b{color:#2c6e54}
+
+  /* ---------- FIGURES / SVG ---------- */
+  figure{margin:24px 0}
+  .fig{border:1px solid var(--line-strong);border-radius:16px;background:
+    linear-gradient(180deg,var(--card),var(--card-2));padding:20px;overflow:hidden;
+    box-shadow:0 24px 50px -34px rgba(23,32,25,.45)}
+  .fig svg{display:block;width:100%;height:auto}
+  figcaption{font-family:var(--mono);font-size:12px;color:var(--ink-faint);text-align:center;margin-top:10px;letter-spacing:.02em}
+  .svg-ink{fill:var(--ink)} .svg-soft{fill:var(--ink-soft)} .svg-faint{fill:var(--ink-faint)}
+  .lbl{font-family:var(--mono);font-size:12px;fill:var(--ink-soft)}
+  .lbl-sm{font-family:var(--mono);font-size:10.5px;fill:var(--ink-faint)}
+  .lbl-t{font-family:var(--disp);fill:var(--ink)}
+  .reg{stroke-width:1.5;rx:14}
+  .route{fill:none;stroke-dasharray:3 5;stroke-width:1.6;stroke-linecap:round}
+
+  /* ---------- decision / sheet / steps ---------- */
+  .steps{margin:22px 0;display:grid;gap:12px;counter-reset:s}
+  .step{display:flex;gap:15px;align-items:flex-start;border:1px solid var(--line);border-radius:13px;
+    padding:14px 16px;background:var(--card);position:relative}
+  .step::before{counter-increment:s;content:counter(s);font-family:var(--disp);font-size:24px;color:var(--green);
+    line-height:1;flex:none;min-width:30px;text-align:center}
+  .step .st-b{flex:1}.step h5{margin:0 0 2px;font-family:var(--body);font-weight:700;font-size:16.5px;color:var(--ink)}
+  .step p{margin:0;font-size:14.5px}
+
+  .checklist{margin:20px 0;display:grid;gap:9px}
+  .ck{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:11px;
+    padding:11px 15px;background:var(--card)}
+  .ck .box{flex:none;width:18px;height:18px;border:2px solid var(--green);border-radius:5px;margin-top:3px;position:relative}
+  .ck .box::after{content:"✓";position:absolute;inset:-3px 0 0 1px;color:var(--green);font-size:13px;font-weight:700}
+  .ck span{color:var(--ink);font-size:15.5px}
+
+  .sheet{margin:22px 0;border:1px solid var(--line-strong);border-radius:14px;overflow:hidden;background:var(--card)}
+  .sheet table{border-collapse:collapse;width:100%;font-size:14.5px}
+  .sheet th,.sheet td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  .sheet th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--green);background:rgba(44,110,84,.06)}
+  .sheet td:first-child{font-family:var(--mono);font-size:13px;color:var(--ink);white-space:nowrap;font-weight:500}
+  .sheet tr:last-child td{border-bottom:0}
+  .sheet .hd td{font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:500}
+  .sheet .hd-strat td{background:rgba(44,110,84,.09);color:var(--green)}
+  .sheet .hd-tact td{background:rgba(184,85,47,.09);color:var(--terra)}
+  .sheet .hd-arch td{background:rgba(42,127,134,.09);color:var(--teal)}
+
+  #navbtn{display:none}
+  footer{position:relative;z-index:1;max-width:1300px;margin:0 auto;padding:28px 28px 70px;
+    border-top:1px solid var(--line);color:var(--ink-faint);font-size:15px}
+  footer b{color:var(--ink-soft)}
+  .overlay{display:none}
+
+  @media(max-width:1000px){
+    body{font-size:17px}
+    .layout{display:block;padding:16px 20px 90px}
+    .content{max-width:none}
+    .sidebar{position:fixed;top:0;left:0;height:100dvh;width:84vw;max-width:320px;z-index:50;
+      background:var(--paper-2);border-right:1px solid var(--line-strong);padding:72px 20px 28px 22px;
+      transform:translateX(-104%);transition:transform .3s cubic-bezier(.3,.7,.2,1);max-height:none;
+      box-shadow:30px 0 60px -30px rgba(23,32,25,.5)}
+    .sidebar.open{transform:none}
+    .overlay{display:block;position:fixed;inset:0;background:rgba(23,32,25,.42);z-index:45;opacity:0;pointer-events:none;transition:.3s}
+    .overlay.show{opacity:1;pointer-events:auto}
+    #navbtn{display:inline-flex;align-items:center;gap:8px;position:fixed;left:16px;bottom:18px;z-index:55;
+      font-family:var(--mono);font-size:13px;font-weight:500;color:#f7f1e1;
+      background:linear-gradient(90deg,var(--green),var(--green-deep));border:0;border-radius:999px;padding:12px 18px;cursor:pointer;
+      box-shadow:0 12px 28px -8px rgba(44,110,84,.65)}
+    .hero{padding:60px 20px 20px}
+    .step::before{font-size:20px;min-width:24px}
+  }
+</style>
+</head>
+<body>
+<div id="top-progress"></div>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <svg class="compass" viewBox="0 0 100 100" aria-hidden="true">
+    <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="1"/>
+    <circle cx="50" cy="50" r="36" fill="none" stroke="currentColor" stroke-width=".5"/>
+    <polygon points="50,8 56,50 50,46 44,50" fill="currentColor"/>
+    <polygon points="50,92 44,50 50,54 56,50" fill="currentColor" opacity=".5"/>
+    <polygon points="8,50 50,44 46,50 50,56" fill="currentColor" opacity=".5"/>
+    <polygon points="92,50 50,56 54,50 50,44" fill="currentColor" opacity=".5"/>
+    <text x="50" y="6" text-anchor="middle" font-family="DM Mono" font-size="6" fill="currentColor">N</text>
+    <circle cx="50" cy="50" r="3" fill="currentColor"/>
+  </svg>
+  <span class="eyebrow"><span class="dot"></span>Formation &nbsp;·&nbsp; Conception logicielle &nbsp;·&nbsp; Domain-Driven Design</span>
+  <h1>Concevoir<br><em>avant</em> de coder</h1>
+  <p class="lede">La plupart des projets ne meurent pas d'un mauvais code, mais d'une mauvaise <b>compréhension du problème</b>. Cette formation est une carte pour explorer le métier, le modéliser, le découper — et n'ouvrir l'éditeur qu'<b>une fois qu'on sait quoi construire</b>.</p>
+  <p class="sig">Du besoin → au modèle → aux specs → au code. Dans cet ordre.</p>
+</header>
+
+<!-- ============ LAYOUT ============ -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-title">Itinéraire</div>
+    <ul class="toc" id="toc">
+      <li><a href="#intro"><span class="num">00</span>Pourquoi concevoir d'abord</a></li>
+      <li><a href="#fondations"><span class="num">01</span>Les fondations</a></li>
+      <li><a href="#cdc"><span class="num">02</span>Du besoin aux specs</a></li>
+      <li><a href="#ddd-intro"><span class="num">03</span>Le DDD en une idée</a></li>
+
+      <li class="grp strat">Conception stratégique</li>
+      <li><a href="#langage"><span class="num">04</span>Langage omniprésent</a></li>
+      <li><a href="#contexts"><span class="num">05</span>Bounded Contexts</a></li>
+      <li><a href="#context-map"><span class="num">06</span>Context Map</a></li>
+      <li><a href="#eventstorming"><span class="num">07</span>EventStorming</a></li>
+
+      <li class="grp tact">Conception tactique</li>
+      <li><a href="#value-objects"><span class="num">08</span>Value Objects</a></li>
+      <li><a href="#entities"><span class="num">09</span>Entities</a></li>
+      <li><a href="#aggregates"><span class="num">10</span>Aggregates</a></li>
+      <li><a href="#domain-events"><span class="num">11</span>Domain Events</a></li>
+      <li><a href="#repositories"><span class="num">12</span>Repositories</a></li>
+      <li><a href="#services"><span class="num">13</span>Services & Factories</a></li>
+      <li><a href="#rich"><span class="num">14</span>Riche vs anémique</a></li>
+
+      <li class="grp arch">Charpente & démarche</li>
+      <li><a href="#architecture"><span class="num">15</span>Protéger le domaine</a></li>
+      <li><a href="#processus"><span class="num">16</span>Le processus complet</a></li>
+
+      <li class="grp end">Pour finir</li>
+      <li><a href="#pieges"><span class="num">17</span>Pièges &amp; antipatterns</a></li>
+      <li><a href="#checklist"><span class="num">→</span>Checklist de conception</a></li>
+      <li><a href="#antiseche"><span class="num">→</span>Antisèche &amp; lectures</a></li>
+    </ul>
+    <div class="hint">Vert = le domaine (le métier). Terracotta = sa traduction en briques. Le code arrive tard, et c'est volontaire.</div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+  <!-- ===== 00 INTRO ===== -->
+  <section id="intro" class="fam-intro">
+    <div class="modtag"><span class="dot"></span>Introduction</div>
+    <h2>Pourquoi concevoir d'abord</h2>
+    <p class="lead drop">Coder, c'est facile. Coder <i>la bonne chose</i>, c'est tout le problème. On peut écrire un module impeccable, testé, performant… qui résout un besoin que personne n'avait. La conception, c'est l'art de décider <b>quoi</b> construire et <b>comment l'organiser</b> — avant de se battre avec la syntaxe.</p>
+
+    <p>Le réflexe naturel du développeur est de sauter au clavier : choisir un framework, dessiner des tables, écrire des classes. Mais à ce stade, on ignore encore la moitié des règles métier. On construit alors <span class="ink">très bien la mauvaise chose</span>, et on découvre les vraies contraintes une fois le code coulé dans le béton.</p>
+
+    <figure>
+      <div class="fig">
+        <svg viewBox="0 0 760 230" role="img" aria-label="Entonnoir : du problème au code">
+          <!-- flow stages -->
+          <g>
+            <rect x="20"  y="40" width="120" height="120" rx="14" fill="rgba(44,110,84,.10)" stroke="var(--green)" stroke-width="1.5"/>
+            <rect x="170" y="52" width="120" height="96"  rx="14" fill="rgba(44,110,84,.10)" stroke="var(--green)" stroke-width="1.5"/>
+            <rect x="320" y="64" width="120" height="72"  rx="14" fill="rgba(169,120,31,.12)" stroke="var(--gold)"  stroke-width="1.5"/>
+            <rect x="470" y="74" width="120" height="52"  rx="14" fill="rgba(42,127,134,.12)" stroke="var(--teal)"  stroke-width="1.5"/>
+            <rect x="620" y="84" width="120" height="32"  rx="10" fill="var(--code-bg)"        stroke="var(--terra)" stroke-width="1.5"/>
+          </g>
+          <text x="80"  y="96"  text-anchor="middle" class="lbl-t" font-size="15">Problème</text>
+          <text x="80"  y="118" text-anchor="middle" class="lbl-sm">le besoin réel</text>
+          <text x="230" y="96"  text-anchor="middle" class="lbl-t" font-size="15">Domaine</text>
+          <text x="230" y="116" text-anchor="middle" class="lbl-sm">on comprend</text>
+          <text x="380" y="98"  text-anchor="middle" class="lbl-t" font-size="14">Modèle</text>
+          <text x="380" y="116" text-anchor="middle" class="lbl-sm">on découpe</text>
+          <text x="530" y="98"  text-anchor="middle" class="lbl-t" font-size="13">Specs</text>
+          <text x="530" y="114" text-anchor="middle" class="lbl-sm">CdCF/CdCT</text>
+          <text x="680" y="103" text-anchor="middle" font-family="DM Mono" font-size="12" fill="#a9c98c">&lt;code/&gt;</text>
+          <!-- arrows -->
+          <g stroke="var(--ink-faint)" stroke-width="1.5" fill="none">
+            <path d="M142 100 L168 100" marker-end="url(#ar)"/>
+            <path d="M292 100 L318 100" marker-end="url(#ar)"/>
+            <path d="M442 100 L468 100" marker-end="url(#ar)"/>
+            <path d="M592 100 L618 100" marker-end="url(#ar)"/>
+          </g>
+          <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0 1 L6 4 L0 7" fill="none" stroke="var(--ink-faint)" stroke-width="1.4"/></marker></defs>
+          <!-- effort bracket -->
+          <path d="M20 188 L440 188" stroke="var(--green)" stroke-width="1.5" fill="none"/>
+          <path d="M20 184 L20 192 M440 184 L440 192" stroke="var(--green)" stroke-width="1.5"/>
+          <text x="230" y="210" text-anchor="middle" class="lbl" fill="var(--green)">là se joue 80 % de la valeur</text>
+          <path d="M620 188 L740 188" stroke="var(--terra)" stroke-width="1.5" fill="none"/>
+          <path d="M620 184 L620 192 M740 184 L740 192" stroke="var(--terra)" stroke-width="1.5"/>
+          <text x="680" y="210" text-anchor="middle" class="lbl" fill="var(--terra)">l'exécution</text>
+        </svg>
+      </div>
+      <figcaption>La conception se passe en amont — le code n'est que la dernière traduction.</figcaption>
+    </figure>
+
+    <div class="callout c-warn">
+      <div class="ic">⚖️</div>
+      <div class="bd"><span class="lab">Pas de Big Design Up Front non plus</span>
+      <p>« Concevoir d'abord » ne veut pas dire tout figer dans un document de 200 pages avant la première ligne. La compréhension du domaine <b>s'affine en avançant</b>. L'idée est de penser <i>assez</i> pour ne pas se tromper de direction — puis d'itérer, en gardant le modèle vivant.</p></div>
+    </div>
+
+    <p>Cette formation suit ce fil : comprendre le métier, en extraire un <b>langage commun</b>, le <b>découper</b> en territoires, le <b>modéliser</b> en briques solides, puis le <b>protéger</b> par une architecture saine. Le Domain-Driven Design (DDD) sera notre boîte à outils principale.</p>
+  </section>
+
+  <!-- ===== 01 FONDATIONS ===== -->
+  <section id="fondations" class="fam-intro">
+    <div class="modtag"><span class="dot"></span>Introduction</div>
+    <h2>Les fondations</h2>
+    <p class="lead">Quatre réflexes valent plus que n'importe quelle technique. Ils tiennent en une phrase chacun, mais ils décident de tout.</p>
+
+    <h3>1 · Comprendre le problème avant la solution</h3>
+    <p>Il y a deux espaces : l'<span class="term">espace du problème</span> <span class="en">(problem space)</span> — ce que le métier veut vraiment — et l'<span class="term">espace de la solution</span> <span class="en">(solution space)</span> — comment on y répond. Le débutant fonce dans le second. L'erreur la plus chère, c'est de répondre vite à la mauvaise question. Posez « pourquoi ? » trois fois avant de dessiner quoi que ce soit.</p>
+
+    <h3>2 · Séparer le métier de la technique</h3>
+    <p>Le cœur d'un logiciel, c'est ses <b>règles métier</b> — pas son framework, sa base de données ou son protocole HTTP. Ceux-là sont des détails interchangeables. Toute la conception consiste à garder le métier <b>au centre</b> et la technique <b>en périphérie</b>, jamais l'inverse.</p>
+
+    <h3>3 · Modéliser, pas tout documenter</h3>
+    <p>Un <span class="term">modèle</span> est une <b>simplification utile</b> de la réalité, taillée pour un objectif précis. Une carte de métro ne montre pas la géographie exacte : elle montre ce qui sert à voyager. Un bon modèle métier ignore délibérément ce qui ne sert pas à résoudre <i>ce</i> problème.</p>
+
+    <h3>4 · La structure du logiciel suivra celle de l'équipe</h3>
+    <div class="callout c-note">
+      <div class="ic">🪞</div>
+      <div class="bd"><span class="lab">Loi de Conway</span>
+      <p>« Toute organisation qui conçoit un système produira une copie de sa propre structure de communication. » Autrement dit : vos découpages techniques refléteront vos découpages humains. Concevoir les <i>frontières</i> du système, c'est aussi concevoir qui parle à qui.</p></div>
+    </div>
+
+    <p>Ces quatre principes pointent tous vers la même chose : avant le code, il faut un <b>modèle partagé du métier</b> et des <b>frontières claires</b>. C'est précisément ce que le DDD outille.</p>
+  </section>
+
+  <!-- ===== 02 CdC ===== -->
+  <section id="cdc" class="fam-intro">
+    <div class="modtag"><span class="dot"></span>Introduction</div>
+    <h2>Du besoin aux spécifications</h2>
+    <p class="lead">Entre « j'ai compris le métier » et « je code », il y a une étape qu'on saute trop souvent : <b>écrire ce qu'on va construire</b>. Deux documents structurent ce passage.</p>
+
+    <h3>Le CdCF — Cahier des Charges Fonctionnel</h3>
+    <p>Il décrit le <b>quoi</b> et le <b>pourquoi</b>, en langage métier, <b>sans présupposer de solution technique</b>. Il exprime des <span class="term">besoins</span> et des <span class="term">exigences fonctionnelles</span> : ce que le système doit permettre, pour qui, sous quelles règles et contraintes. Un bon CdCF pourrait être lu et validé par un expert métier qui ne code pas.</p>
+    <div class="usage" style="--fam:var(--gold)">
+      <p class="u-yes"><b>On y met</b> les objectifs, les acteurs, les cas d'usage, les règles de gestion, les contraintes (légales, délais, volumétrie), les critères d'acceptation.</p>
+      <p class="u-no"><b>On n'y met pas</b> de choix de base de données, de framework, d'API ou d'algorithme. Le « comment » n'a rien à faire ici.</p>
+    </div>
+
+    <h3>Le CdCT — Cahier des Charges Technique</h3>
+    <p>Il répond au CdCF par le <b>comment</b> : architecture, choix technologiques, modèle de données, intégrations, contraintes de performance et de sécurité, découpage en composants. Il <b>découle</b> du fonctionnel — jamais l'inverse.</p>
+
+    <div class="callout c-tip">
+      <div class="ic">🧭</div>
+      <div class="bd"><span class="lab">Le lien avec le DDD</span>
+      <p>Le travail stratégique du DDD (langage omniprésent, sous-domaines, bounded contexts) <b>nourrit directement le CdCF</b> : il fixe le vocabulaire et les frontières. Le travail tactique (agrégats, services, événements) et le choix d'architecture <b>alimentent le CdCT</b>. Concevoir, c'est en grande partie remplir ces deux cahiers avec lucidité.</p></div>
+    </div>
+    <div class="callout c-warn">
+      <div class="ic">📏</div>
+      <div class="bd"><span class="lab">Juste ce qu'il faut</span>
+      <p>Spécifier n'est pas tout verrouiller. Sur un produit incertain, un CdCF léger + des itérations battent un pavé exhaustif qui sera faux dans trois semaines. Calibrez la profondeur sur le <b>risque</b> et la <b>durée de vie</b> du projet.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 03 DDD INTRO ===== -->
+  <section id="ddd-intro" class="fam-intro">
+    <div class="modtag"><span class="dot"></span>Introduction</div>
+    <h2>Le DDD en une idée</h2>
+    <p class="lead">Le <span class="term">Domain-Driven Design</span> (Eric Evans, 2003) tient dans une phrase : <b>placez le métier au centre du logiciel, et faites parler le code la même langue que les experts métier.</b></p>
+
+    <p>Tout le reste — les agrégats, les contextes, les événements — n'est que de l'outillage au service de cette idée. Le DDD se divise en deux moitiés complémentaires :</p>
+
+    <div class="usage" style="--fam:var(--green)">
+      <p class="u-yes" style="color:var(--ink-soft)"><b style="color:var(--green)">Stratégique</b> — la vue d'ensemble : le langage, les sous-domaines, les frontières (bounded contexts) et leurs relations (context map). C'est de la conception <i>pure</i>, sur tableau blanc, avant tout code.</p>
+      <p class="u-yes" style="color:var(--ink-soft)"><b style="color:var(--green)">Tactique</b> — les briques de modélisation dans le code : value objects, entités, agrégats, événements, repositories. C'est la traduction fidèle du modèle.</p>
+    </div>
+
+    <h3>Notion clé : les sous-domaines</h3>
+    <p>Tout métier se décompose en <span class="term">sous-domaines</span>. Ils n'ont pas la même importance :</p>
+    <ul>
+      <li><b>Cœur de métier</b> <span class="en">(core domain)</span> — ce qui vous différencie, votre avantage concurrentiel. <span class="ink">C'est là qu'on investit le plus d'effort de conception.</span></li>
+      <li><b>Sous-domaines de support</b> — nécessaires mais non différenciants (ex. un back-office interne).</li>
+      <li><b>Sous-domaines génériques</b> — résolus par tout le monde pareil (authentification, envoi d'e-mails) : on achète ou on prend une lib, on ne réinvente rien.</li>
+    </ul>
+
+    <div class="callout c-warn">
+      <div class="ic">🎚️</div>
+      <div class="bd"><span class="lab">Le DDD n'est pas gratuit</span>
+      <p>Tout ce rituel a un coût. Sur un CRUD simple ou une appli jetable, c'est de la sur-ingénierie. Le DDD brille quand le <b>métier est complexe</b> et <b>durable</b>, et que plusieurs personnes doivent partager sa compréhension. Réservez la grosse artillerie au cœur de métier.</p></div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- ===================== STRATÉGIQUE ========================== -->
+  <!-- ============================================================ -->
+
+  <!-- ===== 04 LANGAGE OMNIPRÉSENT ===== -->
+  <section id="langage" class="fam-strat">
+    <div class="modtag"><span class="dot"></span>Stratégique · 04</div>
+    <h2>Le langage omniprésent</h2>
+    <p class="intent"><b>L'idée —</b> Un <b>seul vocabulaire</b>, partagé par les experts métier ET le code. Les mêmes mots dans les réunions, le modèle, les classes, les tests.</p>
+
+    <h3>Le problème</h3>
+    <p>Le métier parle de « bénéficiaire », le code dit <code>User2</code>, la base dit <code>tbl_clients</code>, et le chef de projet dit « le client final ». Chaque traduction est une <b>occasion de se tromper</b>. Les bugs naissent souvent dans ces glissements de sens entre humains.</p>
+    <h3>La solution</h3>
+    <p>On construit un <span class="term">langage omniprésent</span> <span class="en">(ubiquitous language)</span> : un glossaire vivant, négocié avec les experts, et <b>appliqué littéralement</b> dans le code. Si le métier dit « résilier un abonnement », alors il existe une méthode <code>subscription.resilier()</code> — pas <code>updateStatus(3)</code>.</p>
+
+    <div class="callout c-tip">
+      <div class="ic">🗣️</div>
+      <div class="bd"><span class="lab">Test concret</span>
+      <p>Lisez une méthode de votre domaine à voix haute devant un expert métier. S'il comprend ce qu'elle fait sans que vous traduisiez, le langage est bon. S'il faut un interprète, le modèle ment.</p></div>
+    </div>
+
+    <div class="usage">
+      <p class="u-yes"><b>Bénéfice —</b> moins de malentendus, un code qui se lit comme le métier, et un onboarding où la doc <i>est</i> le code.</p>
+      <p class="u-no"><b>Piège —</b> un langage figé. Le vocabulaire évolue avec la compréhension : quand un mot change de sens, on renomme partout, sans pitié.</p>
+    </div>
+  </section>
+
+  <!-- ===== 05 BOUNDED CONTEXTS ===== -->
+  <section id="contexts" class="fam-strat">
+    <div class="modtag"><span class="dot"></span>Stratégique · 05</div>
+    <h2>Bounded Contexts</h2>
+    <p class="intent"><b>L'idée —</b> Un modèle (et son langage) n'est valable que dans une <b>frontière précise</b>. Le même mot peut signifier des choses différentes ailleurs — et c'est sain.</p>
+
+    <h3>Le problème</h3>
+    <p>On rêve d'<b>un seul</b> grand modèle unifié pour tout le système : un objet <code>Client</code> qui sert aux ventes, au support, à la facturation et au marketing. Résultat : une classe obèse de 80 champs, où chaque équipe ajoute les siens, et que plus personne ne maîtrise. C'est le chemin vers le <i>Big Ball of Mud</i>.</p>
+    <h3>La solution</h3>
+    <p>On accepte que « Client » ne soit <b>pas la même chose</b> selon le contexte, et on trace des frontières — les <span class="term">contextes délimités</span> <span class="en">(bounded contexts)</span>. Dans chacun, le modèle et le langage sont cohérents et autonomes.</p>
+
+    <figure>
+      <div class="fig">
+        <svg viewBox="0 0 760 200" role="img" aria-label="Le mot Client selon trois contextes">
+          <g>
+            <rect x="24"  y="34" width="216" height="132" rx="14" fill="rgba(44,110,84,.08)" stroke="var(--green)" stroke-width="1.5"/>
+            <rect x="272" y="34" width="216" height="132" rx="14" fill="rgba(184,85,47,.08)" stroke="var(--terra)" stroke-width="1.5"/>
+            <rect x="520" y="34" width="216" height="132" rx="14" fill="rgba(42,127,134,.08)" stroke="var(--teal)" stroke-width="1.5"/>
+          </g>
+          <text x="132" y="58" text-anchor="middle" class="lbl" fill="var(--green)" font-size="11" letter-spacing="1">VENTES</text>
+          <text x="380" y="58" text-anchor="middle" class="lbl" fill="var(--terra)" font-size="11" letter-spacing="1">SUPPORT</text>
+          <text x="628" y="58" text-anchor="middle" class="lbl" fill="var(--teal)" font-size="11" letter-spacing="1">FACTURATION</text>
+
+          <text x="132" y="92"  text-anchor="middle" class="lbl-t" font-size="22">« Client »</text>
+          <text x="380" y="92"  text-anchor="middle" class="lbl-t" font-size="22">« Client »</text>
+          <text x="628" y="92"  text-anchor="middle" class="lbl-t" font-size="22">« Client »</text>
+
+          <text x="132" y="120" text-anchor="middle" class="lbl-sm">= un prospect</text>
+          <text x="132" y="138" text-anchor="middle" class="lbl-sm">à convertir</text>
+          <text x="380" y="120" text-anchor="middle" class="lbl-sm">= un dossier</text>
+          <text x="380" y="138" text-anchor="middle" class="lbl-sm">avec un historique</text>
+          <text x="628" y="120" text-anchor="middle" class="lbl-sm">= un débiteur</text>
+          <text x="628" y="138" text-anchor="middle" class="lbl-sm">avec un IBAN</text>
+        </svg>
+      </div>
+      <figcaption>Trois contextes, trois « Client ». Vouloir les fusionner crée le monstre ; les séparer libère.</figcaption>
+    </figure>
+
+    <div class="callout c-note">
+      <div class="ic">🧩</div>
+      <div class="bd"><span class="lab">Aligner avec les sous-domaines</span>
+      <p>Idéalement, un bounded context correspond à un sous-domaine et à une équipe (souvenez-vous de Conway). C'est l'unité d'autonomie : on peut faire évoluer l'intérieur d'un contexte sans casser les autres, tant qu'on respecte les contrats à la frontière.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 06 CONTEXT MAP ===== -->
+  <section id="context-map" class="fam-strat">
+    <div class="modtag"><span class="dot"></span>Stratégique · 06</div>
+    <h2>La Context Map</h2>
+    <p class="intent"><b>L'idée —</b> Dessiner la <b>carte des contextes</b> et, surtout, la <b>nature de leurs relations</b>. C'est le plan stratégique du système entier.</p>
+
+    <p>Une fois les contextes posés, ils doivent collaborer. La <span class="term">context map</span> rend visible qui dépend de qui, et <i>comment</i>. C'est l'artefact de conception le plus précieux pour une vue d'ensemble — et il tient sur un tableau blanc.</p>
+
+    <figure>
+      <div class="fig">
+        <svg viewBox="0 0 760 360" role="img" aria-label="Carte de contextes avec relations">
+          <!-- faint terrain -->
+          <defs>
+            <pattern id="dots" width="16" height="16" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" fill="rgba(31,38,32,.06)"/>
+            </pattern>
+            <marker id="arr2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+              <path d="M0 1 L7 4.5 L0 8" fill="none" stroke="var(--ink-soft)" stroke-width="1.5"/>
+            </marker>
+          </defs>
+          <rect x="0" y="0" width="760" height="360" fill="url(#dots)"/>
+
+          <!-- compass -->
+          <g transform="translate(706,42)" opacity=".5">
+            <circle r="20" fill="none" stroke="var(--ink-faint)" stroke-width="1"/>
+            <polygon points="0,-16 4,0 0,-3 -4,0" fill="var(--terra)"/>
+            <text x="0" y="-22" text-anchor="middle" class="lbl-sm">N</text>
+          </g>
+
+          <!-- VENTES (core) -->
+          <rect x="280" y="40" width="200" height="92" rx="16" fill="rgba(44,110,84,.12)" stroke="var(--green)" stroke-width="2"/>
+          <text x="380" y="74" text-anchor="middle" class="lbl-t" font-size="18">Ventes</text>
+          <text x="380" y="96" text-anchor="middle" class="lbl-sm" fill="var(--green)">★ cœur de métier</text>
+          <text x="380" y="114" text-anchor="middle" class="lbl-sm">commandes, panier</text>
+
+          <!-- CATALOGUE -->
+          <rect x="40" y="60" width="180" height="80" rx="16" fill="rgba(169,120,31,.10)" stroke="var(--gold)" stroke-width="1.6"/>
+          <text x="130" y="92" text-anchor="middle" class="lbl-t" font-size="16">Catalogue</text>
+          <text x="130" y="112" text-anchor="middle" class="lbl-sm">produits, prix</text>
+
+          <!-- FACTURATION -->
+          <rect x="540" y="60" width="180" height="80" rx="16" fill="rgba(42,127,134,.10)" stroke="var(--teal)" stroke-width="1.6"/>
+          <text x="630" y="92" text-anchor="middle" class="lbl-t" font-size="16">Facturation</text>
+          <text x="630" y="112" text-anchor="middle" class="lbl-sm">factures, TVA</text>
+
+          <!-- EXPÉDITION -->
+          <rect x="280" y="240" width="200" height="80" rx="16" fill="rgba(184,85,47,.10)" stroke="var(--terra)" stroke-width="1.6"/>
+          <text x="380" y="272" text-anchor="middle" class="lbl-t" font-size="16">Expédition</text>
+          <text x="380" y="292" text-anchor="middle" class="lbl-sm">colis, suivi</text>
+
+          <!-- TRANSPORTEUR (externe legacy) -->
+          <rect x="540" y="240" width="180" height="80" rx="16" fill="rgba(31,38,32,.05)" stroke="var(--ink-faint)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <text x="630" y="270" text-anchor="middle" class="lbl-t" font-size="15">Transporteur</text>
+          <text x="630" y="290" text-anchor="middle" class="lbl-sm">API externe (legacy)</text>
+
+          <!-- routes + relationships -->
+          <!-- catalogue -> ventes (C/S) -->
+          <path class="route" d="M222 104 L278 96" stroke="var(--ink-soft)" marker-end="url(#arr2)"/>
+          <text x="250" y="86" text-anchor="middle" class="lbl-sm">U → D · C/S</text>
+          <!-- ventes -> facturation (C/S) -->
+          <path class="route" d="M482 96 L538 104" stroke="var(--ink-soft)" marker-end="url(#arr2)"/>
+          <text x="512" y="86" text-anchor="middle" class="lbl-sm">U → D · C/S</text>
+          <!-- ventes -> expedition -->
+          <path class="route" d="M380 134 L380 238" stroke="var(--ink-soft)" marker-end="url(#arr2)"/>
+          <text x="416" y="190" text-anchor="middle" class="lbl-sm">U → D</text>
+          <!-- expedition -> transporteur via ACL -->
+          <path class="route" d="M482 280 L538 280" stroke="var(--terra)" marker-end="url(#arr2)"/>
+          <rect x="486" y="266" width="48" height="22" rx="6" fill="var(--card)" stroke="var(--terra)" stroke-width="1.3"/>
+          <text x="510" y="281" text-anchor="middle" class="lbl-sm" fill="var(--terra)">ACL</text>
+
+          <!-- legend -->
+          <text x="40" y="338" class="lbl-sm">U = amont (upstream) · D = aval (downstream) · C/S = Client/Fournisseur · ACL = couche anticorruption</text>
+        </svg>
+      </div>
+      <figcaption>Une context map : les territoires, le sens des dépendances, et le type de chaque relation.</figcaption>
+    </figure>
+
+    <h3>Les principaux types de relation</h3>
+    <p>Le vocabulaire des relations dit comment deux contextes s'accordent — et qui subit l'autre :</p>
+    <div class="sheet">
+      <table><tbody>
+        <tr><td>Partnership</td><td>Deux contextes évoluent ensemble, réussite ou échec partagés. Forte coordination.</td></tr>
+        <tr><td>Shared Kernel</td><td>Un petit modèle commun partagé entre deux contextes. Puissant mais dangereux : tout changement impacte les deux.</td></tr>
+        <tr><td>Customer / Supplier</td><td>L'aval (client) dépend de l'amont (fournisseur), mais l'amont tient compte de ses besoins.</td></tr>
+        <tr><td>Conformist</td><td>L'aval se plie au modèle de l'amont sans négociation (souvent un système qu'on ne contrôle pas).</td></tr>
+        <tr><td>Anticorruption Layer</td><td>Une couche de traduction qui protège votre modèle d'un modèle externe « sale ». Indispensable face au legacy.</td></tr>
+        <tr><td>Open Host / Published Language</td><td>L'amont publie une API et un langage stables pour tous ses consommateurs.</td></tr>
+        <tr><td>Separate Ways</td><td>Pas d'intégration du tout : parfois la meilleure décision est de ne pas connecter.</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="callout c-tip">
+      <div class="ic">🛡️</div>
+      <div class="bd"><span class="lab">L'ACL : votre meilleur allié</span>
+      <p>Quand vous intégrez un système externe ou legacy, ne laissez jamais son modèle <i>fuir</i> chez vous. Une <b>couche anticorruption</b> traduit son langage vers le vôtre à la frontière — votre cœur de métier reste propre, quoi qu'il arrive dehors.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 07 EVENTSTORMING ===== -->
+  <section id="eventstorming" class="fam-strat">
+    <div class="modtag"><span class="dot"></span>Stratégique · 07</div>
+    <h2>EventStorming</h2>
+    <p class="intent"><b>L'idée —</b> Un atelier collaboratif où l'on explore le métier avec des <b>post-it de couleur</b> sur un mur — devs et experts ensemble, <b>sans une ligne de code</b>.</p>
+
+    <p>Inventé par Alberto Brandolini, l'<span class="term">EventStorming</span> est l'une des meilleures façons de démarrer une conception. On déroule le métier comme une <b>frise d'événements</b> dans le temps, et la discussion fait émerger les règles, les zones floues et les frontières naturelles (les futurs bounded contexts).</p>
+
+    <figure>
+      <div class="fig">
+        <svg viewBox="0 0 760 250" role="img" aria-label="Légende et flux EventStorming">
+          <!-- flow row -->
+          <g font-family="DM Mono" font-size="11">
+            <rect x="20"  y="40" width="96" height="48" rx="6" fill="#f2d58a" stroke="rgba(31,38,32,.2)"/>
+            <text x="68" y="60" text-anchor="middle" fill="#5a4a14">Acteur</text>
+            <text x="68" y="76" text-anchor="middle" fill="#5a4a14" font-size="9">déclenche</text>
+
+            <rect x="140" y="40" width="110" height="48" rx="6" fill="#8fb8e6" stroke="rgba(31,38,32,.2)"/>
+            <text x="195" y="60" text-anchor="middle" fill="#1c3a5e">Commande</text>
+            <text x="195" y="76" text-anchor="middle" fill="#1c3a5e" font-size="9">PasserCommande</text>
+
+            <rect x="274" y="40" width="110" height="48" rx="6" fill="#f6e7a8" stroke="rgba(31,38,32,.2)"/>
+            <text x="329" y="60" text-anchor="middle" fill="#5a4a14">Agrégat</text>
+            <text x="329" y="76" text-anchor="middle" fill="#5a4a14" font-size="9">Commande</text>
+
+            <rect x="408" y="40" width="120" height="48" rx="6" fill="#f0a868" stroke="rgba(31,38,32,.2)"/>
+            <text x="468" y="60" text-anchor="middle" fill="#5a3416">Événement</text>
+            <text x="468" y="76" text-anchor="middle" fill="#5a3416" font-size="9">CommandePassée</text>
+
+            <rect x="552" y="40" width="110" height="48" rx="6" fill="#c8a8dc" stroke="rgba(31,38,32,.2)"/>
+            <text x="607" y="60" text-anchor="middle" fill="#3e2654">Politique</text>
+            <text x="607" y="76" text-anchor="middle" fill="#3e2654" font-size="9">« alors… »</text>
+          </g>
+          <g stroke="var(--ink-faint)" stroke-width="1.4" fill="none" marker-end="url(#ar3)">
+            <path d="M118 64 L138 64"/>
+            <path d="M252 64 L272 64"/>
+            <path d="M386 64 L406 64"/>
+            <path d="M530 64 L550 64"/>
+          </g>
+          <defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0 1 L6 4 L0 7" fill="none" stroke="var(--ink-faint)" stroke-width="1.4"/></marker></defs>
+          <path d="M607 90 C607 120 195 120 195 38" stroke="var(--ink-faint)" stroke-width="1.2" stroke-dasharray="3 4" fill="none" marker-end="url(#ar3)"/>
+          <text x="400" y="116" text-anchor="middle" class="lbl-sm">une politique peut déclencher une nouvelle commande</text>
+
+          <!-- legend block -->
+          <text x="20" y="168" class="lbl" font-size="12" fill="var(--ink)">Le code couleur (les post-it) :</text>
+          <g font-family="DM Mono" font-size="10.5" fill="var(--ink-soft)">
+            <rect x="20"  y="184" width="14" height="14" rx="3" fill="#f0a868"/><text x="42" y="195">Événement (fait passé)</text>
+            <rect x="220" y="184" width="14" height="14" rx="3" fill="#8fb8e6"/><text x="242" y="195">Commande (intention)</text>
+            <rect x="420" y="184" width="14" height="14" rx="3" fill="#f6e7a8"/><text x="442" y="195">Agrégat (qui décide)</text>
+            <rect x="20"  y="208" width="14" height="14" rx="3" fill="#c8a8dc"/><text x="42" y="219">Politique (réaction)</text>
+            <rect x="220" y="208" width="14" height="14" rx="3" fill="#f2d58a"/><text x="242" y="219">Acteur (qui agit)</text>
+            <rect x="420" y="208" width="14" height="14" rx="3" fill="#f4a3b0"/><text x="442" y="219">Système externe</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>Acteur → Commande → Agrégat → Événement → Politique. Le métier raconté au passé, en post-it.</figcaption>
+    </figure>
+
+    <div class="callout c-tip">
+      <div class="ic">🌩️</div>
+      <div class="bd"><span class="lab">Pourquoi ça marche</span>
+      <p>Parce que les <b>experts métier participent vraiment</b> : pas de jargon technique, juste des faits et des règles. Les désaccords sur un post-it révèlent les vraies questions, et les « grappes » d'événements dessinent d'elles-mêmes les frontières des contextes. On repart avec un modèle partagé <i>avant</i> d'avoir codé quoi que ce soit.</p></div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- ====================== TACTIQUE ============================ -->
+  <!-- ============================================================ -->
+
+  <!-- ===== 08 VALUE OBJECTS ===== -->
+  <section id="value-objects" class="fam-tact">
+    <div class="modtag"><span class="dot"></span>Tactique · 08</div>
+    <h2>Value Objects</h2>
+    <p class="intent"><b>L'idée —</b> Un objet défini par sa <b>valeur</b>, sans identité propre, et <b>immuable</b>. Deux value objects égaux sont interchangeables.</p>
+
+    <h3>Le problème : l'obsession des primitifs</h3>
+    <p>On modélise tout avec des types bruts : un prix est un <code>number</code>, un e-mail une <code>string</code>, une devise une autre <code>string</code>. Du coup, la validation et les règles se dispersent partout, et rien n'empêche d'additionner des euros avec des dollars.</p>
+    <h3>La solution</h3>
+    <p>On crée des <span class="term">value objects</span> qui <b>portent leur sens et leurs règles</b> : <code>Money</code>, <code>Email</code>, <code>DateRange</code>. Validés à la création, immuables ensuite, comparés par valeur.</p>
+
+    <div class="code-block" data-file="value-object.ts"><script type="text/plain">// Un Value Object : pas d'identité, défini par sa valeur, IMMUABLE.
+class Money {
+  private constructor(
+    readonly amount: number,
+    readonly currency: string,
+  ) {}
+
+  // Fabrique qui VALIDE : impossible de créer un Money invalide.
+  static of(amount: number, currency: string): Money {
+    if (amount < 0) throw new Error("Montant négatif interdit")
+    return new Money(amount, currency)
+  }
+
+  // Une opération renvoie un NOUVEL objet — on ne mute jamais l'existant.
+  add(other: Money): Money {
+    if (other.currency !== this.currency) throw new Error("Devises incompatibles")
+    return Money.of(this.amount + other.amount, this.currency)
+  }
+
+  // Égalité par VALEUR, pas par référence.
+  equals(other: Money): boolean {
+    return this.amount === other.amount && this.currency === other.currency
+  }
+}
+
+const total = Money.of(50, "EUR").add(Money.of(50, "EUR"))   // un nouveau Money(100, EUR)</script></div>
+
+    <div class="compare" data-compare>
+      <div class="ctabs">
+        <button class="ctab bad active" data-tab="0">😵 Obsession des primitifs</button>
+        <button class="ctab good" data-tab="1">✨ Avec des Value Objects</button>
+      </div>
+      <div class="cpanel active">
+        <div class="code-block"><script type="text/plain">function pay(amount: number, currency: string, to: string) { /* … */ }
+
+// Rien n'empêche les pires confusions :
+pay(50, "client@x.fr", "EUR")   // ✅ compile… mais tout est inversé
+pay(-100, "USD", "iban")        // ✅ compile… montant négatif, ordre faux
+// La validation et les règles métier sont éparpillées dans tout le code.</script></div>
+        <div class="cnote bad">Des <code>string</code>/<code>number</code> partout : aucune garantie, des règles <b>dispersées</b>, des bugs silencieux.</div>
+      </div>
+      <div class="cpanel">
+        <div class="code-block"><script type="text/plain">function pay(amount: Money, to: Iban) { /* … */ }
+
+pay(Money.of(50, "EUR"), Iban.of("FR76…"))
+// Money(-100) lève une erreur dès la création. L'ordre des arguments
+// est garanti par les types. Le compilateur devient votre allié.</script></div>
+        <div class="cnote good">Chaque concept porte <b>son sens et ses règles</b>. Les états invalides deviennent <i>impossibles à exprimer</i>.</div>
+      </div>
+    </div>
+
+    <div class="callout c-tip">
+      <div class="ic">💡</div>
+      <div class="bd"><span class="lab">Le réflexe le plus rentable</span>
+      <p>« Make illegal states unrepresentable. » Dès qu'un primitif a des règles (un format, des bornes, une unité), enveloppez-le dans un value object. C'est souvent le <b>premier pas concret</b> du DDD tactique, et le plus payant.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 09 ENTITIES ===== -->
+  <section id="entities" class="fam-tact">
+    <div class="modtag"><span class="dot"></span>Tactique · 09</div>
+    <h2>Entities</h2>
+    <p class="intent"><b>L'idée —</b> Un objet doté d'une <b>identité stable dans le temps</b>. Son état change, mais c'est toujours « le même », identifié par son id.</p>
+
+    <h3>Entity ou Value Object ?</h3>
+    <p>La question à se poser : <b>« deux exemplaires avec les mêmes attributs sont-ils la même chose ? »</b> Deux billets de 10 € sont interchangeables → value object. Deux clients homonymes restent deux personnes distinctes → <span class="term">entity</span>. L'identité prime sur les attributs.</p>
+
+    <div class="code-block" data-file="entity.ts"><script type="text/plain">// Une Entity : identité STABLE (l'id), état qui ÉVOLUE, comportement qui PROTÈGE.
+class Customer {
+  private status: "active" | "suspended" = "active"
+
+  constructor(
+    readonly id: CustomerId,   // c'est l'IDENTITÉ qui définit l'égalité, pas l'email
+    private email: Email,       // (Email et CustomerId sont des Value Objects)
+  ) {}
+
+  suspend(reason: string): void {
+    if (this.status === "suspended") throw new Error("Client déjà suspendu")
+    this.status = "suspended"   // l'entité garde elle-même ses règles
+  }
+
+  changeEmail(email: Email): void { this.email = email }
+
+  // Deux Customer sont "le même" s'ils ont le même id, peu importe le reste.
+  sameAs(other: Customer): boolean { return this.id.equals(other.id) }
+}</script></div>
+
+    <div class="usage">
+      <p class="u-yes"><b>Entity</b> quand l'objet a un cycle de vie et une continuité : Commande, Client, Compte, Article de stock.</p>
+      <p class="u-no"><b>Value object</b> quand seule la valeur compte : Argent, Adresse, Couleur, Plage de dates.</p>
+    </div>
+  </section>
+
+  <!-- ===== 10 AGGREGATES ===== -->
+  <section id="aggregates" class="fam-tact">
+    <div class="modtag"><span class="dot"></span>Tactique · 10</div>
+    <h2>Aggregates</h2>
+    <p class="intent"><b>L'idée —</b> Un groupe d'objets traité comme <b>une seule unité de cohérence</b>. Une <b>racine</b> (aggregate root) en est la seule porte d'entrée et garde ses invariants.</p>
+
+    <p>C'est le concept tactique le plus subtil — et le plus structurant. Un <span class="term">agrégat</span> définit une <b>frontière transactionnelle</b> : tout ce qui doit rester cohérent ensemble vit dedans, et on n'y touche que par la racine.</p>
+
+    <figure>
+      <div class="fig">
+        <svg viewBox="0 0 760 270" role="img" aria-label="Frontière d'agrégat">
+          <!-- boundary -->
+          <rect x="40" y="30" width="420" height="210" rx="20" fill="rgba(184,85,47,.06)" stroke="var(--terra)" stroke-width="2" stroke-dasharray="7 5"/>
+          <text x="60" y="22" class="lbl" fill="var(--terra)" font-size="11">FRONTIÈRE DE L'AGRÉGAT « Commande »</text>
+
+          <!-- root -->
+          <rect x="170" y="56" width="160" height="56" rx="12" fill="rgba(184,85,47,.16)" stroke="var(--terra)" stroke-width="2"/>
+          <text x="250" y="80" text-anchor="middle" class="lbl-t" font-size="16">Commande</text>
+          <text x="250" y="98" text-anchor="middle" class="lbl-sm" fill="var(--terra)">★ racine</text>
+
+          <!-- entities/VOs inside -->
+          <rect x="70"  y="150" width="150" height="64" rx="12" fill="var(--card)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+          <text x="145" y="178" text-anchor="middle" class="lbl-t" font-size="14">Ligne</text>
+          <text x="145" y="196" text-anchor="middle" class="lbl-sm">entity interne</text>
+
+          <rect x="280" y="150" width="150" height="64" rx="12" fill="var(--card)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+          <text x="355" y="178" text-anchor="middle" class="lbl-t" font-size="14">Montant</text>
+          <text x="355" y="196" text-anchor="middle" class="lbl-sm">value object</text>
+
+          <g stroke="var(--ink-soft)" stroke-width="1.4" fill="none">
+            <path d="M210 112 L150 148"/>
+            <path d="M290 112 L350 148"/>
+          </g>
+
+          <!-- external aggregate -->
+          <rect x="560" y="100" width="160" height="64" rx="12" fill="rgba(44,110,84,.10)" stroke="var(--green)" stroke-width="1.6"/>
+          <text x="640" y="128" text-anchor="middle" class="lbl-t" font-size="15">Client</text>
+          <text x="640" y="146" text-anchor="middle" class="lbl-sm" fill="var(--green)">autre agrégat</text>
+
+          <!-- reference by id across boundary -->
+          <path d="M330 84 L558 122" stroke="var(--green)" stroke-width="1.6" stroke-dasharray="4 4" fill="none" marker-end="url(#arr4)"/>
+          <rect x="430" y="86" width="96" height="22" rx="6" fill="var(--card)" stroke="var(--green)" stroke-width="1.2"/>
+          <text x="478" y="101" text-anchor="middle" class="lbl-sm" fill="var(--green)">par ID seulement</text>
+          <defs><marker id="arr4" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0 1 L7 4.5 L0 8" fill="none" stroke="var(--green)" stroke-width="1.5"/></marker></defs>
+
+          <text x="250" y="234" text-anchor="middle" class="lbl-sm">on ne touche aux Lignes et au Montant qu'À TRAVERS la Commande</text>
+        </svg>
+      </div>
+      <figcaption>À l'intérieur : cohérence forte via la racine. Vers l'extérieur : on référence les autres agrégats par leur ID.</figcaption>
+    </figure>
+
+    <div class="code-block" data-file="aggregate.ts"><script type="text/plain">// La racine d'agrégat est la SEULE porte d'entrée. Elle garde les invariants.
+class Order {
+  private lines: OrderLine[] = []
+
+  private constructor(
+    readonly id: OrderId,
+    readonly customerId: CustomerId,   // 👈 référence à un AUTRE agrégat : par ID
+  ) {}
+
+  static create(id: OrderId, customerId: CustomerId): Order {
+    return new Order(id, customerId)
+  }
+
+  addLine(product: ProductId, qty: number, price: Money): void {
+    if (qty <= 0) throw new Error("Quantité invalide")
+    if (this.lines.length >= 100) throw new Error("Trop de lignes")   // invariant protégé
+    this.lines.push(new OrderLine(product, qty, price))
+  }
+
+  total(): Money {
+    return this.lines.reduce((s, l) => s.add(l.subtotal()), Money.of(0, "EUR"))
+  }
+}</script></div>
+
+    <h3>Les trois règles d'or des agrégats</h3>
+    <ul>
+      <li><b>Petits</b> — un agrégat le plus réduit possible. S'il grossit, c'est souvent plusieurs agrégats déguisés.</li>
+      <li><b>Référencés par ID</b> — un agrégat ne contient jamais un autre agrégat ; il garde seulement son identifiant.</li>
+      <li><b>Une transaction = un agrégat</b> — une opération ne modifie qu'un seul agrégat à la fois. La cohérence entre agrégats devient <i>éventuelle</i>, via des événements.</li>
+    </ul>
+
+    <div class="callout c-warn">
+      <div class="ic">🎯</div>
+      <div class="bd"><span class="lab">La vraie question</span>
+      <p>« Qu'est-ce qui doit rester cohérent <b>dans la même transaction</b> ? » La réponse dessine la frontière de l'agrégat. Tout le reste peut être cohérent un peu plus tard — et c'est presque toujours suffisant.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 11 DOMAIN EVENTS ===== -->
+  <section id="domain-events" class="fam-tact">
+    <div class="modtag"><span class="dot"></span>Tactique · 11</div>
+    <h2>Domain Events</h2>
+    <p class="intent"><b>L'idée —</b> Un fait <b>métier</b> qui s'est produit, nommé <b>au passé</b> et immuable. Les autres parties du système peuvent y réagir.</p>
+
+    <h3>Le problème</h3>
+    <p>Quand une commande est passée, il faut décrémenter le stock, envoyer un e-mail, créer une facture… Tout coder dans la méthode <code>passer()</code> la couple à la terre entière, et fait franchir plusieurs agrégats dans une même transaction.</p>
+    <h3>La solution</h3>
+    <p>L'agrégat publie un <span class="term">domain event</span> : <code>CommandePassée</code>. Les autres contextes s'y abonnent et réagissent de leur côté. C'est ce qui permet aux agrégats de rester petits et découplés (cohérence éventuelle).</p>
+
+    <div class="code-block" data-file="domain-event.ts"><script type="text/plain">// Un Domain Event : un fait MÉTIER survenu. Nommé au PASSÉ, immuable.
+class OrderPlaced {
+  readonly occurredAt = new Date()
+  constructor(
+    readonly orderId: OrderId,
+    readonly customerId: CustomerId,
+    readonly total: Money,
+  ) {}
+}
+
+// ⚠️ "OrderPlaced" (passé), PAS "PlaceOrder" (impératif).
+//    Une commande = une INTENTION. Un événement = un FAIT accompli.
+//    → le stock, la facturation, l'e-mail réagissent chacun de leur côté,
+//      sans que la Commande les connaisse.</script></div>
+
+    <div class="callout c-note">
+      <div class="ic">⏳</div>
+      <div class="bd"><span class="lab">Commande vs Événement</span>
+      <p>Une <b>commande</b> exprime une volonté qui <i>peut</i> être refusée (« PasserCommande »). Un <b>événement</b> constate quelque chose qui <i>s'est</i> produit et ne peut plus être annulé (« CommandePassée »). Cette distinction, repérée dès l'EventStorming, structure tout le modèle.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 12 REPOSITORIES ===== -->
+  <section id="repositories" class="fam-tact">
+    <div class="modtag"><span class="dot"></span>Tactique · 12</div>
+    <h2>Repositories</h2>
+    <p class="intent"><b>L'idée —</b> Une interface qui se comporte comme une <b>collection en mémoire</b> d'agrégats. Le domaine y range et y retrouve ses objets — <b>sans rien savoir de la base</b>.</p>
+
+    <h3>Le problème</h3>
+    <p>Si le modèle métier appelle directement du SQL ou un ORM, il devient prisonnier de la technique. Impossible de le tester sans base, impossible d'en changer sans tout casser.</p>
+    <h3>La solution</h3>
+    <p>On définit l'interface du <span class="term">repository</span> <b>dans le domaine</b>, et son implémentation concrète <b>dans l'infrastructure</b>. Le domaine dépend d'une abstraction ; la technique s'y branche. (C'est l'inversion de dépendance — on y revient avec l'architecture.)</p>
+
+    <div class="code-block" data-file="repository.ts"><script type="text/plain">// 🟢 DOMAINE — une interface, façon "collection d'agrégats". Zéro SQL ici.
+interface OrderRepository {
+  findById(id: OrderId): Promise<Order | null>
+  save(order: Order): Promise<void>
+  nextId(): OrderId
+}
+
+// 🔵 INFRASTRUCTURE — l'implémentation concrète vit ailleurs, à part.
+class PostgresOrderRepository implements OrderRepository {
+  async findById(id: OrderId) { /* … requête SQL, mapping … */ return null }
+  async save(order: Order) { /* … INSERT / UPDATE … */ }
+  nextId() { return OrderId.generate() }
+}
+
+// ✅ Bénéfice : on teste tout le domaine avec un InMemoryOrderRepository,
+//    sans base de données. Et on peut changer Postgres → Mongo sans toucher au métier.</script></div>
+
+    <div class="callout c-tip">
+      <div class="ic">🧪</div>
+      <div class="bd"><span class="lab">Le test qui ne ment pas</span>
+      <p>Si vous pouvez écrire les tests de vos règles métier <b>sans démarrer de base de données</b>, votre domaine est bien isolé. Sinon, la technique a fui dans le métier — et la conception a une fuite à colmater.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 13 SERVICES & FACTORIES ===== -->
+  <section id="services" class="fam-tact">
+    <div class="modtag"><span class="dot"></span>Tactique · 13</div>
+    <h2>Services & Factories</h2>
+    <p class="intent"><b>L'idée —</b> Deux compléments aux objets du domaine : un endroit pour les <b>opérations sans propriétaire naturel</b>, et un endroit pour la <b>création complexe</b>.</p>
+
+    <h3>Domain Service</h3>
+    <p>Parfois, une opération métier n'appartient à <b>aucune</b> entité ni value object en particulier — elle concerne plusieurs objets. On la place alors dans un <span class="term">domain service</span> : sans état, nommé d'après le métier, vivant dans le domaine. Exemple : un <code>TransfertDeFonds</code> qui débite un compte et en crédite un autre.</p>
+    <div class="callout c-warn">
+      <div class="ic">🧲</div>
+      <div class="bd"><span class="lab">N'en abusez pas</span>
+      <p>Le domain service est un aimant à logique : on est tenté d'y mettre tout, et de vider les entités (retour du modèle anémique). Règle : le comportement va d'abord dans l'objet à qui il appartient. Le service ne récupère que ce qui n'a <i>vraiment</i> pas de propriétaire.</p></div>
+    </div>
+
+    <h3>Factory</h3>
+    <p>Quand créer un agrégat valide demande plusieurs étapes ou des règles non triviales, on encapsule cette création dans une <span class="term">factory</span> (souvent une méthode statique <code>create(...)</code>, comme vu sur <code>Order</code>). Le reste du code obtient un objet <b>toujours valide</b>, sans connaître les détails de fabrication.</p>
+
+    <h3>Et l'Application Service ?</h3>
+    <p>À ne pas confondre : l'<span class="term">application service</span> <b>orchestre</b> un cas d'usage (charger l'agrégat via le repository, appeler une méthode métier, sauvegarder, publier l'événement) — mais il ne contient <b>aucune règle métier</b>. Les règles restent dans le domaine ; l'application ne fait que coordonner.</p>
+  </section>
+
+  <!-- ===== 14 RICH VS ANEMIC ===== -->
+  <section id="rich" class="fam-tact">
+    <div class="modtag"><span class="dot"></span>Tactique · 14</div>
+    <h2>Modèle riche vs anémique</h2>
+    <p class="intent"><b>L'idée —</b> La leçon centrale du DDD tactique : les <b>données et les règles qui les protègent vivent ensemble</b>. Séparer les deux, c'est l'<i>anti</i>-modèle.</p>
+
+    <p>Le <span class="term">modèle anémique</span> ressemble à du DDD (il y a des classes « métier »), mais ce ne sont que des sacs de données : que des getters/setters, et toute la logique exilée dans des services. Les objets ne se protègent pas : n'importe qui peut les mettre dans un état invalide.</p>
+
+    <div class="compare" data-compare>
+      <div class="ctabs">
+        <button class="ctab bad active" data-tab="0">😵 Anémique</button>
+        <button class="ctab good" data-tab="1">✨ Riche</button>
+      </div>
+      <div class="cpanel active">
+        <div class="code-block"><script type="text/plain">// ❌ L'objet n'est qu'un sac de données, sans aucune défense.
+class Order {
+  status: string = "draft"
+  lines: OrderLine[] = []
+}
+
+// Toute la logique fuit dans un service, LOIN des données qu'elle régit.
+class OrderService {
+  confirm(order: Order) {
+    if (order.status !== "draft") throw new Error("…")
+    if (order.lines.length === 0) throw new Error("Commande vide")
+    order.status = "confirmed"
+  }
+}
+
+// Rien n'empêche ça, n'importe où dans le code :
+order.status = "n'importe quoi"   // 💥 état invalide, silencieux</script></div>
+        <div class="cnote bad">Données et règles <b>séparées</b> : les invariants ne sont garantis nulle part. C'est de la programmation procédurale déguisée.</div>
+      </div>
+      <div class="cpanel">
+        <div class="code-block"><script type="text/plain">// ✅ Les données ET les règles qui les protègent, au même endroit.
+class Order {
+  private status: OrderStatus = "draft"
+  private lines: OrderLine[] = []
+
+  confirm(): void {
+    if (this.status !== "draft") throw new Error("Commande déjà confirmée")
+    if (this.lines.length === 0) throw new Error("Commande vide")
+    this.status = "confirmed"     // l'invariant est gardé À L'INTÉRIEUR
+  }
+}
+
+// L'état interne est privé : impossible de le corrompre de l'extérieur.
+order.confirm()   // la seule façon valide de changer de statut</script></div>
+        <div class="cnote good">Le comportement protège l'état. L'objet est <b>toujours valide</b>, et le métier se lit directement dans le code.</div>
+      </div>
+    </div>
+
+    <div class="callout c-key">
+      <div class="ic">🏛️</div>
+      <div class="bd"><span class="lab">La règle qui résume tout</span>
+      <p>« Tell, don't ask. » Ne demandez pas son état à un objet pour décider à sa place — <b>dites-lui quoi faire</b>, et laissez-le garder ses propres règles. C'est la différence entre des objets vivants et de simples structures de données.</p></div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- ================== ARCHITECTURE & PROCESS ================== -->
+  <!-- ============================================================ -->
+
+  <!-- ===== 15 ARCHITECTURE ===== -->
+  <section id="architecture" class="fam-arch">
+    <div class="modtag"><span class="dot"></span>Charpente · 15</div>
+    <h2>Protéger le domaine</h2>
+    <p class="intent"><b>L'idée —</b> Une seule règle d'architecture à retenir : <b>les dépendances pointent vers l'intérieur</b>. Le domaine ne dépend de rien ; tout dépend du domaine.</p>
+
+    <p>Tout le travail de conception serait gâché si le métier finissait noyé dans le framework et la base. Les architectures dites <span class="term">hexagonale</span> <span class="en">(ports &amp; adapters)</span>, <span class="term">en oignon</span> ou <span class="term">propre</span> <span class="en">(clean)</span> disent toutes la même chose, en couches concentriques.</p>
+
+    <figure>
+      <div class="fig">
+        <svg viewBox="0 0 560 360" role="img" aria-label="Architecture en oignon">
+          <!-- rings -->
+          <circle cx="280" cy="170" r="160" fill="rgba(42,127,134,.06)" stroke="var(--teal)" stroke-width="1.4"/>
+          <circle cx="280" cy="170" r="118" fill="rgba(169,120,31,.08)" stroke="var(--gold)" stroke-width="1.4"/>
+          <circle cx="280" cy="170" r="74"  fill="rgba(44,110,84,.14)" stroke="var(--green)" stroke-width="1.8"/>
+
+          <text x="280" y="160" text-anchor="middle" class="lbl-t" font-size="17">Domaine</text>
+          <text x="280" y="182" text-anchor="middle" class="lbl-sm" fill="var(--green)">entités · VO · règles</text>
+
+          <text x="280" y="78"  text-anchor="middle" class="lbl" fill="var(--gold)" font-size="12">Application</text>
+          <text x="280" y="94"  text-anchor="middle" class="lbl-sm">cas d'usage, orchestration</text>
+
+          <text x="280" y="36"  text-anchor="middle" class="lbl" fill="var(--teal)" font-size="12">Infrastructure &amp; adapters</text>
+          <text x="280" y="316" text-anchor="middle" class="lbl-sm">DB · HTTP · UI · messaging · libs</text>
+
+          <!-- inward arrow -->
+          <path d="M520 170 L368 170" stroke="var(--terra)" stroke-width="2" fill="none" marker-end="url(#arr5)"/>
+          <text x="455" y="160" text-anchor="middle" class="lbl-sm" fill="var(--terra)">les dépendances</text>
+          <text x="455" y="186" text-anchor="middle" class="lbl-sm" fill="var(--terra)">pointent vers le cœur</text>
+          <defs><marker id="arr5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+            <path d="M0 1 L8 5 L0 9" fill="none" stroke="var(--terra)" stroke-width="1.8"/></marker></defs>
+        </svg>
+      </div>
+      <figcaption>Le domaine au centre, pur et ignorant de la technique. Les détails (DB, HTTP, UI) restent en périphérie.</figcaption>
+    </figure>
+
+    <p>Concrètement : le domaine ne contient <b>aucun</b> <code>import</code> de framework web, d'ORM ou de client HTTP. Il expose des <b>ports</b> (des interfaces, comme le <code>OrderRepository</code>), que l'infrastructure vient remplir avec des <b>adapters</b>. On peut alors remplacer Postgres par Mongo, REST par gRPC, ou tester le cœur en isolation — sans jamais toucher au métier.</p>
+
+    <div class="callout c-tip">
+      <div class="ic">🔌</div>
+      <div class="bd"><span class="lab">Ports &amp; Adapters en deux mots</span>
+      <p>Un <b>port</b> = une interface définie par le domaine (ce dont il a besoin). Un <b>adapter</b> = une implémentation côté infrastructure (comment c'est réalisé). Le métier dicte le contrat ; la technique s'y conforme. L'inversion de dépendance rend cette pureté possible.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 16 PROCESSUS ===== -->
+  <section id="processus" class="fam-arch">
+    <div class="modtag"><span class="dot"></span>Charpente · 16</div>
+    <h2>Le processus, de bout en bout</h2>
+    <p class="lead">Voici comment tout s'enchaîne, du flou initial à la première ligne de code. Pas une cascade rigide : une <b>spirale</b> qu'on parcourt en affinant.</p>
+
+    <div class="steps">
+      <div class="step"><div class="st-b"><h5>Explorer le domaine</h5><p>Discussions avec les experts, EventStorming, exemples concrets. On cherche à <b>comprendre</b>, pas encore à décider.</p></div></div>
+      <div class="step"><div class="st-b"><h5>Dégager le langage &amp; les sous-domaines</h5><p>On fixe le vocabulaire commun et on identifie le cœur de métier (là où l'effort comptera vraiment).</p></div></div>
+      <div class="step"><div class="st-b"><h5>Découper en bounded contexts</h5><p>On trace les frontières et on dessine la <b>context map</b> : qui dépend de qui, et comment.</p></div></div>
+      <div class="step"><div class="st-b"><h5>Rédiger le CdCF</h5><p>Le fonctionnel, en langage métier : objectifs, acteurs, cas d'usage, règles, critères d'acceptation. Toujours pas de technique.</p></div></div>
+      <div class="step"><div class="st-b"><h5>Modéliser le tactique</h5><p>Sur tableau blanc d'abord : agrégats et leurs frontières, value objects, événements. On valide les invariants <i>avant</i> de coder.</p></div></div>
+      <div class="step"><div class="st-b"><h5>Choisir l'architecture &amp; rédiger le CdCT</h5><p>Le comment : couches, ports/adapters, choix techniques, modèle de données. Il découle du fonctionnel et du modèle.</p></div></div>
+      <div class="step"><div class="st-b"><h5>Coder — en gardant le modèle vivant</h5><p>Enfin ! Le code reflète le langage et le modèle. Et quand la compréhension progresse, on <b>boucle</b> : on raffine le modèle, et le code suit.</p></div></div>
+    </div>
+
+    <div class="callout c-key">
+      <div class="ic">🌀</div>
+      <div class="bd"><span class="lab">Itérer, toujours</span>
+      <p>On ne fait pas toutes ces étapes à fond une seule fois. On prend une tranche de métier, on la déroule jusqu'au code, on apprend, et on recommence. Le modèle est <b>vivant</b> : il s'enrichit à chaque boucle. « Concevoir avant de coder » est un réflexe permanent, pas une phase qu'on coche.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 17 PIÈGES ===== -->
+  <section id="pieges" class="fam-end">
+    <div class="modtag"><span class="dot"></span>Pour finir</div>
+    <h2>Pièges &amp; antipatterns</h2>
+    <p class="lead">Les erreurs qui reviennent le plus — à repérer avant qu'elles ne s'installent.</p>
+
+    <div class="sheet">
+      <table><tbody>
+        <tr><td>Big Ball of Mud</td><td>Aucune frontière : tout dépend de tout. Le résultat par défaut quand on ne conçoit pas les contextes.</td></tr>
+        <tr><td>Modèle anémique</td><td>Des classes sans comportement + des services qui font tout. Le faux DDD le plus courant.</td></tr>
+        <tr><td>Obsession des primitifs</td><td>Tout en <code>string</code>/<code>number</code>. Les règles se dispersent et les bugs se cachent. → Value Objects.</td></tr>
+        <tr><td>DDD partout</td><td>Sortir l'artillerie sur un CRUD ou un sous-domaine générique. Sur-ingénierie pure.</td></tr>
+        <tr><td>Ignorer le cœur de métier</td><td>Soigner le générique (auth, e-mails) et bâcler ce qui vous différencie vraiment.</td></tr>
+        <tr><td>Modèle couplé à la base</td><td>Concevoir les tables d'abord et en déduire le métier. Le schéma SQL n'est pas le modèle du domaine.</td></tr>
+        <tr><td>Paralysie d'analyse</td><td>Tout vouloir spécifier avant de commencer. La compréhension vient aussi en faisant : itérez.</td></tr>
+        <tr><td>Agrégats géants</td><td>Tout charger en une transaction « pour être sûr ». Tue la performance et la concurrence. → petits agrégats + événements.</td></tr>
+      </tbody></table>
+    </div>
+  </section>
+
+  <!-- ===== CHECKLIST ===== -->
+  <section id="checklist" class="fam-end">
+    <div class="modtag"><span class="dot"></span>Pour finir</div>
+    <h2>La checklist de conception</h2>
+    <p class="lead">À se poser <b>avant</b> d'ouvrir l'éditeur. Si une case résiste, c'est là qu'il faut creuser.</p>
+
+    <div class="checklist">
+      <div class="ck"><span class="box"></span><span>Je sais quel <b>problème métier</b> je résous, et pour qui — pas juste quelle fonctionnalité livrer.</span></div>
+      <div class="ck"><span class="box"></span><span>J'ai un <b>langage commun</b> avec les experts métier, et je l'utiliserai tel quel dans le code.</span></div>
+      <div class="ck"><span class="box"></span><span>J'ai identifié le <b>cœur de métier</b> et j'y concentre mon effort de conception.</span></div>
+      <div class="ck"><span class="box"></span><span>J'ai tracé les <b>bounded contexts</b> et la nature de leurs relations (context map).</span></div>
+      <div class="ck"><span class="box"></span><span>Mon <b>CdCF</b> décrit le quoi/pourquoi sans aucun choix technique.</span></div>
+      <div class="ck"><span class="box"></span><span>J'ai défini mes <b>agrégats</b> en répondant à « qu'est-ce qui doit être cohérent dans la même transaction ? ».</span></div>
+      <div class="ck"><span class="box"></span><span>Mes concepts à règles sont des <b>value objects</b>, pas des primitifs nus.</span></div>
+      <div class="ck"><span class="box"></span><span>Mon modèle est <b>riche</b> : le comportement vit avec les données qu'il protège.</span></div>
+      <div class="ck"><span class="box"></span><span>Mon <b>domaine ne dépend ni de la base, ni du framework</b> — je pourrais le tester sans eux.</span></div>
+      <div class="ck"><span class="box"></span><span>Je suis prêt à <b>itérer</b> : ce modèle évoluera, et c'est prévu.</span></div>
+    </div>
+  </section>
+
+  <!-- ===== ANTISÈCHE ===== -->
+  <section id="antiseche" class="fam-end">
+    <div class="modtag"><span class="dot"></span>Pour finir</div>
+    <h2>Antisèche &amp; lectures</h2>
+    <p class="lead">Le vocabulaire essentiel, à épingler — et par où continuer.</p>
+
+    <div class="sheet">
+      <table><tbody>
+        <tr class="hd hd-strat"><td colspan="2">Stratégique — la vue d'ensemble</td></tr>
+        <tr><td>Domaine</td><td>Le métier que sert le logiciel.</td></tr>
+        <tr><td>Sous-domaine</td><td>Une partie du métier : cœur, support ou générique.</td></tr>
+        <tr><td>Langage omniprésent</td><td>Un vocabulaire unique, des réunions jusqu'au code.</td></tr>
+        <tr><td>Bounded Context</td><td>La frontière dans laquelle un modèle et son langage sont valides.</td></tr>
+        <tr><td>Context Map</td><td>La carte des contextes et de leurs relations.</td></tr>
+        <tr><td>ACL</td><td>Couche anticorruption : protège votre modèle d'un modèle externe.</td></tr>
+
+        <tr class="hd hd-tact"><td colspan="2">Tactique — les briques</td></tr>
+        <tr><td>Value Object</td><td>Défini par sa valeur, immuable, sans identité.</td></tr>
+        <tr><td>Entity</td><td>Identité stable dans le temps, état mutable.</td></tr>
+        <tr><td>Aggregate</td><td>Unité de cohérence ; on y accède par sa racine.</td></tr>
+        <tr><td>Domain Event</td><td>Un fait métier survenu, nommé au passé.</td></tr>
+        <tr><td>Repository</td><td>Collection d'agrégats, abstraite de la base.</td></tr>
+        <tr><td>Domain Service</td><td>Opération métier sans propriétaire naturel.</td></tr>
+        <tr><td>Factory</td><td>Création encapsulée d'agrégats valides.</td></tr>
+
+        <tr class="hd hd-arch"><td colspan="2">Charpente</td></tr>
+        <tr><td>Hexagonale</td><td>Ports (interfaces du domaine) &amp; adapters (implémentations infra).</td></tr>
+        <tr><td>Règle de dépendance</td><td>Les dépendances pointent vers le domaine, jamais l'inverse.</td></tr>
+        <tr><td>Modèle riche</td><td>Données + règles ensemble. « Tell, don't ask. »</td></tr>
+      </tbody></table>
+    </div>
+
+    <h3>Pour aller plus loin</h3>
+    <p>Les références qui font autorité (plusieurs existent en français) :</p>
+    <ul>
+      <li><b>Eric Evans</b> — <i>Domain-Driven Design</i> (le « livre bleu », fondateur). Dense, mais c'est la source.</li>
+      <li><b>Vaughn Vernon</b> — <i>Implementing DDD</i> (le « livre rouge ») et <i>Domain-Driven Design Distilled</i> (l'introduction la plus accessible).</li>
+      <li><b>Vlad Khononov</b> — <i>Learning Domain-Driven Design</i> : moderne, pragmatique, idéal pour démarrer.</li>
+      <li><b>Scott Wlaschin</b> — <i>Domain Modeling Made Functional</i> : modéliser avec les types, très complémentaire de l'approche value objects.</li>
+      <li>Côté méthode : explorez l'<b>EventStorming</b> (Alberto Brandolini) et l'architecture <b>hexagonale</b> (Alistair Cockburn).</li>
+    </ul>
+
+    <div class="callout c-key">
+      <div class="ic">🧭</div>
+      <div class="bd"><span class="lab">Le mot de la fin</span>
+      <p>La meilleure conception n'est pas la plus sophistiquée : c'est celle qui <b>partage la bonne compréhension du métier</b> et garde ce cœur protégé. Le code n'est que la dernière traduction d'un modèle bien pensé. Comprenez le territoire, dessinez la carte — et le code suivra droit. Bonne exploration ! 🧭</p></div>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<button id="navbtn" aria-label="Ouvrir l'itinéraire">☰ Itinéraire</button>
+<div class="overlay" id="overlay"></div>
+
+<footer>
+  <p><b>Formation Conception &amp; Domain-Driven Design</b> — comment muscler les phases de conception en amont du code : comprendre le domaine, fixer un langage commun, découper en contextes, modéliser des briques solides, et protéger le cœur de métier par l'architecture.</p>
+  <p style="margin-top:8px;color:var(--ink-faint)">Rappel : concevoir d'abord ne veut pas dire tout figer. On pense assez pour viser juste, puis on itère, le modèle toujours vivant. 🧭</p>
+</footer>
+
+<!-- highlight.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+<script>
+(function(){
+  // 1) Render snippets from text/plain placeholders
+  document.querySelectorAll(".code-block").forEach(function(block){
+    var raw = block.querySelector('script[type="text/plain"]');
+    if(!raw) return;
+    var code = raw.textContent.replace(/^\n/,"").replace(/\s+$/,"");
+    var file = block.getAttribute("data-file");
+
+    var wrap = document.createElement("div"); wrap.className = "code-wrap";
+    var bar = document.createElement("div"); bar.className = "code-bar";
+    bar.innerHTML = '<span class="lights"><i></i><i></i><i></i></span>' +
+      '<span class="fname">'+(file || "typescript")+'</span>';
+    var btn = document.createElement("button"); btn.className = "copy"; btn.textContent = "Copier";
+    btn.addEventListener("click", function(){
+      var done = function(){ btn.textContent="Copié ✓"; setTimeout(function(){btn.textContent="Copier";},1400); };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(code).then(done).catch(fallback);
+      } else { fallback(); }
+      function fallback(){
+        var ta=document.createElement("textarea");ta.value=code;ta.style.position="fixed";ta.style.opacity="0";
+        document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){}document.body.removeChild(ta);
+      }
+    });
+    bar.appendChild(btn);
+
+    var pre = document.createElement("pre");
+    var c = document.createElement("code"); c.className = "language-typescript"; c.textContent = code;
+    pre.appendChild(c);
+    wrap.appendChild(bar); wrap.appendChild(pre);
+    block.replaceWith(wrap);
+  });
+
+  // 2) Highlight
+  if(window.hljs){ try{ hljs.highlightAll(); }catch(e){} }
+
+  // 3) Compare tabs
+  document.querySelectorAll("[data-compare]").forEach(function(cmp){
+    var tabs = cmp.querySelectorAll(".ctab");
+    var panels = cmp.querySelectorAll(".cpanel");
+    tabs.forEach(function(tab){
+      tab.addEventListener("click", function(){
+        var i = +tab.getAttribute("data-tab");
+        tabs.forEach(function(t){t.classList.remove("active");});
+        panels.forEach(function(p){p.classList.remove("active");});
+        tab.classList.add("active");
+        if(panels[i]) panels[i].classList.add("active");
+      });
+    });
+  });
+
+  // 4) Progress bar
+  var bar = document.getElementById("top-progress");
+  function onScroll(){
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    var p = max > 0 ? (h.scrollTop || document.body.scrollTop) / max : 0;
+    bar.style.width = (p*100) + "%";
+  }
+  window.addEventListener("scroll", onScroll, {passive:true}); onScroll();
+
+  // 5) Scroll-spy
+  var links = Array.prototype.slice.call(document.querySelectorAll("#toc a"));
+  var map = {}; links.forEach(function(a){ map[a.getAttribute("href").slice(1)] = a; });
+  var sections = links.map(function(a){ return document.getElementById(a.getAttribute("href").slice(1)); }).filter(Boolean);
+  var spy = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        links.forEach(function(l){l.classList.remove("active");});
+        var a = map[en.target.id]; if(a){ a.classList.add("active"); }
+      }
+    });
+  }, { rootMargin: "-18% 0px -74% 0px", threshold: 0 });
+  sections.forEach(function(s){ spy.observe(s); });
+
+  // 6) Mobile drawer
+  var sidebar = document.getElementById("sidebar");
+  var overlay = document.getElementById("overlay");
+  var navbtn = document.getElementById("navbtn");
+  function close(){ sidebar.classList.remove("open"); overlay.classList.remove("show"); }
+  function open(){ sidebar.classList.add("open"); overlay.classList.add("show"); }
+  navbtn.addEventListener("click", open);
+  overlay.addEventListener("click", close);
+  sidebar.addEventListener("click", function(e){ if(e.target.tagName==="A") close(); });
+})();
+</script>
+</body>
+</html>
