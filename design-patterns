@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Patterns — La formation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Spline+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3eee2;
+    --paper-2:#ece5d6;
+    --card:#fbf8f0;
+    --ink:#16233d;
+    --ink-soft:#46566f;
+    --ink-faint:#8492a6;
+    --line:rgba(22,35,61,.13);
+    --line-strong:rgba(22,35,61,.22);
+    --blue:#1f54d6;
+    --blue-deep:#13234c;
+    --create:#c1781a;   /* créationnels */
+    --struct:#0e9787;   /* structurels  */
+    --behav:#c33b86;    /* comportementaux */
+    --radius:16px;
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:"Spline Sans",system-ui,sans-serif;
+    --disp:"Bricolage Grotesque","Spline Sans",sans-serif;
+    --code-bg:#0f1a30;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:28px}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:var(--sans);font-size:17px;line-height:1.7;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden;
+  }
+  /* blueprint grid */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      linear-gradient(rgba(31,84,214,.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(31,84,214,.045) 1px, transparent 1px);
+    background-size:30px 30px;
+    mask-image:radial-gradient(circle at 50% 30%, #000 60%, transparent 100%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:radial-gradient(900px 520px at 84% -6%, rgba(31,84,214,.10), transparent 60%);
+  }
+  #top-progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;
+    background:linear-gradient(90deg,var(--blue),#5b8bff);box-shadow:0 0 10px rgba(31,84,214,.5)}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{font-family:var(--mono);font-size:.92em}
+
+  /* ---------- HERO ---------- */
+  .hero{position:relative;z-index:1;max-width:1140px;margin:0 auto;padding:84px 28px 36px}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--blue);
+    border:1px solid var(--line-strong);border-radius:999px;padding:7px 14px;background:rgba(31,84,214,.05)}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue)}
+  .hero h1{font-family:var(--disp);font-weight:800;font-size:clamp(46px,9.5vw,108px);line-height:.9;
+    margin:22px 0 0;letter-spacing:-.025em}
+  .hero h1 em{font-style:normal;color:var(--blue);position:relative}
+  .hero .lede{font-size:clamp(18px,2.4vw,23px);color:var(--ink-soft);max-width:680px;margin:20px 0 0;font-weight:420}
+  .hero .lede b{color:var(--ink);font-weight:700}
+
+  .families{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:40px 0 6px}
+  .fcard{border:1px solid var(--line);border-top:3px solid var(--fc);border-radius:14px;padding:16px 18px;
+    background:var(--card);box-shadow:0 18px 36px -28px rgba(22,35,61,.5)}
+  .fcard .cnt{font-family:var(--disp);font-weight:800;font-size:34px;line-height:1;color:var(--fc)}
+  .fcard .nm{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink);margin-top:8px;font-weight:600}
+  .fcard .ds{font-size:13.5px;color:var(--ink-soft);margin-top:6px;line-height:1.45}
+  .fc-create{--fc:var(--create)} .fc-struct{--fc:var(--struct)} .fc-behav{--fc:var(--behav)}
+  .scrollcue{margin-top:30px;font-family:var(--mono);font-size:12px;color:var(--ink-faint);letter-spacing:.08em}
+  .scrollcue::after{content:" ↓";animation:bob 1.6s ease-in-out infinite;display:inline-block}
+  @keyframes bob{50%{transform:translateY(5px)}}
+  .hero>*{opacity:0;transform:translateY(14px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards}
+  .hero>*:nth-child(1){animation-delay:.05s}.hero>*:nth-child(2){animation-delay:.13s}
+  .hero>*:nth-child(3){animation-delay:.21s}.hero>*:nth-child(4){animation-delay:.30s}
+  .hero>*:nth-child(5){animation-delay:.40s}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  /* ---------- LAYOUT ---------- */
+  .layout{position:relative;z-index:1;max-width:1300px;margin:0 auto;display:flex;gap:46px;
+    padding:24px 28px 120px;align-items:flex-start}
+  .sidebar{width:262px;flex:none;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow:auto;padding-right:4px}
+  .sidebar .sb-title{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink-faint);margin:6px 0 12px}
+  .toc{list-style:none;margin:0;padding:0}
+  .toc .grp{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--gc);font-weight:600;margin:18px 0 6px;display:flex;align-items:center;gap:7px}
+  .toc .grp::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--gc)}
+  .toc .grp.create{--gc:var(--create)} .toc .grp.struct{--gc:var(--struct)} .toc .grp.behav{--gc:var(--behav)}
+  .toc li a{display:flex;gap:9px;align-items:baseline;padding:5px 0 5px 13px;
+    border-left:2px solid var(--line);margin-left:1px;color:var(--ink-soft);font-size:13.8px;font-weight:500;line-height:1.3}
+  .toc li a .num{font-family:var(--mono);font-size:11px;color:var(--ink-faint);min-width:20px}
+  .toc li a:hover{color:var(--ink);text-decoration:none}
+  .toc li a.active{color:var(--blue);border-left-color:var(--blue);font-weight:700}
+  .toc li a.active .num{color:var(--blue)}
+  .sidebar .hint{margin-top:22px;font-size:12.5px;color:var(--ink-faint);line-height:1.5;
+    border-top:1px solid var(--line);padding-top:16px}
+
+  .content{flex:1;min-width:0;max-width:850px}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding-top:42px;margin-top:14px;scroll-margin-top:22px}
+  section+section{border-top:1px solid var(--line);margin-top:50px}
+  .modtag{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--fam,var(--blue));font-weight:600}
+  .modtag .dot{width:8px;height:8px;border-radius:2px;background:var(--fam,var(--blue))}
+  .fam-create{--fam:var(--create)} .fam-struct{--fam:var(--struct)} .fam-behav{--fam:var(--behav)}
+  h2{font-family:var(--disp);font-weight:800;font-size:clamp(30px,4.8vw,48px);line-height:1;
+    letter-spacing:-.02em;margin:9px 0 0}
+  h3{font-family:var(--sans);font-weight:700;font-size:20px;margin:34px 0 4px;letter-spacing:-.01em;color:var(--ink)}
+  h4{font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:.04em;color:var(--blue);
+    text-transform:uppercase;margin:24px 0 4px}
+  p{margin:13px 0;color:var(--ink-soft)}
+  p b,li b{color:var(--ink);font-weight:700}
+  .lead{font-size:18.5px;color:var(--ink);font-weight:450}
+  ul,ol{color:var(--ink-soft);padding-left:22px}
+  li{margin:6px 0}
+  .ink{color:var(--ink)}
+  .term{color:var(--blue);font-weight:700;border-bottom:1px dotted rgba(31,84,214,.45)}
+  .intent{font-size:17.5px;color:var(--ink);margin:14px 0 4px;padding:12px 16px;
+    border-left:3px solid var(--fam,var(--blue));background:var(--card);border-radius:0 12px 12px 0}
+  .intent b{color:var(--fam,var(--blue))}
+
+  /* ---------- CODE ---------- */
+  .code-wrap{margin:18px 0;border-radius:14px;overflow:hidden;background:var(--code-bg);
+    box-shadow:0 20px 46px -26px rgba(19,35,76,.7);border:1px solid rgba(31,84,214,.18)}
+  .code-bar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:rgba(255,255,255,.045);
+    border-bottom:1px solid rgba(255,255,255,.07)}
+  .code-bar .lights{display:flex;gap:6px}
+  .code-bar .lights i{width:11px;height:11px;border-radius:50%;display:block}
+  .lights i:nth-child(1){background:#ff5f57}.lights i:nth-child(2){background:#febc2e}.lights i:nth-child(3){background:#28c840}
+  .code-bar .fname{font-family:var(--mono);font-size:11.5px;color:#8493ad;margin-left:4px}
+  .code-bar .copy{margin-left:auto;font-family:var(--mono);font-size:11px;color:#aab6cd;
+    background:transparent;border:1px solid rgba(255,255,255,.16);border-radius:7px;padding:4px 10px;cursor:pointer;transition:.18s}
+  .code-bar .copy:hover{color:#fff;border-color:#5b8bff;background:rgba(91,139,255,.16)}
+  pre{margin:0;padding:18px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.62;tab-size:2}
+  pre code{font-size:13px}
+  .hljs{background:transparent;color:#d7deec}
+  .hljs-comment,.hljs-quote{color:#6f7e98;font-style:italic}
+  .hljs-keyword,.hljs-selector-tag{color:#82a9ff}
+  .hljs-built_in,.hljs-title.class_,.hljs-title.class_.inherited__,.hljs-type,.hljs-namespace{color:#5fd3c6}
+  .hljs-string,.hljs-regexp,.hljs-symbol{color:#aee0a0}
+  .hljs-number,.hljs-literal{color:#f2bd76}
+  .hljs-title,.hljs-title.function_,.hljs-section{color:#e7cd86}
+  .hljs-attr,.hljs-attribute,.hljs-property{color:#d7deec}
+  .hljs-params{color:#c3cce0}
+  .hljs-variable,.hljs-template-variable,.hljs-subst{color:#d7deec}
+  .hljs-meta{color:#8493ad}
+
+  /* ---------- USAGE block ---------- */
+  .usage{margin:16px 0;border:1px solid var(--line);border-left:3px solid var(--fam,var(--blue));
+    border-radius:0 12px 12px 0;background:var(--card);overflow:hidden}
+  .usage p{margin:0;padding:11px 16px;font-size:14.5px;color:var(--ink-soft)}
+  .usage p+p{border-top:1px solid var(--line)}
+  .usage .u-when b{color:#138a4e}
+  .usage .u-warn b{color:#c0392b}
+  .usage .u-when::before{content:"✅ ";} .usage .u-warn::before{content:"⚠️ ";}
+  .analogy{font-size:15px;color:var(--ink-soft);font-style:italic;margin:14px 0;padding-left:6px}
+  .analogy b{font-style:normal;color:var(--ink)}
+
+  /* ---------- CALLOUTS ---------- */
+  .callout{margin:20px 0;border:1px solid var(--line-strong);border-left-width:4px;border-radius:12px;
+    padding:14px 17px;background:var(--card);display:flex;gap:14px;align-items:flex-start}
+  .callout .ic{font-size:19px;line-height:1.5;flex:none}
+  .callout .bd{flex:1}.callout p{margin:3px 0;color:var(--ink-soft)}
+  .callout .lab{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;margin-bottom:2px}
+  .c-tip{border-left-color:var(--struct)} .c-tip .lab{color:var(--struct)}
+  .c-warn{border-left-color:#d0432d} .c-warn .lab{color:#d0432d}
+  .c-key{border-left-color:var(--blue);background:rgba(31,84,214,.05)} .c-key .lab{color:var(--blue)}
+  .c-note{border-left-color:var(--create)} .c-note .lab{color:var(--create)}
+
+  /* ---------- COMPARE ---------- */
+  .compare{margin:20px 0;border:1px solid var(--line-strong);border-radius:14px;overflow:hidden;background:var(--card)}
+  .ctabs{display:flex;border-bottom:1px solid var(--line)}
+  .ctab{flex:1;font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--ink-faint);
+    background:transparent;border:0;padding:11px 10px;cursor:pointer;transition:.18s;border-bottom:2px solid transparent}
+  .ctab:hover{color:var(--ink-soft)}
+  .ctab.active.bad{color:#c0392b;border-bottom-color:#c0392b;background:rgba(192,57,43,.06)}
+  .ctab.active.good{color:#138a4e;border-bottom-color:#138a4e;background:rgba(19,138,78,.06)}
+  .cpanel{display:none}.cpanel.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .cpanel .code-wrap{margin:0;border:0;border-radius:0;box-shadow:none}
+  .cnote{padding:10px 16px;font-size:13.5px;border-top:1px solid var(--line);color:var(--ink-soft)}
+  .cnote.bad{background:rgba(192,57,43,.05)} .cnote.bad b{color:#c0392b}
+  .cnote.good{background:rgba(19,138,78,.05)} .cnote.good b{color:#138a4e}
+
+  /* ---------- decision / sheet ---------- */
+  .decision{margin:20px 0;display:grid;gap:10px}
+  .drow{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;
+    padding:13px 16px;background:var(--card)}
+  .drow .sym{flex:1;color:var(--ink);font-weight:500}
+  .drow .pat{flex:none;font-family:var(--mono);font-size:13px;color:var(--blue);font-weight:600;text-align:right;max-width:46%}
+  .sheet{margin:22px 0;border:1px solid var(--line-strong);border-radius:14px;overflow:hidden;background:var(--card)}
+  .sheet table{border-collapse:collapse;width:100%;font-size:14px}
+  .sheet th,.sheet td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  .sheet th{font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--blue);background:rgba(31,84,214,.05)}
+  .sheet td:first-child{font-family:var(--mono);color:var(--ink);white-space:nowrap;font-weight:600}
+  .sheet tr:last-child td{border-bottom:0}
+  .sheet .hd-create td{background:rgba(193,120,26,.08);color:var(--create);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+  .sheet .hd-struct td{background:rgba(14,151,135,.08);color:var(--struct);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+  .sheet .hd-behav td{background:rgba(195,59,134,.08);color:var(--behav);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+
+  #navbtn{display:none}
+  footer{position:relative;z-index:1;max-width:1300px;margin:0 auto;padding:28px 28px 70px;
+    border-top:1px solid var(--line);color:var(--ink-faint);font-size:14px}
+  footer b{color:var(--ink-soft)}
+  .overlay{display:none}
+
+  @media(max-width:1000px){
+    body{font-size:16px}
+    .layout{display:block;padding:18px 20px 90px}
+    .content{max-width:none}
+    .families{grid-template-columns:1fr}
+    .sidebar{position:fixed;top:0;left:0;height:100dvh;width:84vw;max-width:320px;z-index:50;
+      background:var(--paper-2);border-right:1px solid var(--line-strong);padding:72px 20px 28px 22px;
+      transform:translateX(-104%);transition:transform .3s cubic-bezier(.3,.7,.2,1);max-height:none;
+      box-shadow:30px 0 60px -30px rgba(22,35,61,.5)}
+    .sidebar.open{transform:none}
+    .overlay{display:block;position:fixed;inset:0;background:rgba(22,35,61,.4);z-index:45;opacity:0;pointer-events:none;transition:.3s}
+    .overlay.show{opacity:1;pointer-events:auto}
+    #navbtn{display:inline-flex;align-items:center;gap:8px;position:fixed;left:16px;bottom:18px;z-index:55;
+      font-family:var(--mono);font-size:13px;font-weight:600;color:#fff;
+      background:linear-gradient(90deg,var(--blue),#4f7bff);border:0;border-radius:999px;padding:12px 18px;cursor:pointer;
+      box-shadow:0 12px 28px -8px rgba(31,84,214,.6)}
+    .hero{padding:60px 20px 22px}
+    .drow{flex-direction:column;gap:6px}.drow .pat{text-align:left;max-width:none}
+  }
+</style>
+</head>
+<body>
+<div id="top-progress"></div>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <span class="eyebrow"><span class="dot"></span>Formation &nbsp;·&nbsp; Gang of Four &nbsp;·&nbsp; TypeScript</span>
+  <h1>Design <em>Patterns</em></h1>
+  <p class="lede">23 <b>plans éprouvés</b> pour résoudre les problèmes de conception qui reviennent <i>tout le temps</i>. Non pas du code à copier-coller, mais un <b>vocabulaire</b> partagé et des solutions qui rendent vos systèmes plus souples, plus clairs, plus faciles à faire évoluer.</p>
+
+  <div class="families">
+    <div class="fcard fc-create">
+      <div class="cnt">5</div>
+      <div class="nm">Créationnels</div>
+      <div class="ds">Comment <b style="color:var(--ink)">créer</b> des objets — en cachant le « comment » et le « quel type ».</div>
+    </div>
+    <div class="fcard fc-struct">
+      <div class="cnt">7</div>
+      <div class="nm">Structurels</div>
+      <div class="ds">Comment <b style="color:var(--ink)">assembler</b> objets et classes en structures plus grandes.</div>
+    </div>
+    <div class="fcard fc-behav">
+      <div class="cnt">11</div>
+      <div class="nm">Comportementaux</div>
+      <div class="ds">Comment les objets <b style="color:var(--ink)">communiquent</b> et se répartissent les responsabilités.</div>
+    </div>
+  </div>
+  <div class="scrollcue">on commence par « c'est quoi, au juste ? »</div>
+</header>
+
+<!-- ============ LAYOUT ============ -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-title">Sommaire</div>
+    <ul class="toc" id="toc">
+      <li><a href="#intro"><span class="num">00</span>Introduction</a></li>
+
+      <li class="grp create">Créationnels</li>
+      <li><a href="#factory-method"><span class="num">01</span>Factory Method</a></li>
+      <li><a href="#abstract-factory"><span class="num">02</span>Abstract Factory</a></li>
+      <li><a href="#builder"><span class="num">03</span>Builder</a></li>
+      <li><a href="#prototype"><span class="num">04</span>Prototype</a></li>
+      <li><a href="#singleton"><span class="num">05</span>Singleton</a></li>
+
+      <li class="grp struct">Structurels</li>
+      <li><a href="#adapter"><span class="num">06</span>Adapter</a></li>
+      <li><a href="#bridge"><span class="num">07</span>Bridge</a></li>
+      <li><a href="#composite"><span class="num">08</span>Composite</a></li>
+      <li><a href="#decorator"><span class="num">09</span>Decorator</a></li>
+      <li><a href="#facade"><span class="num">10</span>Facade</a></li>
+      <li><a href="#flyweight"><span class="num">11</span>Flyweight</a></li>
+      <li><a href="#proxy"><span class="num">12</span>Proxy</a></li>
+
+      <li class="grp behav">Comportementaux</li>
+      <li><a href="#chain"><span class="num">13</span>Chain of Resp.</a></li>
+      <li><a href="#command"><span class="num">14</span>Command</a></li>
+      <li><a href="#iterator"><span class="num">15</span>Iterator</a></li>
+      <li><a href="#mediator"><span class="num">16</span>Mediator</a></li>
+      <li><a href="#memento"><span class="num">17</span>Memento</a></li>
+      <li><a href="#observer"><span class="num">18</span>Observer</a></li>
+      <li><a href="#state"><span class="num">19</span>State</a></li>
+      <li><a href="#strategy"><span class="num">20</span>Strategy</a></li>
+      <li><a href="#template-method"><span class="num">21</span>Template Method</a></li>
+      <li><a href="#visitor"><span class="num">22</span>Visitor</a></li>
+      <li><a href="#interpreter"><span class="num">23</span>Interpreter</a></li>
+
+      <li class="grp" style="--gc:var(--blue)">Pour finir</li>
+      <li><a href="#choisir"><span class="num">→</span>Comment choisir</a></li>
+      <li><a href="#antiseche"><span class="num">→</span>Antisèche</a></li>
+    </ul>
+    <div class="hint">Bleu = abstraction / interface. Le code (fond sombre) montre toujours un cas <i>réaliste</i>, pas un exemple jouet.</div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+  <!-- ===== 00 INTRO ===== -->
+  <section id="intro">
+    <div class="modtag"><span class="dot"></span>Introduction</div>
+    <h2>Avant de plonger</h2>
+    <p class="lead">Un <span class="term">design pattern</span> est une solution générale, nommée et réutilisable, à un problème de conception qui revient souvent. Ce n'est <b>pas une librairie</b> qu'on installe, ni un bout de code à copier : c'est un <b>plan</b> qu'on adapte à sa situation.</p>
+
+    <h3>Pourquoi s'embêter avec ça ?</h3>
+    <ul>
+      <li><b>Un vocabulaire commun.</b> Dire « ici c'est un Observer » communique en trois mots une intention qui prendrait un paragraphe. Toute l'équipe se comprend instantanément.</li>
+      <li><b>Des solutions éprouvées.</b> Ces problèmes ont été résolus mille fois ; inutile de réinventer une roue carrée.</li>
+      <li><b>Du découplage.</b> Le fil rouge de presque tous les patterns : <span class="ink">dépendre d'abstractions, pas de détails concrets</span>, pour que les morceaux évoluent indépendamment.</li>
+    </ul>
+
+    <h3>Les trois familles</h3>
+    <p>Le « Gang of Four » (le livre fondateur de 1994) range les 23 patterns en trois familles, selon la question à laquelle ils répondent :</p>
+    <div class="usage" style="--fam:var(--create)"><p class="u-when" style="color:var(--ink-soft)"><b style="color:var(--create)">Créationnels</b> — « comment créer des objets ? » (Factory, Builder, Singleton…)</p></div>
+    <div class="usage" style="--fam:var(--struct)"><p class="u-when" style="color:var(--ink-soft)"><b style="color:var(--struct)">Structurels</b> — « comment les assembler en structures ? » (Adapter, Decorator, Proxy…)</p></div>
+    <div class="usage" style="--fam:var(--behav)"><p class="u-when" style="color:var(--ink-soft)"><b style="color:var(--behav)">Comportementaux</b> — « comment se parlent-ils ? » (Observer, Strategy, State…)</p></div>
+
+    <h3>Le piège à éviter (le plus important)</h3>
+    <div class="callout c-warn">
+      <div class="ic">🔨</div>
+      <div class="bd"><span class="lab">Le syndrome du marteau d'or</span>
+      <p>« Quand on a un marteau, tout ressemble à un clou. » Le débutant qui découvre les patterns veut les caser <i>partout</i> — et transforme un programme simple en cathédrale d'abstractions. <b>Chaque pattern a un coût</b> : de l'indirection, des classes en plus, de la complexité. Ne le payez que lorsque le problème est <b>réel</b>, pas anticipé.</p></div>
+    </div>
+    <div class="callout c-key">
+      <div class="ic">🎯</div>
+      <div class="bd"><span class="lab">La bonne mentalité</span>
+      <p>On ne « place » pas un pattern : on le <b>reconnaît</b> quand le problème qu'il résout apparaît. Apprenez-les pour les <i>repérer</i>, et appliquez-les avec parcimonie. Le meilleur code reste le plus simple qui fasse le travail.</p></div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- ====================== CRÉATIONNELS ======================== -->
+  <!-- ============================================================ -->
+
+  <!-- ===== 01 FACTORY METHOD ===== -->
+  <section id="factory-method" class="fam-create">
+    <div class="modtag"><span class="dot"></span>Créationnel · Patron 01 / 23</div>
+    <h2>Factory Method</h2>
+    <p class="intent"><b>Intention —</b> Déléguer la création d'objets à des sous-classes, en programmant contre une <b>interface</b> plutôt qu'une classe concrète.</p>
+
+    <h3>Le problème</h3>
+    <p>Votre code fait des <code>new ClasseConcrète()</code> un peu partout. Le jour où il faut un autre type d'objet, vous chassez chaque <code>new</code> dispersé dans la base — et vous ajoutez un <code>if</code> à chaque fois.</p>
+    <h3>La solution</h3>
+    <p>On isole la création derrière une méthode (la « factory method »). La classe de base utilise le produit via son interface ; chaque sous-classe décide <i>quel</i> produit concret fabriquer.</p>
+
+    <div class="code-block" data-file="factory-method.ts"><script type="text/plain">// Le produit : une interface commune à toutes les variantes.
+interface Button {
+  render(): string
+}
+class HtmlButton implements Button {
+  render() { return "<button>OK</button>" }
+}
+class WindowsButton implements Button {
+  render() { return "[ OK ]" }
+}
+
+// Le créateur déclare la factory method, mais NE choisit PAS le concret.
+abstract class Dialog {
+  // 👇 la factory method : chaque sous-classe la redéfinit
+  protected abstract createButton(): Button
+
+  // Le reste du code dépend de l'INTERFACE Button, jamais du concret.
+  render(): string {
+    const okButton = this.createButton()
+    return `Dialogue { ${okButton.render()} }`
+  }
+}
+
+class WebDialog extends Dialog {
+  protected createButton() { return new HtmlButton() }
+}
+class DesktopDialog extends Dialog {
+  protected createButton() { return new WindowsButton() }
+}
+
+// On choisit la variante à UN seul endroit ; le reste ne change jamais.
+const dialog: Dialog = new WebDialog()
+console.log(dialog.render())   // Dialogue { <button>OK</button> }</script></div>
+
+    <div class="compare" data-compare>
+      <div class="ctabs">
+        <button class="ctab bad active" data-tab="0">😵 Sans le pattern</button>
+        <button class="ctab good" data-tab="1">✨ Avec Factory Method</button>
+      </div>
+      <div class="cpanel active">
+        <div class="code-block"><script type="text/plain">function createButton(os: string) {
+  if (os === "web") return new HtmlButton()
+  if (os === "windows") return new WindowsButton()
+  if (os === "mac") return new MacButton()
+  // …et ce même `if` se répète à CHAQUE endroit qui crée un bouton.
+  // Nouveau type ? Il faut retrouver et modifier tous ces blocs.
+}</script></div>
+        <div class="cnote bad">Création <b>dispersée</b> et conditionnelle : fragile, et chaque ajout viole le principe ouvert/fermé.</div>
+      </div>
+      <div class="cpanel">
+        <div class="code-block"><script type="text/plain">// La décision "quel bouton" vit dans UNE sous-classe.
+// Ajouter une variante = ajouter une classe, sans toucher à l'existant.
+class MacDialog extends Dialog {
+  protected createButton() { return new MacButton() }
+}</script></div>
+        <div class="cnote good">Le « quel concret » est <b>localisé</b>. Le code client reste stable, ouvert à l'extension.</div>
+      </div>
+    </div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> Un transporteur. <i>RoadLogistics</i> crée des camions, <i>SeaLogistics</i> crée des bateaux. La planification d'un trajet est identique ; seul le « véhicule » créé change.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> vous ne connaissez pas à l'avance les types concrets à créer, ou pour offrir un point d'extension aux utilisateurs de votre lib.</p>
+      <p class="u-warn"><b>Le piège —</b> une sous-classe par produit peut faire proliférer les classes. Pour un cas trivial, une simple fonction suffit.</p>
+    </div>
+  </section>
+
+  <!-- ===== 02 ABSTRACT FACTORY ===== -->
+  <section id="abstract-factory" class="fam-create">
+    <div class="modtag"><span class="dot"></span>Créationnel · Patron 02 / 23</div>
+    <h2>Abstract Factory</h2>
+    <p class="intent"><b>Intention —</b> Créer des <b>familles d'objets liés</b> (qui vont ensemble) sans préciser leurs classes concrètes.</p>
+
+    <h3>Le problème</h3>
+    <p>Vous avez plusieurs produits qui doivent être <b>cohérents entre eux</b> : des boutons et des cases « style macOS », ou « style Windows ». Vous voulez éviter de mélanger un bouton Mac avec une case Windows.</p>
+    <h3>La solution</h3>
+    <p>Une <i>fabrique abstraite</i> regroupe la création de toute une famille. Chaque fabrique concrète produit une famille cohérente.</p>
+
+    <div class="code-block" data-file="abstract-factory.ts"><script type="text/plain">interface Button { paint(): string }
+interface Checkbox { paint(): string }
+
+// La fabrique abstraite : créer une FAMILLE cohérente de produits.
+interface GuiFactory {
+  createButton(): Button
+  createCheckbox(): Checkbox
+}
+
+class MacButton implements Button { paint() { return "Bouton ◾ macOS" } }
+class MacCheckbox implements Checkbox { paint() { return "Case ◽ macOS" } }
+class WinButton implements Button { paint() { return "Bouton ▣ Windows" } }
+class WinCheckbox implements Checkbox { paint() { return "Case ▢ Windows" } }
+
+class MacFactory implements GuiFactory {
+  createButton() { return new MacButton() }
+  createCheckbox() { return new MacCheckbox() }
+}
+class WinFactory implements GuiFactory {
+  createButton() { return new WinButton() }
+  createCheckbox() { return new WinCheckbox() }
+}
+
+// Le client ne connaît QUE les interfaces : impossible de mélanger les styles,
+// et zéro `if (os === ...)` éparpillé dans l'application.
+function buildUI(factory: GuiFactory) {
+  console.log(factory.createButton().paint())
+  console.log(factory.createCheckbox().paint())
+}
+
+const factory = process.platform === "darwin" ? new MacFactory() : new WinFactory()
+buildUI(factory)</script></div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> Un fabricant de meubles en kit. La gamme « Art déco » fournit chaise + table + canapé assortis ; la gamme « Moderne » aussi. On choisit une gamme, tout est cohérent.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> votre code doit fonctionner avec plusieurs familles de produits liés, en garantissant leur cohérence (thèmes UI, drivers de BDD, multi-plateformes).</p>
+      <p class="u-warn"><b>Le piège —</b> ajouter un <i>nouveau type</i> de produit oblige à modifier l'interface de fabrique et toutes ses implémentations. Lourd si la famille grossit souvent.</p>
+    </div>
+  </section>
+
+  <!-- ===== 03 BUILDER ===== -->
+  <section id="builder" class="fam-create">
+    <div class="modtag"><span class="dot"></span>Créationnel · Patron 03 / 23</div>
+    <h2>Builder</h2>
+    <p class="intent"><b>Intention —</b> Construire un objet complexe <b>étape par étape</b>, en séparant la construction de la représentation finale.</p>
+
+    <h3>Le problème</h3>
+    <p>Le fameux constructeur « télescopique » : <code>new Truc(a, b, undefined, null, true, undefined, "x")</code>. Illisible, et chaque option facultative ajoute une surcharge.</p>
+    <h3>La solution</h3>
+    <p>Un <i>builder</i> propose des méthodes lisibles, chaînables, puis un <code>build()</code> final. On ne paie que pour les options qu'on choisit.</p>
+
+    <div class="code-block" data-file="builder.ts"><script type="text/plain">class HttpRequest {
+  constructor(
+    readonly url: string,
+    readonly method: string,
+    readonly headers: Record<string, string>,
+    readonly body?: string
+  ) {}
+}
+
+class HttpRequestBuilder {
+  private method = "GET"
+  private headers: Record<string, string> = {}
+  private body?: string
+  constructor(private readonly url: string) {}
+
+  // Chaque méthode renvoie `this` → on peut enchaîner (interface fluide).
+  setMethod(m: string): this { this.method = m; return this }
+  addHeader(key: string, value: string): this { this.headers[key] = value; return this }
+  setBody(b: string): this { this.body = b; return this }
+
+  build(): HttpRequest {
+    return new HttpRequest(this.url, this.method, this.headers, this.body)
+  }
+}
+
+// Lisible, sans arguments mystères, et seules les options voulues sont posées.
+const request = new HttpRequestBuilder("/api/users")
+  .setMethod("POST")
+  .addHeader("Content-Type", "application/json")
+  .setBody(JSON.stringify({ name: "Ada" }))
+  .build()</script></div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> Commander un burger : pain, steak, fromage, sauce… on coche les options une à une, et « valider » assemble le tout.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> un objet a beaucoup de paramètres optionnels, ou que sa construction se fait en plusieurs étapes (requêtes, configurations, documents).</p>
+      <p class="u-warn"><b>Le piège —</b> pour un objet à 2-3 champs, un objet de config <code>{ }</code> en paramètre est plus simple. N'en faites pas une usine à gaz.</p>
+    </div>
+  </section>
+
+  <!-- ===== 04 PROTOTYPE ===== -->
+  <section id="prototype" class="fam-create">
+    <div class="modtag"><span class="dot"></span>Créationnel · Patron 04 / 23</div>
+    <h2>Prototype</h2>
+    <p class="intent"><b>Intention —</b> Créer de nouveaux objets en <b>clonant</b> un exemplaire existant, plutôt qu'en les reconstruisant de zéro.</p>
+
+    <h3>Le problème</h3>
+    <p>Recréer un objet à l'identique demande de reconfigurer tous ses champs — parfois privés, ou coûteux à recalculer. Et vous voulez éviter de coupler votre code à sa classe concrète.</p>
+    <h3>La solution</h3>
+    <p>L'objet sait se cloner lui-même via une méthode <code>clone()</code>.</p>
+
+    <div class="code-block" data-file="prototype.ts"><script type="text/plain">interface Cloneable<T> {
+  clone(): T
+}
+
+class Shape implements Cloneable<Shape> {
+  constructor(
+    public x: number,
+    public y: number,
+    public color: string
+  ) {}
+
+  // On copie l'état EXISTANT au lieu de tout reparamétrer.
+  clone(): Shape {
+    return new Shape(this.x, this.y, this.color)
+  }
+}
+
+const original = new Shape(10, 20, "rouge")
+const copy = original.clone()
+copy.x = 99                  // l'original n'est pas affecté
+
+// 💡 En TS/JS moderne, structuredClone() fait un clone profond des données pures :
+const deep = structuredClone({ point: { x: 1, y: 2 }, tags: ["a", "b"] })</script></div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> La photocopie. Plus rapide que de retaper le document : on duplique l'existant, puis on annote la copie.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> la création est coûteuse, ou que vous voulez dupliquer des objets sans dépendre de leurs classes concrètes (éditeurs graphiques, objets de jeu).</p>
+      <p class="u-warn"><b>Le piège —</b> attention aux <b>références partagées</b> : un clone superficiel copie les pointeurs, pas les objets imbriqués. Pensez clone profond si besoin.</p>
+    </div>
+  </section>
+
+  <!-- ===== 05 SINGLETON ===== -->
+  <section id="singleton" class="fam-create">
+    <div class="modtag"><span class="dot"></span>Créationnel · Patron 05 / 23</div>
+    <h2>Singleton</h2>
+    <p class="intent"><b>Intention —</b> Garantir qu'une classe n'a <b>qu'une seule instance</b> et fournir un point d'accès global à celle-ci.</p>
+
+    <h3>Le problème</h3>
+    <p>Certaines choses doivent être uniques : un pool de connexions, une config applicative. On veut empêcher d'en créer plusieurs par accident.</p>
+    <h3>La solution</h3>
+    <p>Constructeur privé + une méthode statique qui crée l'instance à la demande et la réutilise ensuite.</p>
+
+    <div class="code-block" data-file="singleton.ts"><script type="text/plain">class AppConfig {
+  private static instance: AppConfig
+  readonly env = process.env.NODE_ENV ?? "dev"
+
+  // Constructeur privé : personne ne peut faire `new AppConfig()` ailleurs.
+  private constructor() {}
+
+  static getInstance(): AppConfig {
+    if (!AppConfig.instance) {
+      AppConfig.instance = new AppConfig()
+    }
+    return AppConfig.instance
+  }
+}
+
+const a = AppConfig.getInstance()
+const b = AppConfig.getInstance()
+console.log(a === b)   // true — une seule et même instance
+
+// ✅ En JS/TS, l'alternative idiomatique : un module exporte une instance.
+//    Le système de modules garantit déjà l'unicité, sans toute la cérémonie.
+//    export const config = new AppConfig()</script></div>
+
+    <div class="callout c-warn">
+      <div class="ic">⚠️</div>
+      <div class="bd"><span class="lab">Le pattern le plus controversé</span>
+      <p>Le Singleton est souvent considéré comme un <b>anti-pattern</b> : c'est de l'état global déguisé. Il rend les tests difficiles (impossible de l'isoler ou de le remplacer), masque les dépendances et crée du couplage caché. Avant d'en mettre un, demandez-vous si une simple <b>injection de dépendance</b> ne ferait pas mieux le travail.</p></div>
+    </div>
+    <p class="analogy">🌍 <b>Analogie —</b> Le gouvernement d'un pays : peu importe qui on interroge, il n'y en a qu'un, et c'est le point d'accès officiel.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> une ressource doit être strictement unique <i>et</i> partagée globalement (et que l'injection n'est pas praticable).</p>
+      <p class="u-warn"><b>Le piège —</b> testabilité et concurrence. En général, préférez injecter l'instance plutôt que d'y accéder via une statique globale.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- ======================= STRUCTURELS ======================== -->
+  <!-- ============================================================ -->
+
+  <!-- ===== 06 ADAPTER ===== -->
+  <section id="adapter" class="fam-struct">
+    <div class="modtag"><span class="dot"></span>Structurel · Patron 06 / 23</div>
+    <h2>Adapter</h2>
+    <p class="intent"><b>Intention —</b> Faire collaborer deux interfaces <b>incompatibles</b> en intercalant un traducteur.</p>
+
+    <h3>Le problème</h3>
+    <p>Une lib tierce (ou un vieux module) expose une API qui ne correspond pas à ce que votre code attend — et vous ne pouvez pas la modifier.</p>
+    <h3>La solution</h3>
+    <p>Un <i>adaptateur</i> implémente l'interface attendue par votre code, et traduit chaque appel vers la lib existante.</p>
+
+    <div class="code-block" data-file="adapter.ts"><script type="text/plain">// Ce que NOTRE code attend partout :
+interface Logger {
+  log(message: string): void
+}
+
+// La lib tierce, incompatible (autre signature) — on ne peut pas la changer.
+class ThirdPartyLogger {
+  writeLine(level: number, text: string) {
+    console.log(`[${level}] ${text}`)
+  }
+}
+
+// L'adaptateur parle NOTRE langue, et traduit vers celle de la lib.
+class LoggerAdapter implements Logger {
+  constructor(private readonly adaptee: ThirdPartyLogger) {}
+  log(message: string): void {
+    this.adaptee.writeLine(1, message)   // ← la traduction
+  }
+}
+
+// Le reste de l'app utilise Logger et ignore tout de la lib tierce.
+const logger: Logger = new LoggerAdapter(new ThirdPartyLogger())
+logger.log("Bonjour")</script></div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> L'adaptateur de prise électrique en voyage : il ne change ni la prise murale ni l'appareil, il les réconcilie.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> vous intégrez une lib externe, un système legacy, ou des APIs aux signatures divergentes derrière une interface unifiée.</p>
+      <p class="u-warn"><b>Le piège —</b> empiler les adaptateurs d'adaptateurs masque la dette. Parfois, mieux vaut assainir l'interface d'origine.</p>
+    </div>
+  </section>
+
+  <!-- ===== 07 BRIDGE ===== -->
+  <section id="bridge" class="fam-struct">
+    <div class="modtag"><span class="dot"></span>Structurel · Patron 07 / 23</div>
+    <h2>Bridge</h2>
+    <p class="intent"><b>Intention —</b> Découpler une <b>abstraction</b> de son <b>implémentation</b> pour que les deux varient indépendamment.</p>
+
+    <h3>Le problème</h3>
+    <p>Deux dimensions varient en même temps. Ex. : <code>Télécommande</code> (basique, avancée) × <code>Appareil</code> (TV, radio). En héritage classique, on explose en <code>TVBasicRemote</code>, <code>RadioAdvancedRemote</code>… combinatoire ingérable.</p>
+    <h3>La solution</h3>
+    <p>On sépare les deux hiérarchies : l'abstraction <b>contient</b> (compose) une implémentation et lui délègue le travail.</p>
+
+    <div class="code-block" data-file="bridge.ts"><script type="text/plain">// Côté IMPLÉMENTATION : ce qui varie d'un côté.
+interface Device {
+  isEnabled(): boolean
+  enable(): void
+  disable(): void
+  setVolume(percent: number): void
+}
+class Tv implements Device {
+  private on = false; private vol = 30
+  isEnabled() { return this.on }
+  enable() { this.on = true }
+  disable() { this.on = false }
+  setVolume(p: number) { this.vol = p }
+}
+class Radio implements Device {
+  private on = false; private vol = 50
+  isEnabled() { return this.on }
+  enable() { this.on = true }
+  disable() { this.on = false }
+  setVolume(p: number) { this.vol = p }
+}
+
+// Côté ABSTRACTION : ce qui varie de l'autre côté. Elle DÉLÈGUE au Device.
+class RemoteControl {
+  constructor(protected device: Device) {}
+  togglePower() {
+    this.device.isEnabled() ? this.device.disable() : this.device.enable()
+  }
+}
+// On enrichit l'abstraction SANS toucher aux implémentations (et inversement).
+class AdvancedRemote extends RemoteControl {
+  mute() { this.device.setVolume(0) }
+}
+
+// N'importe quelle télécommande × n'importe quel appareil. Pas d'explosion.
+const remote = new AdvancedRemote(new Tv())
+remote.togglePower()
+remote.mute()</script></div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> Une télécommande universelle : un seul boîtier (abstraction) pilote n'importe quel téléviseur (implémentation), chacun évoluant de son côté.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> deux axes varient indépendamment (UI × plateforme, forme × rendu), pour éviter l'explosion combinatoire de sous-classes.</p>
+      <p class="u-warn"><b>Le piège —</b> souvent confondu avec l'Adapter. Le Bridge se conçoit <i>en amont</i> ; l'Adapter répond <i>après coup</i> à une incompatibilité.</p>
+    </div>
+  </section>
+
+  <!-- ===== 08 COMPOSITE ===== -->
+  <section id="composite" class="fam-struct">
+    <div class="modtag"><span class="dot"></span>Structurel · Patron 08 / 23</div>
+    <h2>Composite</h2>
+    <p class="intent"><b>Intention —</b> Composer des objets en <b>arborescences</b>, et traiter un élément simple et un groupe d'éléments <b>de façon identique</b>.</p>
+
+    <h3>Le problème</h3>
+    <p>Vous manipulez une hiérarchie (fichiers/dossiers, menus/sous-menus, formes/groupes) et vous truffez votre code de <code>if (estUnDossier) … else …</code>.</p>
+    <h3>La solution</h3>
+    <p>Feuilles et conteneurs implémentent la <b>même interface</b>. Un conteneur délègue récursivement à ses enfants.</p>
+
+    <div class="code-block" data-file="composite.ts"><script type="text/plain">// Le composant commun : feuilles ET conteneurs partagent cette interface.
+interface FileSystemNode {
+  getName(): string
+  getSize(): number
+}
+
+// La feuille.
+class FileLeaf implements FileSystemNode {
+  constructor(private name: string, private size: number) {}
+  getName() { return this.name }
+  getSize() { return this.size }
+}
+
+// Le composite : il contient d'autres nœuds (feuilles OU composites).
+class Folder implements FileSystemNode {
+  private children: FileSystemNode[] = []
+  constructor(private name: string) {}
+  add(node: FileSystemNode) { this.children.push(node) }
+  getName() { return this.name }
+  // Délègue récursivement : il ignore si l'enfant est un fichier ou un dossier.
+  getSize(): number {
+    return this.children.reduce((sum, child) => sum + child.getSize(), 0)
+  }
+}
+
+const root = new Folder("racine")
+root.add(new FileLeaf("cv.pdf", 100))
+const images = new Folder("images")
+images.add(new FileLeaf("logo.png", 2000))
+root.add(images)
+
+console.log(root.getSize())   // 2100 — fichier et dossier, même traitement</script></div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> Un organigramme d'entreprise : on peut demander « combien de personnes ? » à un employé (1) comme à un département entier (sa somme).</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> vous représentez des hiérarchies « tout/partie » et voulez les parcourir uniformément (arbres DOM, systèmes de fichiers, scènes graphiques).</p>
+      <p class="u-warn"><b>Le piège —</b> une interface trop large : si <code>add()</code> n'a aucun sens sur une feuille, il faut décider comment le gérer (erreur, no-op).</p>
+    </div>
+  </section>
+
+  <!-- ===== 09 DECORATOR ===== -->
+  <section id="decorator" class="fam-struct">
+    <div class="modtag"><span class="dot"></span>Structurel · Patron 09 / 23</div>
+    <h2>Decorator</h2>
+    <p class="intent"><b>Intention —</b> Ajouter des responsabilités à un objet <b>dynamiquement</b>, en l'enveloppant dans un autre objet de même interface.</p>
+
+    <h3>Le problème</h3>
+    <p>Vous voulez combiner des options (café + lait + sucre + chantilly). En héritage, vous créeriez une classe par combinaison… explosion garantie.</p>
+    <h3>La solution</h3>
+    <p>Chaque option est un <i>décorateur</i> qui enveloppe l'objet, expose la même interface, et ajoute son comportement avant/après de déléguer.</p>
+
+    <div class="code-block" data-file="decorator.ts"><script type="text/plain">// Le composant de base.
+interface Coffee {
+  cost(): number
+  description(): string
+}
+class Espresso implements Coffee {
+  cost() { return 2 }
+  description() { return "Espresso" }
+}
+
+// Le décorateur enveloppe un Coffee et expose la MÊME interface.
+abstract class CoffeeDecorator implements Coffee {
+  constructor(protected inner: Coffee) {}
+  abstract cost(): number
+  abstract description(): string
+}
+class WithMilk extends CoffeeDecorator {
+  cost() { return this.inner.cost() + 0.5 }
+  description() { return this.inner.description() + " + lait" }
+}
+class WithSugar extends CoffeeDecorator {
+  cost() { return this.inner.cost() + 0.2 }
+  description() { return this.inner.description() + " + sucre" }
+}
+
+// On empile les comportements À L'EXÉCUTION, dans n'importe quel ordre.
+let drink: Coffee = new Espresso()
+drink = new WithMilk(drink)
+drink = new WithSugar(drink)
+console.log(drink.description(), "→", drink.cost())  // "Espresso + lait + sucre → 2.7"</script></div>
+
+    <div class="compare" data-compare>
+      <div class="ctabs">
+        <button class="ctab bad active" data-tab="0">😵 Par héritage</button>
+        <button class="ctab good" data-tab="1">✨ Par décoration</button>
+      </div>
+      <div class="cpanel active">
+        <div class="code-block"><script type="text/plain">// Une classe par combinaison possible :
+class Espresso {}
+class EspressoWithMilk {}
+class EspressoWithSugar {}
+class EspressoWithMilkAndSugar {}
+class EspressoWithMilkAndSugarAndCream {}
+// → explosion combinatoire. Ajoutez une option = doublez le nombre de classes.</script></div>
+        <div class="cnote bad">L'héritage fige les combinaisons à la compilation : <b>ingérable</b> dès quelques options.</div>
+      </div>
+      <div class="cpanel">
+        <div class="code-block"><script type="text/plain">// Des briques composables, combinées à l'exécution :
+let drink: Coffee = new WithCream(new WithSugar(new WithMilk(new Espresso())))
+// N options → N décorateurs, et toutes les combinaisons gratuites.</script></div>
+        <div class="cnote good">Comportements <b>composables à la volée</b> : N briques couvrent toutes les combinaisons.</div>
+      </div>
+    </div>
+
+    <div class="callout c-note">
+      <div class="ic">🧩</div>
+      <div class="bd"><span class="lab">Ne pas confondre</span>
+      <p>Le pattern Decorator (envelopper un objet) n'est <b>pas</b> la même chose que les <code>@decorators</code> de TypeScript (une syntaxe pour annoter classes/méthodes). Mêmes mot, idées différentes — même si la syntaxe s'en inspire.</p></div>
+    </div>
+    <p class="analogy">🌍 <b>Analogie —</b> S'habiller : t-shirt, puis pull, puis manteau. Chaque couche ajoute une fonction (chaleur) sans modifier les précédentes.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> vous voulez ajouter/retirer des comportements à la volée sans toucher la classe (flux de données : compression, chiffrement ; UI ; logging).</p>
+      <p class="u-warn"><b>Le piège —</b> de longues piles de décorateurs rendent le débogage et l'ordre d'application difficiles à suivre.</p>
+    </div>
+  </section>
+
+  <!-- ===== 10 FACADE ===== -->
+  <section id="facade" class="fam-struct">
+    <div class="modtag"><span class="dot"></span>Structurel · Patron 10 / 23</div>
+    <h2>Facade</h2>
+    <p class="intent"><b>Intention —</b> Offrir une interface <b>simple et unifiée</b> à un sous-système complexe.</p>
+
+    <h3>Le problème</h3>
+    <p>Pour une tâche courante, le client doit orchestrer dix classes du sous-système, dans le bon ordre, avec les bons réglages. Couplage maximal.</p>
+    <h3>La solution</h3>
+    <p>Une <i>façade</i> expose une poignée de méthodes de haut niveau et cache toute la plomberie.</p>
+
+    <div class="code-block" data-file="facade.ts"><script type="text/plain">// Le sous-système : beaucoup de classes, beaucoup de détails.
+class VideoFile { constructor(public name: string) {} }
+class Codec {}
+class BitrateReader { read(file: VideoFile, codec: Codec) { return file } }
+class AudioMixer { fix(file: VideoFile) { return file } }
+
+// La façade orchestre tout ça derrière UNE méthode simple.
+class VideoConverter {
+  convert(filename: string, format: string): VideoFile {
+    const file = new VideoFile(filename)
+    const codec = new Codec()
+    const decoded = new BitrateReader().read(file, codec)
+    const mixed = new AudioMixer().fix(decoded)
+    return new VideoFile(`${filename}.${format}`)
+  }
+}
+
+// Le client ignore toute la complexité interne.
+const result = new VideoConverter().convert("vacances.ogg", "mp4")</script></div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> Un standard téléphonique : vous dites « je veux réserver », sans savoir qui, en interne, gère le paiement, le stock et la logistique.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> vous voulez un point d'entrée simple vers une lib ou un sous-système touffu, ou découpler vos clients de ses détails.</p>
+      <p class="u-warn"><b>Le piège —</b> la façade peut devenir un « objet-dieu » qui sait tout faire. Gardez-la fine ; elle orchestre, elle n'implémente pas tout.</p>
+    </div>
+  </section>
+
+  <!-- ===== 11 FLYWEIGHT ===== -->
+  <section id="flyweight" class="fam-struct">
+    <div class="modtag"><span class="dot"></span>Structurel · Patron 11 / 23</div>
+    <h2>Flyweight (poids-mouche)</h2>
+    <p class="intent"><b>Intention —</b> <b>Partager</b> l'état commun entre une multitude d'objets pour économiser énormément de mémoire.</p>
+
+    <h3>Le problème</h3>
+    <p>Vous créez des millions d'objets quasi identiques (arbres d'une forêt, particules, caractères d'un texte). Chacun duplique des données lourdes → la RAM explose.</p>
+    <h3>La solution</h3>
+    <p>On sépare l'état <b>intrinsèque</b> (partagé, immuable) de l'état <b>extrinsèque</b> (propre à chaque objet). Une fabrique réutilise les flyweights partagés.</p>
+
+    <div class="code-block" data-file="flyweight.ts"><script type="text/plain">// État INTRINSÈQUE : lourd et identique pour des milliers d'arbres (texture…).
+class TreeType {
+  constructor(readonly name: string, readonly texture: string) {}
+  draw(x: number, y: number) { /* dessine la texture en (x, y) */ }
+}
+
+// Fabrique de flyweights : un seul TreeType par combinaison, réutilisé.
+class TreeFactory {
+  private static types = new Map<string, TreeType>()
+  static get(name: string, texture: string): TreeType {
+    const key = `${name}:${texture}`
+    if (!this.types.has(key)) this.types.set(key, new TreeType(name, texture))
+    return this.types.get(key)!
+  }
+}
+
+// État EXTRINSÈQUE : léger et propre à chaque arbre (juste la position).
+class Tree {
+  constructor(private x: number, private y: number, private type: TreeType) {}
+  draw() { this.type.draw(this.x, this.y) }
+}
+
+// 1 000 000 d'arbres en mémoire, mais une poignée de TreeType partagés.
+const forest: Tree[] = []
+for (let i = 0; i < 1_000_000; i++) {
+  forest.push(new Tree(i % 800, i % 600, TreeFactory.get("Chêne", "chene.png")))
+}</script></div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> Une police de caractères : la forme du « e » est stockée <i>une fois</i> ; le document ne retient que les positions où l'afficher.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> un très grand nombre d'objets partagent un état lourd et que la mémoire est un vrai goulot (rendu, jeux, éditeurs).</p>
+      <p class="u-warn"><b>Le piège —</b> optimisation pointue : complexifie le code. Ne l'introduisez qu'une fois la consommation mémoire <i>mesurée</i> comme problématique.</p>
+    </div>
+  </section>
+
+  <!-- ===== 12 PROXY ===== -->
+  <section id="proxy" class="fam-struct">
+    <div class="modtag"><span class="dot"></span>Structurel · Patron 12 / 23</div>
+    <h2>Proxy</h2>
+    <p class="intent"><b>Intention —</b> Substituer un objet par un <b>intermédiaire</b> de même interface, qui contrôle l'accès au vrai objet.</p>
+
+    <h3>Le problème</h3>
+    <p>Vous voulez ajouter du cache, du lazy-loading, du contrôle d'accès ou du logging <b>autour</b> d'un objet — sans modifier ni l'objet, ni le client.</p>
+    <h3>La solution</h3>
+    <p>Un <i>proxy</i> implémente la même interface, intercepte les appels, fait son travail, puis (éventuellement) délègue au vrai objet.</p>
+
+    <div class="code-block" data-file="proxy.ts"><script type="text/plain">interface ImageService {
+  fetch(id: string): Promise<string>
+}
+
+// Le vrai service : appels réseau coûteux.
+class RealImageService implements ImageService {
+  async fetch(id: string) {
+    /* requête HTTP lente… */
+    return `<image ${id}>`
+  }
+}
+
+// Proxy de cache : MÊME interface, mais contrôle l'accès au vrai service.
+class CachingImageProxy implements ImageService {
+  private cache = new Map<string, string>()
+  constructor(private readonly real: ImageService) {}
+
+  async fetch(id: string): Promise<string> {
+    if (this.cache.has(id)) {
+      return this.cache.get(id)!        // évite l'appel coûteux
+    }
+    const result = await this.real.fetch(id)
+    this.cache.set(id, result)
+    return result
+  }
+}
+
+const images: ImageService = new CachingImageProxy(new RealImageService())
+await images.fetch("42")   // appel réel
+await images.fetch("42")   // servi depuis le cache, instantané</script></div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> Une carte bancaire : c'est un proxy vers votre compte. Même usage (payer), mais elle contrôle l'accès et la limite.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> vous voulez du cache, du chargement différé, du contrôle d'accès, des logs ou un objet distant — de façon transparente pour le client.</p>
+      <p class="u-warn"><b>Le piège —</b> proche du Decorator (même structure). La nuance : le Decorator <i>ajoute</i> des fonctions, le Proxy <i>contrôle l'accès</i>.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- ===================== COMPORTEMENTAUX ====================== -->
+  <!-- ============================================================ -->
+
+  <!-- ===== 13 CHAIN OF RESPONSIBILITY ===== -->
+  <section id="chain" class="fam-behav">
+    <div class="modtag"><span class="dot"></span>Comportemental · Patron 13 / 23</div>
+    <h2>Chain of Responsibility</h2>
+    <p class="intent"><b>Intention —</b> Faire transiter une requête le long d'une <b>chaîne de gestionnaires</b>, chacun décidant de la traiter ou de la passer au suivant.</p>
+
+    <h3>Le problème</h3>
+    <p>Une requête doit passer plusieurs étapes (authentification, quotas, validation, routage). Tout coder dans un seul bloc devient un monstre conditionnel.</p>
+    <h3>La solution</h3>
+    <p>Chaque étape est un maillon autonome ; on les chaîne, et la requête circule jusqu'à ce qu'un maillon réponde.</p>
+
+    <div class="code-block" data-file="chain.ts"><script type="text/plain">type Request = { user?: string; tooMany?: boolean }
+type Response = { status: number; body?: string }
+
+abstract class Handler {
+  private next?: Handler
+  // Retourne le maillon ajouté pour permettre un chaînage fluide.
+  setNext(handler: Handler): Handler { this.next = handler; return handler }
+  handle(req: Request): Response { return this.next ? this.next.handle(req) : { status: 404 } }
+}
+
+class AuthHandler extends Handler {
+  handle(req: Request): Response {
+    if (!req.user) return { status: 401 }      // stoppe la chaîne
+    return super.handle(req)                    // ou passe la main
+  }
+}
+class RateLimitHandler extends Handler {
+  handle(req: Request): Response {
+    if (req.tooMany) return { status: 429 }
+    return super.handle(req)
+  }
+}
+class RouteHandler extends Handler {
+  handle(_req: Request): Response { return { status: 200, body: "OK" } }
+}
+
+// auth → quota → routage : exactement l'esprit des middlewares Express.
+const chain = new AuthHandler()
+chain.setNext(new RateLimitHandler()).setNext(new RouteHandler())
+console.log(chain.handle({ user: "ada" }))   // { status: 200, body: "OK" }</script></div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> Une demande de congé qui remonte : manager → RH → direction. Chacun valide à son niveau ou transmet plus haut.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> plusieurs objets peuvent traiter une requête et que le bon gestionnaire n'est connu qu'à l'exécution (middlewares, pipelines de validation, gestion d'événements).</p>
+      <p class="u-warn"><b>Le piège —</b> une requête peut traverser toute la chaîne sans être traitée. Prévoyez toujours un comportement par défaut.</p>
+    </div>
+  </section>
+
+  <!-- ===== 14 COMMAND ===== -->
+  <section id="command" class="fam-behav">
+    <div class="modtag"><span class="dot"></span>Comportemental · Patron 14 / 23</div>
+    <h2>Command</h2>
+    <p class="intent"><b>Intention —</b> Transformer une requête en <b>objet</b> autonome — pour la paramétrer, la mettre en file, l'historiser ou… l'annuler.</p>
+
+    <h3>Le problème</h3>
+    <p>Vous voulez de l'undo/redo, des macros, ou découpler « qui déclenche » de « qui exécute ». Difficile avec de simples appels de méthode.</p>
+    <h3>La solution</h3>
+    <p>Chaque action devient un objet <code>Command</code> avec <code>execute()</code> (et souvent <code>undo()</code>). On peut alors les stocker, rejouer, inverser.</p>
+
+    <div class="code-block" data-file="command.ts"><script type="text/plain">// Une commande encapsule une action ET son inverse.
+interface Command {
+  execute(): void
+  undo(): void
+}
+
+class TextDocument { content = "" }
+
+class AppendTextCommand implements Command {
+  constructor(private doc: TextDocument, private text: string) {}
+  execute() { this.doc.content += this.text }
+  undo() { this.doc.content = this.doc.content.slice(0, -this.text.length) }
+}
+
+// L'invocateur ne connaît que l'interface Command → undo, redo, files, macros.
+class CommandHistory {
+  private history: Command[] = []
+  run(cmd: Command) { cmd.execute(); this.history.push(cmd) }
+  undo() { this.history.pop()?.undo() }
+}
+
+const doc = new TextDocument()
+const history = new CommandHistory()
+history.run(new AppendTextCommand(doc, "Bonjour"))
+history.run(new AppendTextCommand(doc, " le monde"))
+history.undo()                       // retire " le monde"
+console.log(doc.content)             // "Bonjour"</script></div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> Une commande au restaurant : le ticket (objet) circule du serveur à la cuisine. On peut l'empiler, la rejouer, l'annuler.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> vous avez besoin d'undo/redo, de files de tâches, de macros, ou de découpler l'émetteur d'une action de son exécuteur (boutons, raccourcis, jobs).</p>
+      <p class="u-warn"><b>Le piège —</b> beaucoup de petites classes de commandes. À doser ; pour un cas trivial, un callback suffit.</p>
+    </div>
+  </section>
+
+  <!-- ===== 15 ITERATOR ===== -->
+  <section id="iterator" class="fam-behav">
+    <div class="modtag"><span class="dot"></span>Comportemental · Patron 15 / 23</div>
+    <h2>Iterator</h2>
+    <p class="intent"><b>Intention —</b> Parcourir une collection séquentiellement <b>sans exposer sa représentation interne</b>.</p>
+
+    <h3>Le problème</h3>
+    <p>Vous voulez offrir un parcours uniforme de vos collections (liste, arbre, graphe) sans que le client connaisse leur structure.</p>
+    <h3>La solution</h3>
+    <p>En JS/TS, le pattern est <b>natif</b> : implémentez le protocole d'itération via <code>[Symbol.iterator]</code>, et <code>for…of</code> / le spread fonctionnent gratuitement.</p>
+
+    <div class="code-block" data-file="iterator.ts"><script type="text/plain">class RangeCollection implements Iterable<number> {
+  constructor(
+    private start: number,
+    private end: number,
+    private step = 1
+  ) {}
+
+  // Le protocole d'itérateur natif de JS/TS.
+  [Symbol.iterator](): Iterator<number> {
+    let current = this.start
+    const { end, step } = this
+    return {
+      next(): IteratorResult<number> {
+        if (current < end) {
+          const value = current
+          current += step
+          return { value, done: false }
+        }
+        return { value: undefined, done: true }
+      }
+    }
+  }
+}
+
+// Le client parcourt sans rien savoir de l'intérieur.
+for (const n of new RangeCollection(0, 10, 2)) console.log(n)   // 0 2 4 6 8
+const all = [...new RangeCollection(0, 3)]                       // [0, 1, 2]</script></div>
+
+    <div class="callout c-tip">
+      <div class="ic">💡</div>
+      <div class="bd"><span class="lab">Bonus TypeScript</span>
+      <p>Les <b>générateurs</b> (<code>function*</code> avec <code>yield</code>) sont la façon la plus concise d'écrire un itérateur : ils gèrent l'état du parcours pour vous, sans objet <code>next()</code> manuel.</p></div>
+    </div>
+    <p class="analogy">🌍 <b>Analogie —</b> La télécommande « chaîne suivante » : vous passez d'une chaîne à l'autre sans savoir comment la télé les stocke.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> vous exposez vos propres structures de données au parcours, ou voulez plusieurs façons de parcourir (avant/arrière, filtré).</p>
+      <p class="u-warn"><b>Le piège —</b> pour un simple tableau, n'inventez rien : <code>for…of</code> et les méthodes natives suffisent largement.</p>
+    </div>
+  </section>
+
+  <!-- ===== 16 MEDIATOR ===== -->
+  <section id="mediator" class="fam-behav">
+    <div class="modtag"><span class="dot"></span>Comportemental · Patron 16 / 23</div>
+    <h2>Mediator</h2>
+    <p class="intent"><b>Intention —</b> <b>Centraliser</b> les communications entre objets dans un médiateur, pour qu'ils ne se référencent plus directement.</p>
+
+    <h3>Le problème</h3>
+    <p>Quand chaque composant connaît tous les autres, on obtient un plat de spaghettis : couplage « tous-à-tous », impossible à faire évoluer.</p>
+    <h3>La solution</h3>
+    <p>Les composants ne parlent qu'au <i>médiateur</i> ; lui seul connaît tout le monde et orchestre les échanges.</p>
+
+    <div class="code-block" data-file="mediator.ts"><script type="text/plain">interface ChatMediator {
+  join(user: User): void
+  send(from: string, message: string): void
+}
+
+class User {
+  constructor(public name: string, private room: ChatMediator) {
+    room.join(this)
+  }
+  send(msg: string) { this.room.send(this.name, msg) }   // parle AU médiateur
+  receive(from: string, msg: string) { console.log(`[${this.name}] ${from}: ${msg}`) }
+}
+
+class ChatRoom implements ChatMediator {
+  private users: User[] = []
+  join(user: User) { this.users.push(user) }
+  // Le médiateur décide qui reçoit quoi : les User restent découplés.
+  send(from: string, message: string) {
+    for (const u of this.users) if (u.name !== from) u.receive(from, message)
+  }
+}
+
+const room = new ChatRoom()
+const alice = new User("Alice", room)
+const bob = new User("Bob", room)
+alice.send("Salut !")   // Bob reçoit ; Alice et Bob ne se connaissent pas</script></div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> La tour de contrôle d'un aéroport : les avions ne se coordonnent pas entre eux, ils passent tous par la tour.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> un ensemble d'objets communiquent de façon désordonnée (composants d'un formulaire, salons de chat, UI complexe).</p>
+      <p class="u-warn"><b>Le piège —</b> le médiateur peut devenir un « objet-dieu » omniscient. Surveillez sa taille ; sinon vous déplacez le problème.</p>
+    </div>
+  </section>
+
+  <!-- ===== 17 MEMENTO ===== -->
+  <section id="memento" class="fam-behav">
+    <div class="modtag"><span class="dot"></span>Comportemental · Patron 17 / 23</div>
+    <h2>Memento</h2>
+    <p class="intent"><b>Intention —</b> Capturer et restaurer l'état d'un objet (des <b>instantanés</b>) sans violer son encapsulation.</p>
+
+    <h3>Le problème</h3>
+    <p>Vous voulez des sauvegardes/restaurations (undo, points de contrôle) sans exposer tous les champs internes de l'objet au reste du code.</p>
+    <h3>La solution</h3>
+    <p>L'objet produit un <i>memento</i> opaque (un snapshot) et sait se restaurer à partir de l'un d'eux. Un « gardien » conserve l'historique sans en lire le contenu.</p>
+
+    <div class="code-block" data-file="memento.ts"><script type="text/plain">// Le memento : un instantané opaque de l'état.
+class EditorMemento {
+  constructor(readonly content: string) {}
+}
+
+class Editor {
+  private content = ""
+  type(text: string) { this.content += text }
+  getContent() { return this.content }
+
+  save(): EditorMemento { return new EditorMemento(this.content) }   // snapshot
+  restore(m: EditorMemento) { this.content = m.content }             // restauration
+}
+
+// Le "gardien" conserve les snapshots sans connaître leur contenu interne.
+const editor = new Editor()
+const history: EditorMemento[] = []
+
+editor.type("Version 1")
+history.push(editor.save())          // point de sauvegarde
+editor.type(" + brouillon")
+editor.restore(history.pop()!)       // retour à "Version 1"
+console.log(editor.getContent())     // "Version 1"</script></div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> Les points de sauvegarde d'un jeu vidéo : on enregistre l'état complet, et on y revient si ça tourne mal.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> vous avez besoin d'undo/snapshots/historique (souvent en duo avec <a href="#command">Command</a>) sans exposer l'intérieur de l'objet.</p>
+      <p class="u-warn"><b>Le piège —</b> garder beaucoup de snapshots complets coûte cher en mémoire. Pensez aux diffs ou à limiter l'historique.</p>
+    </div>
+  </section>
+
+  <!-- ===== 18 OBSERVER ===== -->
+  <section id="observer" class="fam-behav">
+    <div class="modtag"><span class="dot"></span>Comportemental · Patron 18 / 23</div>
+    <h2>Observer</h2>
+    <p class="intent"><b>Intention —</b> Définir une dépendance <b>un-à-plusieurs</b> : quand un sujet change, tous ses abonnés sont notifiés automatiquement.</p>
+
+    <h3>Le problème</h3>
+    <p>Plusieurs parties de l'app doivent réagir à un changement (nouvelle donnée, événement). Si la source appelle chaque consommateur à la main, elle les connaît tous → couplage fort.</p>
+    <h3>La solution</h3>
+    <p>Les intéressés <b>s'abonnent</b> au sujet ; celui-ci les <b>notifie</b> sans connaître leurs détails. C'est le socle des systèmes d'événements et de réactivité.</p>
+
+    <div class="code-block" data-file="observer.ts"><script type="text/plain">interface Observer<T> {
+  update(data: T): void
+}
+
+class Subject<T> {
+  private observers = new Set<Observer<T>>()
+  subscribe(o: Observer<T>) { this.observers.add(o) }
+  unsubscribe(o: Observer<T>) { this.observers.delete(o) }
+  protected notify(data: T) {
+    for (const o of this.observers) o.update(data)
+  }
+}
+
+// Une station météo et ses afficheurs.
+class WeatherStation extends Subject<number> {
+  setTemperature(t: number) { this.notify(t) }   // déclenche la notification
+}
+class PhoneDisplay implements Observer<number> {
+  update(t: number) { console.log(`📱 ${t}°C`) }
+}
+
+const station = new WeatherStation()
+station.subscribe(new PhoneDisplay())
+station.setTemperature(21)   // l'afficheur réagit tout seul</script></div>
+
+    <div class="compare" data-compare>
+      <div class="ctabs">
+        <button class="ctab bad active" data-tab="0">😵 Notification manuelle</button>
+        <button class="ctab good" data-tab="1">✨ Avec Observer</button>
+      </div>
+      <div class="cpanel active">
+        <div class="code-block"><script type="text/plain">class WeatherStation {
+  private phone = new PhoneDisplay()
+  private web = new WebDisplay()
+  private led = new LedDisplay()
+  setTemperature(t: number) {
+    this.phone.update(t)   // la station connaît CHAQUE afficheur
+    this.web.update(t)
+    this.led.update(t)
+    // Ajouter un afficheur = modifier cette classe. Couplage fort.
+  }
+}</script></div>
+        <div class="cnote bad">La source <b>connaît tous</b> ses consommateurs ; chaque ajout la modifie.</div>
+      </div>
+      <div class="cpanel">
+        <div class="code-block"><script type="text/plain">station.subscribe(new PhoneDisplay())
+station.subscribe(new LedDisplay())
+// La station ignore qui écoute. Ajouter/retirer un abonné
+// ne touche jamais à son code.</script></div>
+        <div class="cnote good">Source et abonnés <b>découplés</b> : on branche/débranche sans modifier le sujet.</div>
+      </div>
+    </div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> Un abonnement à une newsletter : l'éditeur publie, tous les abonnés reçoivent, et il ignore qui ils sont.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> un changement doit se propager à plusieurs objets sans les coupler (events DOM, state management, réactivité, MVC).</p>
+      <p class="u-warn"><b>Le piège —</b> fuites mémoire si on oublie de se désabonner, et cascades de notifications difficiles à tracer. Pensez <code>unsubscribe</code>.</p>
+    </div>
+  </section>
+
+  <!-- ===== 19 STATE ===== -->
+  <section id="state" class="fam-behav">
+    <div class="modtag"><span class="dot"></span>Comportemental · Patron 19 / 23</div>
+    <h2>State</h2>
+    <p class="intent"><b>Intention —</b> Changer le comportement d'un objet quand son <b>état interne</b> change — comme s'il changeait de classe.</p>
+
+    <h3>Le problème</h3>
+    <p>Un objet se comporte différemment selon son statut (brouillon, publié, archivé), et vous accumulez des <code>switch (this.status)</code> dans toutes ses méthodes.</p>
+    <h3>La solution</h3>
+    <p>Chaque état devient un objet qui encapsule son comportement. L'objet délègue à son état courant, et les états gèrent les transitions. C'est une <b>machine à états</b> propre.</p>
+
+    <div class="code-block" data-file="state.ts"><script type="text/plain">interface PlayerState {
+  press(player: AudioPlayer): void
+}
+
+class PausedState implements PlayerState {
+  press(player: AudioPlayer) {
+    console.log("▶️ Lecture")
+    player.setState(new PlayingState())   // transition d'état
+  }
+}
+class PlayingState implements PlayerState {
+  press(player: AudioPlayer) {
+    console.log("⏸️ Pause")
+    player.setState(new PausedState())
+  }
+}
+
+class AudioPlayer {
+  private state: PlayerState = new PausedState()
+  setState(s: PlayerState) { this.state = s }
+  pressPlayPause() { this.state.press(this) }   // délègue à l'état courant
+}
+
+const player = new AudioPlayer()
+player.pressPlayPause()   // ▶️ Lecture
+player.pressPlayPause()   // ⏸️ Pause</script></div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> Un feu tricolore : rouge, orange, vert. Chaque couleur « sait » quelle est la suivante et quel comportement imposer.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> un objet a de nombreux états aux comportements distincts, et que les <code>if/switch</code> sur le statut prolifèrent (workflows, lecteurs, connexions).</p>
+      <p class="u-warn"><b>Le piège —</b> proche de <a href="#strategy">Strategy</a> structurellement. Différence : ici les états <i>connaissent</i> les transitions entre eux.</p>
+    </div>
+  </section>
+
+  <!-- ===== 20 STRATEGY ===== -->
+  <section id="strategy" class="fam-behav">
+    <div class="modtag"><span class="dot"></span>Comportemental · Patron 20 / 23</div>
+    <h2>Strategy</h2>
+    <p class="intent"><b>Intention —</b> Encapsuler une famille d'<b>algorithmes interchangeables</b> derrière une même interface, et les rendre permutables à l'exécution.</p>
+
+    <h3>Le problème</h3>
+    <p>Une méthode contient un gros <code>if/else</code> qui choisit un comportement selon un paramètre (mode de paiement, calcul de remise, tri). Ajouter un cas = rouvrir et risquer de casser le reste.</p>
+    <h3>La solution</h3>
+    <p>Chaque variante devient une <i>stratégie</i> isolée ; le contexte en reçoit une et l'utilise, sans connaître les détails. C'est <b>le</b> pattern pour tuer les conditionnels.</p>
+
+    <div class="code-block" data-file="strategy.ts"><script type="text/plain">// La famille d'algorithmes, derrière une interface commune.
+interface DiscountStrategy {
+  apply(total: number): number
+}
+
+const noDiscount: DiscountStrategy = { apply: (t) => t }
+const blackFriday: DiscountStrategy = { apply: (t) => t * 0.7 }
+const loyalty: DiscountStrategy = { apply: (t) => t - 5 }
+
+class Checkout {
+  constructor(private strategy: DiscountStrategy) {}
+  setStrategy(s: DiscountStrategy) { this.strategy = s }   // changement à la volée
+  total(amount: number): number { return this.strategy.apply(amount) }
+}
+
+const checkout = new Checkout(blackFriday)
+console.log(checkout.total(100))   // 70
+checkout.setStrategy(loyalty)
+console.log(checkout.total(100))   // 95</script></div>
+
+    <div class="compare" data-compare>
+      <div class="ctabs">
+        <button class="ctab bad active" data-tab="0">😵 Le gros if/else</button>
+        <button class="ctab good" data-tab="1">✨ Avec Strategy</button>
+      </div>
+      <div class="cpanel active">
+        <div class="code-block"><script type="text/plain">function total(amount: number, type: string): number {
+  if (type === "black-friday") return amount * 0.7
+  else if (type === "loyalty") return amount - 5
+  else if (type === "student")  return amount * 0.85
+  // …chaque nouvelle promo rouvre CETTE fonction (et ses tests).
+  else return amount
+}</script></div>
+        <div class="cnote bad">Toutes les variantes <b>entassées</b> dans une fonction qui grossit sans fin.</div>
+      </div>
+      <div class="cpanel">
+        <div class="code-block"><script type="text/plain">// Une nouvelle promo = un nouvel objet, sans toucher au Checkout :
+const student: DiscountStrategy = { apply: (t) => t * 0.85 }
+checkout.setStrategy(student)
+// Chaque algo est isolé, testable seul, permutable à l'exécution.</script></div>
+        <div class="cnote good">Algorithmes <b>isolés et permutables</b>. Ouvert à l'extension, fermé à la modification.</div>
+      </div>
+    </div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> Un GPS : « le plus rapide », « le plus court », « éviter les péages ». Même trajet à calculer, stratégies interchangeables.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> vous avez plusieurs façons de faire une même chose et voulez en changer dynamiquement (paiement, tri, compression, pricing).</p>
+      <p class="u-warn"><b>Le piège —</b> en JS, une stratégie peut être une simple <b>fonction</b> passée en paramètre — inutile de créer une classe par variante.</p>
+    </div>
+  </section>
+
+  <!-- ===== 21 TEMPLATE METHOD ===== -->
+  <section id="template-method" class="fam-behav">
+    <div class="modtag"><span class="dot"></span>Comportemental · Patron 21 / 23</div>
+    <h2>Template Method</h2>
+    <p class="intent"><b>Intention —</b> Définir le <b>squelette</b> d'un algorithme dans une méthode, en laissant les sous-classes redéfinir certaines étapes sans changer l'ordre global.</p>
+
+    <h3>Le problème</h3>
+    <p>Plusieurs algorithmes partagent la même structure d'ensemble, mais diffèrent sur quelques étapes. Tout dupliquer mène à du copier-coller fragile.</p>
+    <h3>La solution</h3>
+    <p>La classe de base fige l'enchaînement (la « template method ») et déclare des étapes <code>abstract</code> que les sous-classes remplissent.</p>
+
+    <div class="code-block" data-file="template-method.ts"><script type="text/plain">abstract class DataExporter {
+  // 👇 la template method : l'ordre est FIGÉ, les étapes sont personnalisables.
+  export(rows: object[]): string {
+    return this.open() + rows.map((r) => this.formatRow(r)).join("") + this.close()
+  }
+  protected abstract open(): string
+  protected abstract formatRow(row: object): string
+  protected close(): string { return "" }   // "hook" : étape par défaut, optionnelle
+}
+
+class CsvExporter extends DataExporter {
+  protected open() { return "" }
+  protected formatRow(row: object) { return Object.values(row).join(",") + "\n" }
+}
+class JsonExporter extends DataExporter {
+  protected open() { return "[" }
+  protected formatRow(row: object) { return JSON.stringify(row) + "," }
+  protected close() { return "]" }
+}
+
+console.log(new CsvExporter().export([{ a: 1, b: 2 }]))   // "1,2\n"</script></div>
+
+    <div class="callout c-note">
+      <div class="ic">⚖️</div>
+      <div class="bd"><span class="lab">Template Method vs Strategy</span>
+      <p>Les deux varient un algorithme. <b>Template Method</b> le fait par <i>héritage</i> (à la compilation, on remplit des trous). <b>Strategy</b> le fait par <i>composition</i> (à l'exécution, on échange un objet). Préférez souvent Strategy : plus souple, moins couplé.</p></div>
+    </div>
+    <p class="analogy">🌍 <b>Analogie —</b> Une recette de base de gâteau : étapes fixes (mélanger, cuire), mais le parfum (chocolat, vanille) varie selon la déclinaison.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> plusieurs variantes partagent une ossature commune et ne diffèrent que par des étapes précises (pipelines, parseurs, frameworks).</p>
+      <p class="u-warn"><b>Le piège —</b> l'héritage crée un couplage fort base ↔ sous-classes. Si la structure bouge souvent, la composition (Strategy) vieillit mieux.</p>
+    </div>
+  </section>
+
+  <!-- ===== 22 VISITOR ===== -->
+  <section id="visitor" class="fam-behav">
+    <div class="modtag"><span class="dot"></span>Comportemental · Patron 22 / 23</div>
+    <h2>Visitor</h2>
+    <p class="intent"><b>Intention —</b> Ajouter de nouvelles <b>opérations</b> à une hiérarchie d'objets <b>sans modifier ses classes</b>.</p>
+
+    <h3>Le problème</h3>
+    <p>Vous avez une structure stable (formes, nœuds d'un AST) et voulez lui ajouter des traitements variés (calculer l'aire, exporter, valider) sans polluer chaque classe à chaque nouvelle opération.</p>
+    <h3>La solution</h3>
+    <p>On externalise les opérations dans des <i>visiteurs</i>. Chaque élément « accepte » un visiteur et l'aiguille vers la bonne méthode (le « double dispatch »).</p>
+
+    <div class="code-block" data-file="visitor.ts"><script type="text/plain">interface ShapeVisitor {
+  visitCircle(c: Circle): number
+  visitSquare(s: Square): number
+}
+
+interface Shape {
+  accept(visitor: ShapeVisitor): number
+}
+class Circle implements Shape {
+  constructor(public radius: number) {}
+  accept(v: ShapeVisitor) { return v.visitCircle(this) }   // double dispatch
+}
+class Square implements Shape {
+  constructor(public side: number) {}
+  accept(v: ShapeVisitor) { return v.visitSquare(this) }
+}
+
+// Une nouvelle opération = un nouveau visiteur. Circle/Square ne changent pas.
+class AreaVisitor implements ShapeVisitor {
+  visitCircle(c: Circle) { return Math.PI * c.radius ** 2 }
+  visitSquare(s: Square) { return s.side ** 2 }
+}
+
+const shapes: Shape[] = [new Circle(2), new Square(3)]
+const area = new AreaVisitor()
+console.log(shapes.map((s) => s.accept(area)))   // [12.56…, 9]</script></div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> Un inspecteur qui visite des bâtiments : selon sa spécialité (incendie, électricité), il applique son propre contrôle, sans modifier les bâtiments.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> une hiérarchie d'objets est stable mais que vous ajoutez souvent de nouvelles opérations dessus (compilateurs/AST, sérialisation, rapports).</p>
+      <p class="u-warn"><b>Le piège —</b> l'inverse coince : ajouter un <i>nouveau type</i> d'élément oblige à modifier tous les visiteurs. Réservez-le aux structures qui changent peu.</p>
+    </div>
+  </section>
+
+  <!-- ===== 23 INTERPRETER ===== -->
+  <section id="interpreter" class="fam-behav">
+    <div class="modtag"><span class="dot"></span>Comportemental · Patron 23 / 23</div>
+    <h2>Interpreter</h2>
+    <p class="intent"><b>Intention —</b> Représenter une <b>grammaire</b> simple par un arbre d'objets, et savoir <b>interpréter</b> ses phrases.</p>
+
+    <h3>Le problème</h3>
+    <p>Vous devez évaluer un mini-langage récurrent : expressions booléennes, règles métier, filtres. Le bricoler avec des chaînes et des conditions devient vite ingérable.</p>
+    <h3>La solution</h3>
+    <p>Chaque règle de grammaire devient une classe d'expression avec une méthode <code>interpret()</code>. On compose ces expressions en arbre, qu'on évalue.</p>
+
+    <div class="code-block" data-file="interpreter.ts"><script type="text/plain">// Chaque règle de la grammaire = une expression interprétable.
+interface Expr {
+  interpret(ctx: Record<string, boolean>): boolean
+}
+
+class Variable implements Expr {
+  constructor(private name: string) {}
+  interpret(ctx: Record<string, boolean>) { return ctx[this.name] ?? false }
+}
+class And implements Expr {
+  constructor(private left: Expr, private right: Expr) {}
+  interpret(ctx: Record<string, boolean>) {
+    return this.left.interpret(ctx) && this.right.interpret(ctx)
+  }
+}
+class Not implements Expr {
+  constructor(private expr: Expr) {}
+  interpret(ctx: Record<string, boolean>) { return !this.expr.interpret(ctx) }
+}
+
+// (A ET (NON B)) → un arbre d'expressions, qu'on évalue avec un contexte.
+const expression = new And(new Variable("A"), new Not(new Variable("B")))
+console.log(expression.interpret({ A: true, B: false }))   // true</script></div>
+
+    <p class="analogy">🌍 <b>Analogie —</b> Une calculatrice : « 2 + 3 × 4 » est un arbre (×, puis +) que la machine parcourt pour donner le résultat.</p>
+    <div class="usage">
+      <p class="u-when"><b>Utilisez-le quand</b> vous avez un petit langage stable à évaluer (règles, filtres, expressions), simple et bien borné.</p>
+      <p class="u-warn"><b>Le piège —</b> le moins utilisé du GoF. Pour une vraie grammaire, un générateur de parseur ou une lib dédiée sera bien plus robuste.</p>
+    </div>
+  </section>
+
+  <!-- ===== CHOISIR ===== -->
+  <section id="choisir">
+    <div class="modtag"><span class="dot"></span>Pour finir</div>
+    <h2>Comment choisir ?</h2>
+    <p class="lead">Ne partez jamais d'un pattern. Partez d'un <b>symptôme</b> dans votre code, et laissez-le vous guider. Voici les correspondances les plus fréquentes.</p>
+
+    <div class="decision">
+      <div class="drow"><div class="sym">Un gros <code>if/else</code> ou <code>switch</code> qui choisit un comportement</div><div class="pat">Strategy · State · Factory</div></div>
+      <div class="drow"><div class="sym">Un constructeur à 8 arguments, dont la moitié optionnels</div><div class="pat">Builder</div></div>
+      <div class="drow"><div class="sym">Il faut de l'undo / redo, ou une file d'actions</div><div class="pat">Command (+ Memento)</div></div>
+      <div class="drow"><div class="sym">Plein d'objets doivent réagir à un changement</div><div class="pat">Observer</div></div>
+      <div class="drow"><div class="sym">Une lib externe a une interface incompatible</div><div class="pat">Adapter</div></div>
+      <div class="drow"><div class="sym">Ajouter des options sans cascade de sous-classes</div><div class="pat">Decorator</div></div>
+      <div class="drow"><div class="sym">Cacher un sous-système touffu derrière un point d'entrée simple</div><div class="pat">Facade</div></div>
+      <div class="drow"><div class="sym">Une arborescence à parcourir uniformément</div><div class="pat">Composite</div></div>
+      <div class="drow"><div class="sym">Contrôler / différer / mettre en cache l'accès à un objet</div><div class="pat">Proxy</div></div>
+      <div class="drow"><div class="sym">Une requête passe par plusieurs étapes de traitement</div><div class="pat">Chain of Responsibility</div></div>
+      <div class="drow"><div class="sym">Des composants se parlent dans tous les sens</div><div class="pat">Mediator</div></div>
+      <div class="drow"><div class="sym">Des algorithmes qui partagent la même ossature</div><div class="pat">Template Method</div></div>
+      <div class="drow"><div class="sym">Trop d'objets identiques saturent la mémoire</div><div class="pat">Flyweight</div></div>
+    </div>
+
+    <div class="callout c-key">
+      <div class="ic">🧭</div>
+      <div class="bd"><span class="lab">Le bon ordre des choses</span>
+      <p>1. Écrivez la solution la plus simple. 2. Quand un vrai point de douleur apparaît (duplication, rigidité, couplage), 3. <i>reconnaissez</i> le pattern qui le soigne. Jamais l'inverse. Un pattern appliqué « au cas où » est de la complexité gratuite.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== ANTISECHE ===== -->
+  <section id="antiseche">
+    <div class="modtag"><span class="dot"></span>Pour finir</div>
+    <h2>L'antisèche</h2>
+    <p class="lead">Les 23 patterns, leur intention en une ligne. À épingler.</p>
+
+    <div class="sheet">
+      <table>
+        <tbody>
+          <tr class="hd-create"><td colspan="2">Créationnels — créer des objets</td></tr>
+          <tr><td>Factory Method</td><td>Déléguer la création à des sous-classes via une interface.</td></tr>
+          <tr><td>Abstract Factory</td><td>Créer des familles d'objets cohérents entre eux.</td></tr>
+          <tr><td>Builder</td><td>Assembler un objet complexe étape par étape.</td></tr>
+          <tr><td>Prototype</td><td>Créer en clonant un objet existant.</td></tr>
+          <tr><td>Singleton</td><td>Une instance unique, point d'accès global (à manier avec prudence).</td></tr>
+
+          <tr class="hd-struct"><td colspan="2">Structurels — assembler</td></tr>
+          <tr><td>Adapter</td><td>Réconcilier deux interfaces incompatibles.</td></tr>
+          <tr><td>Bridge</td><td>Séparer abstraction et implémentation pour qu'elles varient seules.</td></tr>
+          <tr><td>Composite</td><td>Traiter un élément et un arbre d'éléments de la même façon.</td></tr>
+          <tr><td>Decorator</td><td>Ajouter des comportements en enveloppant l'objet.</td></tr>
+          <tr><td>Facade</td><td>Une interface simple sur un sous-système complexe.</td></tr>
+          <tr><td>Flyweight</td><td>Partager l'état commun pour économiser la mémoire.</td></tr>
+          <tr><td>Proxy</td><td>Un intermédiaire qui contrôle l'accès à un objet.</td></tr>
+
+          <tr class="hd-behav"><td colspan="2">Comportementaux — communiquer</td></tr>
+          <tr><td>Chain of Resp.</td><td>Faire transiter une requête le long d'une chaîne de gestionnaires.</td></tr>
+          <tr><td>Command</td><td>Transformer une requête en objet (file, undo, macro).</td></tr>
+          <tr><td>Iterator</td><td>Parcourir une collection sans exposer sa structure.</td></tr>
+          <tr><td>Mediator</td><td>Centraliser les échanges entre objets.</td></tr>
+          <tr><td>Memento</td><td>Capturer / restaurer un état (snapshots).</td></tr>
+          <tr><td>Observer</td><td>Notifier automatiquement une foule d'abonnés.</td></tr>
+          <tr><td>State</td><td>Changer de comportement selon l'état interne.</td></tr>
+          <tr><td>Strategy</td><td>Des algorithmes interchangeables derrière une interface.</td></tr>
+          <tr><td>Template Method</td><td>Squelette figé, étapes personnalisables par les sous-classes.</td></tr>
+          <tr><td>Visitor</td><td>Ajouter des opérations à une hiérarchie sans la modifier.</td></tr>
+          <tr><td>Interpreter</td><td>Représenter et interpréter une petite grammaire.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout c-key">
+      <div class="ic">🚀</div>
+      <div class="bd"><span class="lab">Le mot de la fin</span>
+      <p>Les design patterns ne sont pas une médaille à exhiber : ce sont des <b>outils de communication</b> et des <b>réponses à des douleurs réelles</b>. Apprenez-les pour les reconnaître, gardez votre code simple, et ne dégainez le bon plan que quand le problème, lui, est bien là. Bon design ! 🔵</p></div>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<button id="navbtn" aria-label="Ouvrir le sommaire">☰ Sommaire</button>
+<div class="overlay" id="overlay"></div>
+
+<footer>
+  <p><b>Formation Design Patterns</b> — les 23 patrons de conception du « Gang of Four » (<i>Design Patterns: Elements of Reusable Object-Oriented Software</i>, 1994), illustrés en TypeScript moderne avec des cas d'usage réalistes.</p>
+  <p style="margin-top:8px;color:var(--ink-faint)">Rappel : un pattern est un plan à adapter, pas un dogme. Les exemples sont volontairement condensés pour aller à l'essentiel. 🔵</p>
+</footer>
+
+<!-- highlight.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+<script>
+(function(){
+  // 1) Render snippets from <script type="text/plain"> placeholders
+  document.querySelectorAll(".code-block").forEach(function(block){
+    var raw = block.querySelector('script[type="text/plain"]');
+    if(!raw) return;
+    var code = raw.textContent.replace(/^\n/,"").replace(/\s+$/,"");
+    var file = block.getAttribute("data-file");
+
+    var wrap = document.createElement("div"); wrap.className = "code-wrap";
+    var bar = document.createElement("div"); bar.className = "code-bar";
+    bar.innerHTML = '<span class="lights"><i></i><i></i><i></i></span>' +
+      '<span class="fname">'+(file || "typescript")+'</span>';
+    var btn = document.createElement("button"); btn.className = "copy"; btn.textContent = "Copier";
+    btn.addEventListener("click", function(){
+      var done = function(){ btn.textContent="Copié ✓"; setTimeout(function(){btn.textContent="Copier";},1400); };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(code).then(done).catch(fallback);
+      } else { fallback(); }
+      function fallback(){
+        var ta=document.createElement("textarea");ta.value=code;ta.style.position="fixed";ta.style.opacity="0";
+        document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){}document.body.removeChild(ta);
+      }
+    });
+    bar.appendChild(btn);
+
+    var pre = document.createElement("pre");
+    var c = document.createElement("code"); c.className = "language-typescript"; c.textContent = code;
+    pre.appendChild(c);
+    wrap.appendChild(bar); wrap.appendChild(pre);
+    block.replaceWith(wrap);
+  });
+
+  // 2) Highlight
+  if(window.hljs){ try{ hljs.highlightAll(); }catch(e){} }
+
+  // 3) Compare tabs
+  document.querySelectorAll("[data-compare]").forEach(function(cmp){
+    var tabs = cmp.querySelectorAll(".ctab");
+    var panels = cmp.querySelectorAll(".cpanel");
+    tabs.forEach(function(tab){
+      tab.addEventListener("click", function(){
+        var i = +tab.getAttribute("data-tab");
+        tabs.forEach(function(t){t.classList.remove("active");});
+        panels.forEach(function(p){p.classList.remove("active");});
+        tab.classList.add("active");
+        if(panels[i]) panels[i].classList.add("active");
+      });
+    });
+  });
+
+  // 4) Progress bar
+  var bar = document.getElementById("top-progress");
+  function onScroll(){
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    var p = max > 0 ? (h.scrollTop || document.body.scrollTop) / max : 0;
+    bar.style.width = (p*100) + "%";
+  }
+  window.addEventListener("scroll", onScroll, {passive:true}); onScroll();
+
+  // 5) Scroll-spy
+  var links = Array.prototype.slice.call(document.querySelectorAll("#toc a"));
+  var map = {}; links.forEach(function(a){ map[a.getAttribute("href").slice(1)] = a; });
+  var sections = links.map(function(a){ return document.getElementById(a.getAttribute("href").slice(1)); }).filter(Boolean);
+  var spy = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        links.forEach(function(l){l.classList.remove("active");});
+        var a = map[en.target.id]; if(a){ a.classList.add("active");
+          // keep active item in view within the sidebar
+          if(a.scrollIntoView){ /* no-op to avoid jumpiness */ }
+        }
+      }
+    });
+  }, { rootMargin: "-18% 0px -74% 0px", threshold: 0 });
+  sections.forEach(function(s){ spy.observe(s); });
+
+  // 6) Mobile drawer
+  var sidebar = document.getElementById("sidebar");
+  var overlay = document.getElementById("overlay");
+  var navbtn = document.getElementById("navbtn");
+  function close(){ sidebar.classList.remove("open"); overlay.classList.remove("show"); }
+  function open(){ sidebar.classList.add("open"); overlay.classList.add("show"); }
+  navbtn.addEventListener("click", open);
+  overlay.addEventListener("click", close);
+  sidebar.addEventListener("click", function(e){ if(e.target.tagName==="A") close(); });
+})();
+</script>
+</body>
+</html>
