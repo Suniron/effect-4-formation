@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python pour les Explorateurs 🐍</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#fdf3df;
+    --bg-2:#f7ead0;
+    --card:#fffaf0;
+    --ink:#2c2740;
+    --ink-soft:#5b5470;
+    --ink-faint:#9a93ad;
+    --line:rgba(44,39,64,.16);
+    --sky:#2bb3ff;
+    --yellow:#ffc62e;
+    --coral:#ff6b5e;
+    --mint:#2ed59a;
+    --grape:#a07bff;
+    --pink:#ff79bc;
+    --code-bg:#241f38;
+    --screen-bg:#15131f;
+    --mono:"Fira Code",ui-monospace,Menlo,monospace;
+    --body:"Nunito",system-ui,sans-serif;
+    --disp:"Baloo 2","Nunito",sans-serif;
+    --shadow:5px 5px 0 var(--ink);
+    --shadow-sm:3px 3px 0 var(--ink);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:24px}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--body);font-size:18.5px;line-height:1.7;font-weight:600;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.6;
+    background-image:radial-gradient(rgba(44,39,64,.05) 1.4px, transparent 1.4px);
+    background-size:22px 22px;
+  }
+  #top-progress{position:fixed;top:0;left:0;height:5px;width:0;z-index:60;border-radius:0 4px 4px 0;
+    background:linear-gradient(90deg,var(--sky),var(--mint),var(--yellow),var(--coral));}
+  a{color:#1488c8;font-weight:700;text-decoration:none;border-bottom:2px dotted rgba(20,136,200,.5)}
+  a:hover{border-bottom-style:solid}
+  code{font-family:var(--mono);font-size:.82em;background:#fff;border:1.5px solid var(--line);
+    padding:.05em .34em;border-radius:6px;font-weight:500;color:#b8431f}
+
+  /* ---------- HERO ---------- */
+  .hero{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:54px 26px 26px;text-align:center}
+  .hero .deco{position:absolute;font-size:30px;opacity:.85;animation:float 5s ease-in-out infinite}
+  .deco.d1{top:40px;left:8%}.deco.d2{top:120px;right:7%;animation-delay:.6s}
+  .deco.d3{top:240px;left:13%;animation-delay:1.2s}.deco.d4{top:30px;right:20%;animation-delay:1.8s}
+  @keyframes float{50%{transform:translateY(-12px) rotate(8deg)}}
+  .snake{width:150px;height:150px;margin:0 auto 6px;display:block;animation:wig 3.5s ease-in-out infinite;transform-origin:50% 80%}
+  @keyframes wig{25%{transform:rotate(-4deg)}75%{transform:rotate(4deg)}}
+  .badge-top{display:inline-flex;align-items:center;gap:8px;font-family:var(--disp);font-weight:700;font-size:14px;
+    letter-spacing:.02em;color:var(--ink);background:var(--yellow);border:2.5px solid var(--ink);
+    border-radius:999px;padding:7px 16px;box-shadow:var(--shadow-sm)}
+  .hero h1{font-family:var(--disp);font-weight:800;font-size:clamp(42px,10vw,92px);line-height:.92;
+    margin:18px 0 0;color:var(--ink);letter-spacing:-.01em}
+  .hero h1 .py{color:var(--sky);text-shadow:3px 3px 0 rgba(44,39,64,.12)}
+  .hero .sub{font-size:clamp(18px,2.4vw,23px);color:var(--ink-soft);max-width:600px;margin:16px auto 0;font-weight:700}
+  .hero .sub b{color:var(--coral)}
+  .hero .start{display:inline-block;margin-top:24px;font-family:var(--disp);font-weight:700;font-size:19px;
+    color:#fff;background:var(--coral);border:3px solid var(--ink);border-radius:16px;padding:13px 26px;
+    box-shadow:var(--shadow);transition:transform .12s,box-shadow .12s;border-bottom-width:3px}
+  .hero .start:hover{transform:translate(2px,2px);box-shadow:3px 3px 0 var(--ink)}
+  .hero>*{opacity:0;transform:translateY(16px);animation:rise .65s cubic-bezier(.2,.7,.2,1) forwards}
+  .hero>*:nth-child(5){animation-delay:.05s}.hero>*:nth-child(6){animation-delay:.13s}
+  .hero>*:nth-child(7){animation-delay:.22s}.hero>*:nth-child(8){animation-delay:.32s}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  /* ---------- LAYOUT ---------- */
+  .layout{position:relative;z-index:1;max-width:1240px;margin:0 auto;display:flex;gap:40px;
+    padding:20px 26px 120px;align-items:flex-start}
+  .sidebar{width:228px;flex:none;position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;padding:4px 4px 4px 0}
+  .sidebar .sb-title{font-family:var(--disp);font-size:15px;font-weight:700;color:var(--ink);margin:4px 0 12px;
+    display:flex;align-items:center;gap:7px}
+  .toc{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+  .toc a{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:11px;color:var(--ink-soft);
+    font-size:14.5px;font-weight:700;border-bottom:0;transition:.15s}
+  .toc a .chip{flex:none;width:24px;height:24px;border-radius:8px;border:2px solid var(--ink);
+    display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:500;color:var(--ink);
+    background:var(--c,#fff);box-shadow:1.5px 1.5px 0 var(--ink)}
+  .toc a:hover{background:#fff;color:var(--ink)}
+  .toc a.active{background:var(--ink);color:#fff}
+  .toc a.active .chip{box-shadow:1.5px 1.5px 0 rgba(255,255,255,.35)}
+  .sidebar .hint{margin-top:18px;font-size:13px;color:var(--ink-faint);line-height:1.5;font-weight:700;
+    border-top:2px dotted var(--line);padding-top:14px}
+
+  .content{flex:1;min-width:0;max-width:780px}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding-top:34px;margin-top:10px;scroll-margin-top:18px}
+  .lvl-head{display:flex;align-items:center;gap:13px;margin-bottom:6px}
+  .lvl-badge{flex:none;font-family:var(--disp);font-weight:800;font-size:14px;color:var(--ink);
+    background:var(--c,var(--sky));border:2.5px solid var(--ink);border-radius:12px;padding:6px 13px;
+    box-shadow:var(--shadow-sm);white-space:nowrap}
+  h2{font-family:var(--disp);font-weight:800;font-size:clamp(27px,4.6vw,40px);line-height:1.04;
+    margin:0;color:var(--ink);letter-spacing:-.01em}
+  h3{font-family:var(--disp);font-weight:700;font-size:21px;margin:26px 0 4px;color:var(--ink)}
+  p{margin:12px 0;color:var(--ink-soft)}
+  p b,li b{color:var(--ink);font-weight:800}
+  .lead{font-size:20px;color:var(--ink);font-weight:700}
+  ul,ol{color:var(--ink-soft);padding-left:22px}
+  li{margin:6px 0}
+  .big-emoji{font-size:21px;vertical-align:-2px}
+  hr.div{border:0;height:0;border-top:3px dotted var(--line);margin:42px 0 0}
+
+  /* ---------- SHOWN CODE ---------- */
+  .code-wrap{margin:16px 0;border-radius:15px;overflow:hidden;background:var(--code-bg);
+    border:2.5px solid var(--ink);box-shadow:var(--shadow)}
+  .code-bar{display:flex;align-items:center;gap:8px;padding:9px 13px;background:rgba(255,255,255,.05);
+    border-bottom:1px solid rgba(255,255,255,.08)}
+  .code-bar .lights{display:flex;gap:6px}
+  .code-bar .lights i{width:12px;height:12px;border-radius:50%;display:block;border:1.5px solid rgba(0,0,0,.25)}
+  .lights i:nth-child(1){background:#ff6b5e}.lights i:nth-child(2){background:#ffc62e}.lights i:nth-child(3){background:#2ed59a}
+  .code-bar .fname{font-family:var(--mono);font-size:11.5px;color:#9b94b5;margin-left:4px}
+  .code-bar .copy{margin-left:auto;font-family:var(--disp);font-weight:600;font-size:12px;color:#cfc8e6;
+    background:transparent;border:2px solid rgba(255,255,255,.2);border-radius:9px;padding:3px 11px;cursor:pointer;transition:.15s}
+  .code-bar .copy:hover{color:#fff;border-color:var(--mint);background:rgba(46,213,154,.18)}
+  pre{margin:0;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:13.5px;line-height:1.6;tab-size:4;font-weight:500}
+  pre code{font-size:13.5px;background:none;border:0;padding:0;color:#e7e2f5;font-weight:500}
+  .hljs{background:transparent;color:#e7e2f5}
+  .hljs-comment,.hljs-quote{color:#8a83a6;font-style:italic}
+  .hljs-keyword,.hljs-selector-tag{color:#ff9d7a}
+  .hljs-built_in,.hljs-type{color:#5fd3ff}
+  .hljs-string,.hljs-regexp{color:#9be88f}
+  .hljs-number,.hljs-literal{color:#ffd166}
+  .hljs-title,.hljs-title.function_,.hljs-section{color:#ffd166}
+  .hljs-params{color:#cfc8e6}
+  .hljs-meta{color:#9b94b5}
+
+  /* ---------- SCREEN (résultat) ---------- */
+  .screen{margin:14px 0;border-radius:15px;overflow:hidden;background:var(--screen-bg);
+    border:2.5px solid var(--ink);box-shadow:var(--shadow)}
+  .screen-bar{font-family:var(--disp);font-weight:700;font-size:12.5px;letter-spacing:.04em;color:#0b0a12;
+    background:var(--mint);padding:6px 14px;border-bottom:2.5px solid var(--ink)}
+  .screen-body{margin:0;padding:14px 16px;font-family:var(--mono);font-size:13.5px;line-height:1.65;
+    color:#8affc4;white-space:pre-wrap;word-break:break-word;font-weight:500;min-height:1em}
+  .screen-body.err{color:#ff9d8f}
+
+  /* ---------- LAB ---------- */
+  .lab{margin:18px 0;border-radius:16px;overflow:hidden;background:var(--bg-2);
+    border:3px solid var(--ink);box-shadow:var(--shadow)}
+  .lab-head{background:var(--grape);padding:9px 15px;border-bottom:3px solid var(--ink)}
+  .lab-title{font-family:var(--disp);font-weight:700;font-size:14.5px;color:#fff}
+  .lab-code{display:block;width:100%;border:0;resize:vertical;background:var(--code-bg);color:#e7e2f5;
+    font-family:var(--mono);font-size:13.5px;line-height:1.6;padding:14px 16px;tab-size:4;font-weight:500;outline:none;min-height:60px}
+  .lab-bar{display:flex;flex-wrap:wrap;gap:9px;padding:11px 14px;background:rgba(44,39,64,.04);border-top:1px solid var(--line)}
+  .btn{font-family:var(--disp);font-weight:700;font-size:14.5px;border:2.5px solid var(--ink);border-radius:11px;
+    padding:8px 16px;cursor:pointer;transition:transform .1s,box-shadow .1s;box-shadow:var(--shadow-sm)}
+  .btn:hover{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+  .btn-run{background:var(--mint);color:#0b2a1e}
+  .btn-ghost{background:#fff;color:var(--ink)}
+  .lab-turtle{background:#fff;border-top:3px solid var(--ink);padding:8px;display:flex;justify-content:center}
+  .lab-turtle canvas{max-width:100%;height:auto}
+  .lab .screen{margin:0;border-radius:0;border-width:3px 0 0 0;box-shadow:none}
+
+  /* ---------- GUESS ---------- */
+  .guess{margin:18px 0;border-radius:16px;border:3px dashed var(--sky);background:var(--card);padding:14px;box-shadow:var(--shadow-sm)}
+  .guess .q{font-family:var(--disp);font-weight:700;color:var(--ink);margin:0 0 8px;display:flex;align-items:center;gap:8px}
+  .guess .code-wrap{margin:0 0 12px}
+  .guess-btn{font-family:var(--disp);font-weight:700;font-size:15px;background:var(--sky);color:#06324b;
+    border:2.5px solid var(--ink);border-radius:12px;padding:9px 18px;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .1s,box-shadow .1s}
+  .guess-btn:hover{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+  .guess-btn:disabled{opacity:.7;cursor:default;transform:none;box-shadow:var(--shadow-sm)}
+  .guess-ans{display:none;margin-top:12px}
+  .guess-ans.show{display:block;animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
+  @keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+
+  /* ---------- CALLOUTS ---------- */
+  .box{margin:18px 0;border:2.5px solid var(--ink);border-radius:15px;padding:13px 16px;
+    display:flex;gap:13px;align-items:flex-start;box-shadow:var(--shadow-sm)}
+  .box .ic{font-size:24px;line-height:1.2;flex:none}
+  .box .bd{flex:1}.box p{margin:2px 0;color:var(--ink)}
+  .box .lab2{display:block;font-family:var(--disp);font-weight:800;font-size:14.5px;margin-bottom:1px}
+  .tip{background:#eafbf3;border-color:#1f9e6e}.tip .lab2{color:#157a52}
+  .try{background:#fff3e6;border-color:#e07f1f}.try .lab2{color:#c2660f}
+  .imagine{background:#f3edff;border-color:var(--grape)}.imagine .lab2{color:#6f43d6}
+  .warn{background:#fff0ee;border-color:var(--coral)}.warn .lab2{color:#d23d2d}
+
+  /* ---------- diplôme ---------- */
+  .diploma{margin:22px 0;border:4px double var(--ink);border-radius:18px;background:
+    repeating-linear-gradient(45deg,#fffaf0,#fffaf0 12px,#fdf3df 12px,#fdf3df 24px);
+    padding:26px;text-align:center;box-shadow:var(--shadow)}
+  .diploma h3{font-family:var(--disp);font-size:26px;margin:6px 0 4px;color:var(--coral)}
+  .diploma p{color:var(--ink-soft);font-weight:700}
+  .stars{font-size:26px;letter-spacing:4px}
+
+  #navbtn{display:none}
+  footer{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:22px 26px 70px;color:var(--ink-faint);
+    font-size:15px;font-weight:700;border-top:3px dotted var(--line)}
+  .overlay{display:none}
+
+  @media(max-width:1000px){
+    body{font-size:18px}
+    .layout{display:block;padding:14px 18px 96px}
+    .content{max-width:none}
+    .sidebar{position:fixed;top:0;left:0;height:100dvh;width:80vw;max-width:300px;z-index:50;
+      background:var(--bg-2);border-right:3px solid var(--ink);padding:64px 18px 24px;
+      transform:translateX(-106%);transition:transform .3s cubic-bezier(.3,.7,.2,1);max-height:none;box-shadow:14px 0 0 rgba(44,39,64,.12)}
+    .sidebar.open{transform:none}
+    .overlay{display:block;position:fixed;inset:0;background:rgba(44,39,64,.4);z-index:45;opacity:0;pointer-events:none;transition:.3s}
+    .overlay.show{opacity:1;pointer-events:auto}
+    #navbtn{display:inline-flex;align-items:center;gap:8px;position:fixed;left:14px;bottom:16px;z-index:40;
+      font-family:var(--disp);font-weight:700;font-size:15px;color:#fff;background:var(--coral);
+      border:3px solid var(--ink);border-radius:14px;padding:11px 18px;cursor:pointer;box-shadow:var(--shadow)}
+    .hero{padding:34px 18px 16px}
+  }
+</style>
+</head>
+<body>
+<div id="top-progress"></div>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <span class="deco d1">⭐</span><span class="deco d2">🎲</span><span class="deco d3">💡</span><span class="deco d4">🚀</span>
+  <svg class="snake" viewBox="0 0 200 200" aria-hidden="true">
+    <path d="M44 162 Q44 112 92 112 Q150 112 150 72 Q150 44 112 44" fill="none" stroke="#1fae74" stroke-width="27" stroke-linecap="round"/>
+    <path d="M44 162 Q44 112 92 112 Q150 112 150 72 Q150 44 112 44" fill="none" stroke="#2ed59a" stroke-width="15" stroke-linecap="round" stroke-dasharray="2 20"/>
+    <circle cx="112" cy="44" r="22" fill="#2ed59a" stroke="#1fae74" stroke-width="3"/>
+    <circle cx="105" cy="39" r="5.2" fill="#fff"/><circle cx="106" cy="40" r="2.4" fill="#2c2740"/>
+    <circle cx="120" cy="39" r="5.2" fill="#fff"/><circle cx="121" cy="40" r="2.4" fill="#2c2740"/>
+    <path d="M104 52 q9 7 19 0" stroke="#16744f" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+    <path d="M113 60 v8 M113 68 l-4 4 M113 68 l4 4" stroke="#ff6b5e" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  </svg>
+  <span class="badge-top">🐍 Niveau débutant · à partir de 10 ans</span>
+  <h1>Apprends <span class="py">Python</span><br>en t'amusant</h1>
+  <p class="sub">Donne des ordres à l'ordinateur, invente des jeux, dessine avec une tortue… et deviens un·e <b>vrai·e codeur·euse</b> !</p>
+  <a class="start" href="#accueil">C'est parti ! 🚀</a>
+</header>
+
+<!-- ============ LAYOUT ============ -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-title">🗺️ Ta carte</div>
+    <ul class="toc" id="toc">
+      <li><a href="#accueil"><span class="chip" style="--c:var(--sky)">★</span>Bienvenue</a></li>
+      <li><a href="#parler"><span class="chip" style="--c:var(--coral)">1</span>Parler à l'ordi</a></li>
+      <li><a href="#boites"><span class="chip" style="--c:var(--yellow)">2</span>Les variables</a></li>
+      <li><a href="#questions"><span class="chip" style="--c:var(--mint)">3</span>Poser des questions</a></li>
+      <li><a href="#nombres"><span class="chip" style="--c:var(--grape)">4</span>Les nombres</a></li>
+      <li><a href="#mots"><span class="chip" style="--c:var(--pink)">5</span>Jouer avec les mots</a></li>
+      <li><a href="#choisir"><span class="chip" style="--c:var(--sky)">6</span>Choisir (si… sinon)</a></li>
+      <li><a href="#hasard"><span class="chip" style="--c:var(--coral)">7</span>Le hasard 🎲</a></li>
+      <li><a href="#repeter"><span class="chip" style="--c:var(--mint)">8</span>Répéter (boucle for)</a></li>
+      <li><a href="#jeu"><span class="chip" style="--c:var(--grape)">9</span>Le jeu du nombre</a></li>
+      <li><a href="#listes"><span class="chip" style="--c:var(--yellow)">10</span>Les listes</a></li>
+      <li><a href="#fonctions"><span class="chip" style="--c:var(--sky)">11</span>Tes super-pouvoirs</a></li>
+      <li><a href="#dessin"><span class="chip" style="--c:var(--coral)">12</span>Dessiner 🐢</a></li>
+      <li><a href="#projet"><span class="chip" style="--c:var(--grape)">🎮</span>Ton grand projet</a></li>
+      <li><a href="#bravo"><span class="chip" style="--c:var(--mint)">🏆</span>Bravo !</a></li>
+    </ul>
+    <div class="hint">Astuce : dans le mini-labo violet, tu peux <b>changer le code</b> et cliquer sur <b>Lancer</b> pour voir ce qui se passe. Essaie tout ! 🧪</div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+  <!-- ===== ACCUEIL ===== -->
+  <section id="accueil">
+    <div class="lvl-head" style="--c:var(--sky)"><span class="lvl-badge">★ Bienvenue</span></div>
+    <h2>C'est quoi Python ?</h2>
+    <p class="lead">Python est un <b>langage</b> pour parler aux ordinateurs. Tu écris des petites phrases (des « instructions »), et l'ordinateur fait <b>exactement</b> ce que tu lui dis. 🤖</p>
+    <p>Avec Python, des gens créent des <b>jeux vidéo</b>, des <b>sites web</b>, des <b>dessins animés</b>, et font même bouger des <b>robots</b> ! Et le plus chouette : on peut commencer très simplement, comme tu vas le voir tout de suite.</p>
+
+    <div class="box tip">
+      <div class="ic">🐍</div>
+      <div class="bd"><span class="lab2">Pyo, ton guide, te dit :</span>
+      <p>Salut ! Moi c'est Pyo le serpent. Je t'accompagne tout au long de l'aventure. Mon conseil n°1 : <b>n'aie pas peur de te tromper</b>. Les bugs (les erreurs), ça arrive à TOUS les codeurs, même les pros. On les répare, et c'est même rigolo !</p></div>
+    </div>
+
+    <h3>Le mini-labo 🧪</h3>
+    <p>Dans cette page, tu verras des <b>mini-labos violets</b>. Tu peux y écrire du code et cliquer sur <b>▶ Lancer</b> pour voir le résultat sur l'écran vert. Essaie celui-ci : change le mot entre les guillemets, puis lance !</p>
+
+    <div class="lab"><script type="text/plain">print("Bienvenue dans le monde du code !")
+print("Tu vas adorer 🎉")</script></div>
+
+    <p>Prêt·e ? Descends au <b>Niveau 1</b> ! 👇</p>
+  </section>
+
+  <hr class="div">
+
+  <!-- ===== 1 PARLER (print) ===== -->
+  <section id="parler">
+    <div class="lvl-head" style="--c:var(--coral)"><span class="lvl-badge">Niveau 1</span><h2>Parler à l'ordi : <code>print</code></h2></div>
+    <p class="lead">La toute première instruction : <code>print()</code>. Elle sert à <b>afficher</b> quelque chose à l'écran.</p>
+    <p>On met le texte entre <b>guillemets</b> <code>"..."</code> et le tout entre <b>parenthèses</b> <code>(...)</code>. Chaque <code>print</code> écrit sur une nouvelle ligne.</p>
+
+    <div class="lab"><script type="text/plain">print("Bonjour le monde !")
+print("Je m'appelle Pyo le serpent 🐍")
+print("J'adore coder !")</script></div>
+
+    <div class="box try">
+      <div class="ic">🎯</div>
+      <div class="bd"><span class="lab2">À toi de jouer</span>
+      <p>Dans le labo ci-dessus, remplace les phrases par <b>3 choses sur toi</b> : ton prénom, ton animal préféré, ton plat préféré. Puis clique sur <b>Lancer</b> !</p></div>
+    </div>
+
+    <div class="box imagine">
+      <div class="ic">✨</div>
+      <div class="bd"><span class="lab2">Avec ton imagination</span>
+      <p>On peut dessiner avec des lettres et des symboles ! Essaie de taper ça dans le labo (chaque ligne dans un <code>print</code>) pour faire une tête rigolote :</p>
+      <p style="font-family:var(--mono);font-size:14px;background:#fff;border:2px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--ink);font-weight:500;white-space:pre"> ^___^
+( o o )
+ \\_-_/</p>
+      <p>Ensuite, invente <b>ton propre dessin</b> : un robot, un chat, une fusée… 🚀</p></div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ===== 2 VARIABLES ===== -->
+  <section id="boites">
+    <div class="lvl-head" style="--c:var(--yellow)"><span class="lvl-badge">Niveau 2</span><h2>Les variables : des boîtes à trésors</h2></div>
+    <p class="lead">Une <b>variable</b>, c'est une <b>boîte avec une étiquette</b> où tu ranges une information pour la réutiliser plus tard. 📦</p>
+    <p>On écrit le nom de la boîte, un signe <code>=</code>, puis ce qu'on met dedans. Le texte va entre guillemets ; les nombres, non.</p>
+
+    <div class="code-block" data-file="variables.py"><script type="text/plain">prenom = "Léa"        # une boîte qui contient du texte
+age = 11              # une boîte qui contient un nombre
+
+print("Salut", prenom)
+print("Tu as", age, "ans")</script></div>
+    <div class="screen"><div class="screen-bar">▶ Résultat</div><pre class="screen-body">Salut Léa
+Tu as 11 ans</pre></div>
+
+    <div class="box tip">
+      <div class="ic">🐍</div>
+      <div class="bd"><span class="lab2">Pyo te souffle</span>
+      <p>Tu as vu la <b>virgule</b> dans <code>print("Salut", prenom)</code> ? Elle ajoute automatiquement une petite espace entre les morceaux. Pratique ! Et le <code>#</code> sert à écrire un <b>commentaire</b> : une note pour toi, que l'ordinateur ignore.</p></div>
+    </div>
+
+    <div class="box try">
+      <div class="ic">🎯</div>
+      <div class="bd"><span class="lab2">À toi de jouer</span>
+      <p>Crée deux variables : <code>animal</code> (ton animal préféré) et <code>couleur</code> (ta couleur préférée). Puis affiche une phrase comme : « Mon chat est noir ». Teste-le dans n'importe quel labo de la page !</p></div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ===== 3 QUESTIONS (input) ===== -->
+  <section id="questions">
+    <div class="lvl-head" style="--c:var(--mint)"><span class="lvl-badge">Niveau 3</span><h2>Poser des questions : <code>input</code></h2></div>
+    <p class="lead">Jusqu'ici, c'est toi qui parlais. Maintenant, l'ordinateur va te <b>poser une question</b> avec <code>input()</code> et se souvenir de ta réponse !</p>
+
+    <div class="lab"><script type="text/plain">prenom = input("Comment tu t'appelles ? ")
+print("Enchanté", prenom, "!")
+print("Bienvenue dans le club des codeurs 🎉")</script></div>
+
+    <p>Quand tu cliques sur <b>Lancer</b>, une petite fenêtre s'ouvre pour que tu écrives ta réponse. L'ordinateur la range dans la boîte <code>prenom</code>, puis l'utilise. Magique, non ? ✨</p>
+
+    <div class="box imagine">
+      <div class="ic">✨</div>
+      <div class="bd"><span class="lab2">Avec ton imagination</span>
+      <p>Ajoute une 2ᵉ question dans le labo : <code>animal = input("Ton animal préféré ? ")</code>. Puis invente une phrase rigolote, par exemple : « Léa et son dragon partent à l'aventure ! » 🐉</p></div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ===== 4 NOMBRES ===== -->
+  <section id="nombres">
+    <div class="lvl-head" style="--c:var(--grape)"><span class="lvl-badge">Niveau 4</span><h2>Compter et calculer</h2></div>
+    <p class="lead">Python est une super calculatrice ! Voici les opérations que tu connais déjà :</p>
+
+    <div class="code-block" data-file="calculs.py"><script type="text/plain">print(7 + 3)     # addition      -> 10
+print(7 - 3)     # soustraction  -> 4
+print(7 * 3)     # multiplication-> 21
+print(7 / 2)     # division      -> 3.5
+print(7 // 2)    # division entière -> 3
+print(7 % 2)     # le reste      -> 1</script></div>
+    <div class="screen"><div class="screen-bar">▶ Résultat</div><pre class="screen-body">10
+4
+21
+3.5
+3
+1</pre></div>
+
+    <div class="box warn">
+      <div class="ic">⚠️</div>
+      <div class="bd"><span class="lab2">Petit piège à connaître</span>
+      <p>Quand tu utilises <code>input()</code>, la réponse est toujours du <b>texte</b>, même si tu écris un nombre ! Pour calculer avec, il faut le transformer en nombre avec <code>int()</code>. Regarde 👇</p></div>
+    </div>
+
+    <div class="lab"><script type="text/plain">age = input("Quel âge as-tu ? ")
+age = int(age)          # on transforme le texte en nombre
+jours = age * 365
+print("Tu as vécu environ", jours, "jours ! 😮")</script></div>
+
+    <div class="box try">
+      <div class="ic">🎯</div>
+      <div class="bd"><span class="lab2">À toi de jouer : la calculatrice</span>
+      <p>Fais un programme qui demande <b>deux nombres</b> et affiche leur addition. Indice :</p>
+      <p style="font-family:var(--mono);font-size:13px;background:#fff;border:2px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--ink);font-weight:500;white-space:pre">a = int(input("Premier nombre : "))
+b = int(input("Deuxième nombre : "))
+print("Résultat :", a + b)</p>
+      <p>Ensuite, essaie avec la multiplication <code>*</code> !</p></div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ===== 5 MOTS ===== -->
+  <section id="mots">
+    <div class="lvl-head" style="--c:var(--pink)"><span class="lvl-badge">Niveau 5</span><h2>Jouer avec les mots</h2></div>
+    <p class="lead">Le texte (on dit une « <b>chaîne de caractères</b> ») peut faire plein de tours rigolos !</p>
+
+    <div class="guess">
+      <p class="q">🔮 Devine le résultat avant de révéler !</p>
+      <div class="code-block" data-file="mots.py"><script type="text/plain">mot = "génial"
+print(mot.upper())        # tout en MAJUSCULES
+print(mot * 3)            # on répète 3 fois
+print("Python a", len("Python"), "lettres")</script></div>
+      <button class="guess-btn">🔮 Révéler le résultat</button>
+      <div class="guess-ans">
+        <div class="screen"><div class="screen-bar">▶ Résultat</div><pre class="screen-body">GÉNIAL
+génialgénialgénial
+Python a 6 lettres</pre></div>
+        <p style="margin-top:8px">Tu avais deviné ? 🎉 <code>.upper()</code> crie en majuscules, <code>*</code> répète, et <code>len()</code> compte les lettres.</p>
+      </div>
+    </div>
+
+    <div class="box tip">
+      <div class="ic">🐍</div>
+      <div class="bd"><span class="lab2">Astuce de grand : les f-strings</span>
+      <p>Plus tard, tu verras une façon super pratique de mélanger texte et variables. Regarde, c'est joli :</p>
+      <p style="font-family:var(--mono);font-size:13px;background:#fff;border:2px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--ink);font-weight:500;white-space:pre">prenom = "Léa"
+print(f"{prenom} a gagné !")   # affiche : Léa a gagné !</p>
+      <p>Le petit <code>f</code> devant les guillemets permet de glisser une variable entre <code>{ }</code>. 😎</p></div>
+    </div>
+
+    <div class="box imagine">
+      <div class="ic">✨</div>
+      <div class="bd"><span class="lab2">Avec ton imagination : la machine à crier</span>
+      <p>Fais un programme qui demande un mot avec <code>input()</code> et l'affiche tout en MAJUSCULES, répété 3 fois. Ajoute des <code>!!!</code> pour faire encore plus fort ! 📣</p></div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ===== 6 CHOISIR (if) ===== -->
+  <section id="choisir">
+    <div class="lvl-head" style="--c:var(--sky)"><span class="lvl-badge">Niveau 6</span><h2>Choisir : <code>si… sinon</code></h2></div>
+    <p class="lead">Et si l'ordinateur prenait des <b>décisions</b> ? Avec <code>if</code> (si) et <code>else</code> (sinon), il choisit quoi faire selon la situation. 🤔</p>
+    <p>On teste quelque chose, et selon que c'est vrai ou faux, on fait des choses différentes. Voici un programme qui dit si un nombre est pair ou impair (souviens-toi du <code>%</code> reste du Niveau 4 !) :</p>
+
+    <div class="lab"><script type="text/plain">nombre = int(input("Donne un nombre : "))
+
+if nombre % 2 == 0:
+    print(nombre, "est PAIR ✅")
+else:
+    print(nombre, "est IMPAIR ❌")</script></div>
+
+    <div class="box warn">
+      <div class="ic">⚠️</div>
+      <div class="bd"><span class="lab2">Très important : les espaces du début</span>
+      <p>Tu vois que les lignes après <code>if</code> et <code>else</code> sont <b>décalées vers la droite</b> (4 espaces) ? En Python, ce décalage indique « ces lignes appartiennent au si ». Si tu oublies les espaces, ça ne marche pas. Astuce : dans le labo, la touche <b>Tab</b> ajoute les espaces pour toi !</p></div>
+    </div>
+
+    <div class="guess">
+      <p class="q">🔮 Devine : qu'est-ce qui s'affiche ?</p>
+      <div class="code-block" data-file="age.py"><script type="text/plain">age = 11
+if age < 6:
+    print("Maternelle 🍼")
+elif age < 11:        # "elif" = "sinon si"
+    print("École 🎒")
+else:
+    print("Collège 🏫")</script></div>
+      <button class="guess-btn">🔮 Révéler le résultat</button>
+      <div class="guess-ans">
+        <div class="screen"><div class="screen-bar">▶ Résultat</div><pre class="screen-body">Collège 🏫</pre></div>
+        <p style="margin-top:8px">Eh oui ! 11 n'est pas plus petit que 6, ni plus petit que 11 (il faut être <b>plus petit</b>, pas égal). Donc on tombe dans le <code>else</code>. <code>elif</code> permet de tester plusieurs cas. 😉</p>
+      </div>
+    </div>
+
+    <div class="box imagine">
+      <div class="ic">✨</div>
+      <div class="bd"><span class="lab2">Avec ton imagination : l'histoire dont tu es le héros</span>
+      <p>Demande : <code>choix = input("Tu ouvres la porte ? (oui/non) ")</code>. Si la réponse est <code>"oui"</code>, raconte une suite ; sinon, raconte une autre suite. Invente une mini-aventure avec 2 ou 3 choix ! 🏰</p></div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ===== 7 HASARD (random) ===== -->
+  <section id="hasard">
+    <div class="lvl-head" style="--c:var(--coral)"><span class="lvl-badge">Niveau 7</span><h2>Le hasard 🎲</h2></div>
+    <p class="lead">Pour faire des jeux, il faut du <b>hasard</b> ! Python sait lancer des dés et tirer au sort grâce à <code>random</code>.</p>
+    <p>On commence par <code>import random</code> (on « invite » l'outil hasard), puis on s'amuse :</p>
+
+    <div class="lab"><script type="text/plain">import random
+
+de = random.randint(1, 6)
+print("Tu as lancé un", de, "🎲")
+
+animaux = ["chat", "chien", "dragon", "licorne"]
+choisi = random.choice(animaux)
+print("Ton animal magique est :", choisi)</script></div>
+
+    <p>Clique plusieurs fois sur <b>Lancer</b> : le résultat change à chaque fois ! 🎉 <code>randint(1, 6)</code> tire un nombre entre 1 et 6, et <code>choice(...)</code> pioche au hasard dans une liste.</p>
+
+    <div class="box imagine">
+      <div class="ic">✨</div>
+      <div class="bd"><span class="lab2">Avec ton imagination : le générateur de super-héros</span>
+      <p>Crée deux listes : des <b>prénoms</b> (« Capitaine », « Super », « Méga »…) et des <b>pouvoirs</b> (« Éclair », « Glace », « Tonnerre »…). Pioche un de chaque au hasard et affiche : « Ton héros : Capitaine Éclair ! » ⚡ Relance pour un nouveau héros !</p></div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ===== 8 REPETER (for) ===== -->
+  <section id="repeter">
+    <div class="lvl-head" style="--c:var(--mint)"><span class="lvl-badge">Niveau 8</span><h2>Répéter sans se fatiguer : <code>for</code></h2></div>
+    <p class="lead">Plutôt que d'écrire 100 fois la même chose, on demande à l'ordinateur de <b>répéter</b> pour nous. C'est la boucle <code>for</code> ! 🔁</p>
+
+    <div class="lab"><script type="text/plain">for i in range(1, 6):
+    print("Étoile numéro", i, "⭐")</script></div>
+
+    <p><code>range(1, 6)</code> compte de 1 à 5 (le 6 n'est pas inclus), et la lettre <code>i</code> prend chaque valeur l'une après l'autre. Essaie de changer le 6 par 11 !</p>
+
+    <h3>Encore plus joli : un escalier d'étoiles</h3>
+    <div class="lab"><script type="text/plain">for i in range(1, 6):
+    print("⭐" * i)</script></div>
+    <p>Ici on répète l'étoile <code>i</code> fois → ça dessine un petit escalier. 😍</p>
+
+    <div class="box try">
+      <div class="ic">🎯</div>
+      <div class="bd"><span class="lab2">À toi de jouer : la table de multiplication</span>
+      <p>Affiche la table de 7 ! Indice :</p>
+      <p style="font-family:var(--mono);font-size:13px;background:#fff;border:2px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--ink);font-weight:500;white-space:pre">for i in range(1, 11):
+    print("7 x", i, "=", 7 * i)</p>
+      <p>Change le 7 par ta table préférée !</p></div>
+    </div>
+
+    <div class="box imagine">
+      <div class="ic">✨</div>
+      <div class="bd"><span class="lab2">Avec ton imagination</span>
+      <p>Dessine une <b>pyramide</b> avec un autre symbole : <code>🔶</code>, <code>#</code>, ou <code>🎈</code>. Et si tu inversais l'escalier pour qu'il descende ? (Indice : <code>range(5, 0, -1)</code>) 🪜</p></div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ===== 9 JEU (while) ===== -->
+  <section id="jeu">
+    <div class="lvl-head" style="--c:var(--grape)"><span class="lvl-badge">Niveau 9 · 🎮 mini-jeu</span><h2>Le jeu du nombre mystère</h2></div>
+    <p class="lead">On assemble tout ce qu'on a appris pour faire un <b>vrai petit jeu</b> ! Voici la boucle <code>while</code> : elle répète <b>tant que</b> quelque chose est vrai. 🔁</p>
+    <p>L'ordinateur choisit un nombre secret, et tu dois le deviner. À chaque essai, il te dit « plus grand » ou « plus petit ». Lance et joue ! 👇</p>
+
+    <div class="lab"><script type="text/plain">import random
+
+secret = random.randint(1, 20)
+essais = 0
+trouve = False
+
+while not trouve:
+    proposition = int(input("Devine le nombre (entre 1 et 20) : "))
+    essais = essais + 1
+
+    if proposition < secret:
+        print("Plus grand ! ⬆️")
+    elif proposition > secret:
+        print("Plus petit ! ⬇️")
+    else:
+        print("BRAVO ! Trouvé en", essais, "essais 🎉")
+        trouve = True</script></div>
+
+    <div class="box tip">
+      <div class="ic">🐍</div>
+      <div class="bd"><span class="lab2">Pyo explique</span>
+      <p><code>while not trouve:</code> veut dire « tant que ce n'est <b>pas</b> trouvé, recommence ». Dès qu'on devine, on met <code>trouve = True</code> et la boucle s'arrête. Tu viens de combiner <b>hasard + question + boucle + condition</b>. Tu codes pour de vrai maintenant ! 💪</p></div>
+    </div>
+
+    <div class="box imagine">
+      <div class="ic">✨</div>
+      <div class="bd"><span class="lab2">Avec ton imagination</span>
+      <p>Rends le jeu encore plus fun : ajoute des messages rigolos (« Aïe, presque ! »), agrandis la plage à <code>1, 100</code>, ou affiche « Tu es un champion ! » si on trouve en moins de 4 essais. 🏆</p></div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ===== 10 LISTES ===== -->
+  <section id="listes">
+    <div class="lvl-head" style="--c:var(--yellow)"><span class="lvl-badge">Niveau 10</span><h2>Les listes : ta collection</h2></div>
+    <p class="lead">Une <b>liste</b>, c'est une boîte qui range <b>plusieurs choses</b> à la suite : une liste de courses, ton équipe, tes jeux préférés… 📋</p>
+    <p>On écrit les éléments entre crochets <code>[ ]</code>, séparés par des virgules.</p>
+
+    <div class="guess">
+      <p class="q">🔮 Devine le résultat !</p>
+      <div class="code-block" data-file="listes.py"><script type="text/plain">animaux = ["chat", "chien", "dragon"]
+animaux.append("licorne 🦄")     # on ajoute à la fin
+print(animaux[0])                # le 1er élément
+print("Total :", len(animaux))</script></div>
+      <button class="guess-btn">🔮 Révéler le résultat</button>
+      <div class="guess-ans">
+        <div class="screen"><div class="screen-bar">▶ Résultat</div><pre class="screen-body">chat
+Total : 4</pre></div>
+        <p style="margin-top:8px">Surprise : <code>animaux[0]</code> donne <b>chat</b>, car en Python on <b>compte à partir de 0</b> ! Et <code>.append()</code> a ajouté la licorne, donc on a 4 éléments. 🦄</p>
+      </div>
+    </div>
+
+    <p>Et bien sûr, on peut parcourir une liste avec une boucle <code>for</code> :</p>
+    <div class="code-block" data-file="parcours.py"><script type="text/plain">courses = ["pommes", "chocolat", "lait"]
+for article in courses:
+    print("-", article)</script></div>
+    <div class="screen"><div class="screen-bar">▶ Résultat</div><pre class="screen-body">- pommes
+- chocolat
+- lait</pre></div>
+
+    <div class="box imagine">
+      <div class="ic">✨</div>
+      <div class="bd"><span class="lab2">Avec ton imagination</span>
+      <p>Fais la liste de tes <b>5 jeux préférés</b> et affiche-les avec une boucle. Puis, avec <code>random.choice()</code>, tire ton « <b>jeu du jour</b> » au hasard ! 🎮</p></div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ===== 11 FONCTIONS ===== -->
+  <section id="fonctions">
+    <div class="lvl-head" style="--c:var(--sky)"><span class="lvl-badge">Niveau 11</span><h2>Tes super-pouvoirs : les fonctions</h2></div>
+    <p class="lead">Une <b>fonction</b>, c'est une <b>recette</b> que tu écris une fois et que tu peux réutiliser autant que tu veux. C'est comme te créer un super-pouvoir ! 🦸</p>
+    <p>On l'écrit avec <code>def</code> (pour « définir »). Ensuite, on l'« appelle » par son nom.</p>
+
+    <div class="lab"><script type="text/plain">def saluer(nom):
+    print("Bonjour", nom, "!")
+    print("Tu codes super bien 🌟")
+
+saluer("Léa")
+saluer("Tom")
+
+def aire(largeur, hauteur):
+    return largeur * hauteur     # "return" renvoie un résultat
+
+print("Aire du rectangle :", aire(4, 5), "carreaux")</script></div>
+
+    <div class="box tip">
+      <div class="ic">🐍</div>
+      <div class="bd"><span class="lab2">Pyo explique</span>
+      <p>Entre les parenthèses, on met ce qu'on <b>donne</b> à la fonction (ici <code>nom</code> ou <code>largeur, hauteur</code>). Avec <code>return</code>, la fonction <b>renvoie</b> un résultat qu'on peut réutiliser. Écris une fonction une fois → appelle-la 1000 fois sans tout réécrire. Trop fort ! 💥</p></div>
+    </div>
+
+    <div class="box imagine">
+      <div class="ic">✨</div>
+      <div class="bd"><span class="lab2">Avec ton imagination</span>
+      <p>Invente ta fonction <code>presentation(prenom, age)</code> qui affiche une belle phrase de présentation. Ou une fonction <code>dire_bonjour_fort(nom)</code> qui salue en MAJUSCULES avec des étoiles ! ⭐</p></div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ===== 12 DESSIN (turtle) ===== -->
+  <section id="dessin">
+    <div class="lvl-head" style="--c:var(--coral)"><span class="lvl-badge">Niveau 12 · 🐢</span><h2>Dessiner avec la tortue</h2></div>
+    <p class="lead">Voici la partie préférée de beaucoup de codeurs : une petite <b>tortue</b> qui dessine quand tu lui donnes des ordres ! 🐢🎨</p>
+    <p>Elle avance (<code>forward</code>), tourne (<code>right</code>), change de couleur (<code>color</code>)… Combine ça avec une boucle <code>for</code> et regarde la magie ! Clique sur <b>Lancer</b> :</p>
+
+    <div class="lab" data-turtle="1"><script type="text/plain">import turtle
+
+t = turtle.Turtle()
+t.speed(6)
+
+couleurs = ["red", "orange", "gold", "green", "blue", "purple"]
+for i in range(6):
+    t.color(couleurs[i])
+    t.forward(120)
+    t.right(60)</script></div>
+
+    <p>Ça dessine un hexagone arc-en-ciel ! 🌈 Chaque tour, la tortue avance puis tourne de 60°.</p>
+
+    <div class="box imagine">
+      <div class="ic">✨</div>
+      <div class="bd"><span class="lab2">Avec ton imagination : deviens un·e artiste</span>
+      <p>Joue avec les nombres et observe ! Essaie cette <b>spirale hypnotique</b> dans le labo (remplace tout le code) :</p>
+      <p style="font-family:var(--mono);font-size:13px;background:#fff;border:2px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--ink);font-weight:500;white-space:pre">import turtle
+t = turtle.Turtle()
+t.speed(0)
+couleurs = ["red", "purple", "blue", "green"]
+for i in range(60):
+    t.color(couleurs[i % 4])
+    t.forward(i * 4)
+    t.right(59)        # change 59 en 90, 120, 144… 😍</p>
+      <p>Change le <code>59</code>, le nombre de tours, les couleurs… Chaque réglage donne un dessin différent ! Essaie de dessiner une <b>étoile</b>, un <b>soleil</b> ou tes <b>initiales</b>. 🎨</p></div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ===== PROJET ===== -->
+  <section id="projet">
+    <div class="lvl-head" style="--c:var(--grape)"><span class="lvl-badge">🎮 Grand projet</span><h2>Crée ton quiz !</h2></div>
+    <p class="lead">Tu sais tout ce qu'il faut pour faire un <b>vrai jeu de quiz</b> ! On pose des questions, on compte les points, on annonce le score. 🏆</p>
+
+    <div class="lab"><script type="text/plain">print("=== QUIZ DES CHAMPIONS ===")
+score = 0
+
+reponse = input("Combien font 6 x 7 ? ")
+if reponse == "42":
+    print("Correct ! 🎉")
+    score = score + 1
+else:
+    print("Raté, c'était 42 !")
+
+reponse = input("De quelle couleur est le ciel ? ")
+if reponse.lower() == "bleu":
+    print("Bravo ! 🎉")
+    score = score + 1
+else:
+    print("C'était bleu !")
+
+print("-----")
+print("Ton score :", score, "/ 2")
+if score == 2:
+    print("PARFAIT ! Tu es un champion 🏆")</script></div>
+
+    <div class="box imagine">
+      <div class="ic">✨</div>
+      <div class="bd"><span class="lab2">Avec ton imagination : fais-en TON jeu</span>
+      <p>Voici des idées pour le rendre génial :</p>
+      <p>• Ajoute <b>tes propres questions</b> (sur tes dessins animés, ton sport, les animaux…).<br>
+      • Affiche un message différent selon le score (0, 1 ou 2).<br>
+      • Donne <b>3 vies</b> au joueur avec une variable <code>vies = 3</code>.<br>
+      • Pioche une question au <b>hasard</b> avec <code>random</code>.<br>
+      • Mets une jolie bannière en haut avec des <code>print("⭐⭐⭐")</code>.</p>
+      <p>Tu peux en faire un quiz de 10 questions… ou même un jeu d'aventure complet ! 🚀</p></div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ===== BRAVO ===== -->
+  <section id="bravo">
+    <div class="lvl-head" style="--c:var(--mint)"><span class="lvl-badge">🏆 Bravo</span><h2>Tu as réussi !</h2></div>
+    <p class="lead">Waouh ! 🎉 Tu sais maintenant afficher du texte, utiliser des variables, poser des questions, calculer, faire des choix, des boucles, des listes, des fonctions, du hasard… et même dessiner avec la tortue !</p>
+
+    <div class="diploma">
+      <div class="stars">⭐ ⭐ ⭐</div>
+      <h3>Diplôme du Petit Codeur 🐍</h3>
+      <p>décerné à <b>(écris ton prénom ici !)</b></p>
+      <p>pour avoir terminé l'aventure Python avec courage et imagination.</p>
+      <div class="stars">🏅</div>
+    </div>
+
+    <h3>Et maintenant ?</h3>
+    <ul>
+      <li><b>Recommence les niveaux</b> en changeant le code : c'est comme ça qu'on apprend le mieux. 🔁</li>
+      <li><b>Garde un carnet d'idées</b> de jeux et de dessins à coder. ✏️</li>
+      <li><b>Montre tes créations</b> à ta famille et tes amis. Ils vont adorer ! 😄</li>
+      <li>Pour coder sur ton ordinateur, demande à un adulte d'installer Python depuis <a href="https://www.python.org" target="_blank" rel="noopener">python.org</a>, ou continue à t'amuser avec la tortue.</li>
+      <li>Plus tard, tu pourras faire de <b>vrais jeux vidéo</b> avec des outils comme <i>Pygame Zero</i>. 🎮</li>
+    </ul>
+
+    <div class="box tip">
+      <div class="ic">🐍</div>
+      <div class="bd"><span class="lab2">Le dernier mot de Pyo</span>
+      <p>Tu es maintenant un·e codeur·euse ! Souviens-toi : un·e bon·ne programmeur·euse, ce n'est pas quelqu'un qui ne fait jamais d'erreurs — c'est quelqu'un qui <b>n'abandonne pas</b> et qui s'amuse à essayer. Continue d'imaginer, continue de coder. À bientôt dans le monde du code ! 👋🐍</p></div>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<button id="navbtn" aria-label="Ouvrir la carte">☰ Ta carte</button>
+<div class="overlay" id="overlay"></div>
+
+<footer>
+  <p>🐍 <b>Python pour les Explorateurs</b> — une formation ludique pour les 10-12 ans : afficher, calculer, choisir, répéter, dessiner et inventer ses propres jeux en Python 3.</p>
+  <p style="margin-top:6px">Le mini-labo fait tourner du vrai Python directement dans ton navigateur. Amuse-toi bien ! 🎉</p>
+</footer>
+
+<!-- highlight.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<script>
+(function(){
+  // ---------- Skulpt (Python runtime) loader — multi-CDN, graceful fallback ----------
+  // Skulpt n'est PAS hébergé sur cdnjs ; on charge une distribution prête-pour-CDN
+  // (dépôt Tezumie/Skulpt-CDN) via jsDelivr, avec plusieurs sources de secours.
+  var SK_STATE = "loading"; // loading | ready | failed
+  (function loadSkulpt(){
+    var SOURCES = [
+      ["https://cdn.jsdelivr.net/gh/Tezumie/Skulpt-CDN@latest/skulpt.min.js",
+       "https://cdn.jsdelivr.net/gh/Tezumie/Skulpt-CDN@latest/skulpt-stdlib.js"],
+      ["https://cdn.jsdelivr.net/gh/Tezumie/Skulpt-CDN@main/skulpt.min.js",
+       "https://cdn.jsdelivr.net/gh/Tezumie/Skulpt-CDN@main/skulpt-stdlib.js"],
+      ["https://cdn.jsdelivr.net/npm/skulpt@latest/dist/skulpt.min.js",
+       "https://cdn.jsdelivr.net/npm/skulpt@latest/dist/skulpt-stdlib.js"]
+    ];
+    function loadJs(src){
+      return new Promise(function(resolve, reject){
+        var s = document.createElement("script");
+        s.src = src; s.async = false;
+        s.onload = function(){ resolve(); };
+        s.onerror = function(){ reject(new Error("échec de chargement : " + src)); };
+        document.head.appendChild(s);
+      });
+    }
+    function tryFrom(i){
+      if (i >= SOURCES.length){
+        SK_STATE = "failed";
+        console.warn("[mini-labo] Skulpt n'a pas pu être chargé depuis les CDN testés.");
+        return;
+      }
+      loadJs(SOURCES[i][0])                                  // skulpt.min.js d'abord
+        .then(function(){ return loadJs(SOURCES[i][1]); })   // puis skulpt-stdlib.js
+        .then(function(){
+          if (window.Sk && Sk.importMainWithBody){
+            SK_STATE = "ready";
+            console.log("[mini-labo] Skulpt prêt ✓ (source " + i + ")");
+          } else {
+            tryFrom(i + 1);
+          }
+        })
+        .catch(function(err){
+          console.warn("[mini-labo] " + err.message + " — essai de la source suivante.");
+          tryFrom(i + 1);
+        });
+    }
+    tryFrom(0);
+  })();
+
+  function builtinRead(x){
+    if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+      throw "File not found: '" + x + "'";
+    return Sk.builtinFiles["files"][x];
+  }
+
+  function runPython(code, outEl, turtleId){
+    outEl.textContent = "";
+    outEl.classList.remove("err");
+    if (turtleId){ var td0 = document.getElementById(turtleId); if (td0) td0.innerHTML = ""; }
+
+    if (SK_STATE === "loading"){
+      outEl.textContent = "🐍 Le mini-labo se réveille… réessaie dans 2 secondes !";
+      return;
+    }
+    if (SK_STATE === "failed"){
+      outEl.textContent = "😅 Le mini-labo n'a pas pu démarrer. Pas grave : clique sur 📋 Copier et lance ce code dans Python sur un ordinateur !";
+      return;
+    }
+
+    try {
+      Sk.configure({
+        output: function(t){ outEl.textContent += t; },
+        read: builtinRead,
+        inputfun: function(p){ var r = window.prompt(p || ""); return r === null ? "" : r; },
+        inputfunTakesPrompt: true,
+        __future__: Sk.python3
+      });
+      if (turtleId){
+        Sk.TurtleGraphics = Sk.TurtleGraphics || {};
+        Sk.TurtleGraphics.target = turtleId;
+        Sk.TurtleGraphics.width = 440;
+        Sk.TurtleGraphics.height = 340;
+      }
+      Sk.misceval.asyncToPromise(function(){
+        return Sk.importMainWithBody("<stdin>", false, code, true);
+      }).then(function(){
+        if (outEl.textContent.trim() === "" && !turtleId){
+          outEl.textContent = "(le programme s'est lancé 🎉)";
+        }
+      }, function(err){
+        outEl.classList.add("err");
+        outEl.textContent += "\n🐞 Oups, un petit bug :\n" + err.toString();
+      });
+    } catch(e){
+      outEl.classList.add("err");
+      outEl.textContent = "🐞 Oups, un petit bug :\n" + e.toString();
+    }
+  }
+
+  // ---------- copy helper ----------
+  function copyText(text, btn){
+    var old = btn.textContent;
+    var done = function(){ btn.textContent = "Copié ✓"; setTimeout(function(){ btn.textContent = old; }, 1300); };
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(fallback);
+    } else { fallback(); }
+    function fallback(){
+      var ta = document.createElement("textarea"); ta.value = text; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select(); try{ document.execCommand("copy"); done(); }catch(e){} document.body.removeChild(ta);
+    }
+  }
+
+  // ---------- render SHOWN code blocks ----------
+  document.querySelectorAll(".code-block").forEach(function(block){
+    var raw = block.querySelector('script[type="text/plain"]'); if(!raw) return;
+    var code = raw.textContent.replace(/^\n/,"").replace(/\s+$/,"");
+    var file = block.getAttribute("data-file");
+    var wrap = document.createElement("div"); wrap.className = "code-wrap";
+    var bar = document.createElement("div"); bar.className = "code-bar";
+    bar.innerHTML = '<span class="lights"><i></i><i></i><i></i></span><span class="fname">'+(file||"python")+'</span>';
+    var btn = document.createElement("button"); btn.className = "copy"; btn.textContent = "Copier";
+    btn.addEventListener("click", function(){ copyText(code, btn); });
+    bar.appendChild(btn);
+    var pre = document.createElement("pre");
+    var c = document.createElement("code"); c.className = "language-python"; c.textContent = code;
+    pre.appendChild(c); wrap.appendChild(bar); wrap.appendChild(pre);
+    block.replaceWith(wrap);
+  });
+
+  // ---------- build LABS ----------
+  document.querySelectorAll(".lab").forEach(function(lab, idx){
+    var raw = lab.querySelector('script[type="text/plain"]'); if(!raw) return;
+    var code = raw.textContent.replace(/^\n/,"").replace(/\s+$/,"");
+    var isTurtle = lab.hasAttribute("data-turtle");
+    lab.innerHTML = "";
+
+    var head = document.createElement("div"); head.className = "lab-head";
+    head.innerHTML = '<span class="lab-title">🧪 Mini-labo — modifie le code et lance-le !</span>';
+    lab.appendChild(head);
+
+    var ta = document.createElement("textarea"); ta.className = "lab-code"; ta.value = code; ta.spellcheck = false;
+    ta.rows = Math.min(20, code.split("\n").length + 1);
+    ta.addEventListener("keydown", function(e){
+      if (e.key === "Tab"){ e.preventDefault();
+        var s = this.selectionStart, en = this.selectionEnd;
+        this.value = this.value.slice(0,s) + "    " + this.value.slice(en);
+        this.selectionStart = this.selectionEnd = s + 4;
+      }
+    });
+    lab.appendChild(ta);
+
+    var bar = document.createElement("div"); bar.className = "lab-bar";
+    var runB = document.createElement("button"); runB.className = "btn btn-run"; runB.textContent = "▶ Lancer";
+    var resB = document.createElement("button"); resB.className = "btn btn-ghost"; resB.textContent = "↺ Recommencer";
+    var copB = document.createElement("button"); copB.className = "btn btn-ghost"; copB.textContent = "📋 Copier";
+    bar.appendChild(runB); bar.appendChild(resB); bar.appendChild(copB);
+    lab.appendChild(bar);
+
+    var turtleId = null;
+    if (isTurtle){
+      turtleId = "turtle-" + idx;
+      var td = document.createElement("div"); td.className = "lab-turtle"; td.id = turtleId;
+      lab.appendChild(td);
+    }
+
+    var screen = document.createElement("div"); screen.className = "screen";
+    var sbar = document.createElement("div"); sbar.className = "screen-bar"; sbar.textContent = "▶ Résultat";
+    var out = document.createElement("pre"); out.className = "screen-body";
+    out.textContent = isTurtle ? "Clique sur ▶ Lancer pour voir le dessin 🐢" : "Clique sur ▶ Lancer pour voir le résultat 👇";
+    screen.appendChild(sbar); screen.appendChild(out); lab.appendChild(screen);
+
+    runB.addEventListener("click", function(){ runPython(ta.value, out, turtleId); });
+    resB.addEventListener("click", function(){
+      ta.value = code; out.classList.remove("err");
+      out.textContent = isTurtle ? "Clique sur ▶ Lancer pour voir le dessin 🐢" : "Clique sur ▶ Lancer pour voir le résultat 👇";
+      if (turtleId){ var t = document.getElementById(turtleId); if (t) t.innerHTML = ""; }
+    });
+    copB.addEventListener("click", function(){ copyText(ta.value, copB); });
+  });
+
+  // ---------- highlight shown code ----------
+  if (window.hljs){ try{ hljs.highlightAll(); }catch(e){} }
+
+  // ---------- guess reveals ----------
+  document.querySelectorAll(".guess").forEach(function(g){
+    var btn = g.querySelector(".guess-btn");
+    var ans = g.querySelector(".guess-ans");
+    if (btn && ans) btn.addEventListener("click", function(){
+      ans.classList.add("show"); btn.disabled = true; btn.textContent = "✨ Et voilà !";
+    });
+  });
+
+  // ---------- progress bar ----------
+  var prog = document.getElementById("top-progress");
+  function onScroll(){
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    var p = max > 0 ? (h.scrollTop || document.body.scrollTop) / max : 0;
+    prog.style.width = (p*100) + "%";
+  }
+  window.addEventListener("scroll", onScroll, {passive:true}); onScroll();
+
+  // ---------- scroll-spy ----------
+  var links = Array.prototype.slice.call(document.querySelectorAll("#toc a"));
+  var map = {}; links.forEach(function(a){ map[a.getAttribute("href").slice(1)] = a; });
+  var sections = links.map(function(a){ return document.getElementById(a.getAttribute("href").slice(1)); }).filter(Boolean);
+  var spy = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting){
+        links.forEach(function(l){ l.classList.remove("active"); });
+        var a = map[en.target.id]; if (a) a.classList.add("active");
+      }
+    });
+  }, { rootMargin: "-15% 0px -75% 0px", threshold: 0 });
+  sections.forEach(function(s){ spy.observe(s); });
+
+  // ---------- mobile drawer ----------
+  var sidebar = document.getElementById("sidebar");
+  var overlay = document.getElementById("overlay");
+  var navbtn = document.getElementById("navbtn");
+  function close(){ sidebar.classList.remove("open"); overlay.classList.remove("show"); navbtn.style.display = ""; }
+  function open(){ sidebar.classList.add("open"); overlay.classList.add("show"); navbtn.style.display = "none"; }
+  navbtn.addEventListener("click", open);
+  overlay.addEventListener("click", close);
+  sidebar.addEventListener("click", function(e){ if (e.target.tagName === "A") close(); });
+})();
+</script>
+</body>
+</html>
